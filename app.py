@@ -36,7 +36,7 @@ def formatear(numero):
 
 def calcular_membresia(entidad, reparticion, monto):
 
-    # ---------------- AAMAS ----------------
+    # 🔹 AAMAS
     if entidad == "aamas":
 
         if reparticion in ["policia", "spb", "ips"]:
@@ -51,13 +51,27 @@ def calcular_membresia(entidad, reparticion, monto):
             farmacia = 9317
             membresia = 6000
 
-    # ---------------- QUANTUM ----------------
+        else:
+            # 🔥 fallback (clave para que no rompa)
+            cuota_social = 0
+            medico = 0
+            farmacia = 0
+            membresia = 0
+
+    # 🔹 QUANTUM
     elif entidad == "quantum":
 
         cuota_social = 9594
         medico = 8172
         farmacia = 7343
         membresia = 6000
+
+    else:
+        # 🔥 fallback general
+        cuota_social = 0
+        medico = 0
+        farmacia = 0
+        membresia = 0
 
     return cuota_social, medico, farmacia, membresia
 
