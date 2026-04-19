@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Datero Online</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+body {
+    margin: 0;
+    background: #f5f6fa;
+}
+
+/* HEADER */
+.header {
+    padding: 18px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* CONTENEDOR */
+.container {
+    max-width: 600px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
+}
+
+/* TITULOS */
+h2 {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.section {
+    margin-top: 25px;
+}
+
+/* LABELS */
+label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* INPUTS */
+input, select {
+    width: 100%;
+    padding: 14px;
+    margin-top: 6px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* BOTON */
+button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header" id="headerEntidad">
+    Datero Online
+</div>
+
+<div class="container">
+
+<h2 id="tituloEntidad"></h2>
+
+<form method="POST" action="/guardar_formulario">
+<input type="hidden" name="entidad" value="{{ entidad }}">
+<input type="hidden" name="reparticion" value="{{ reparticion }}">
+<input type="hidden" name="monto" value="{{ monto }}">
+<input type="hidden" name="cuotas" value="{{ cuotas }}">
+
+<!-- ================= DATOS PERSONALES ================= -->
+
+<div class="section">
+<h3>Datos Personales</h3>
+
+<label>Apellido y Nombre</label>
+<input name="nombre" required 
+oninput="
+this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
+this.value = this.value.toUpperCase();
+"
+placeholder="Apellido y Nombre">
+
+<div class="grid">
+    <div>
+        <label>DNI</label>
+        <input name="dni" required 
+        oninput="
+        this.value = this.value.replace(/[^0-9]/g, '');
+        "
+        placeholder="DNI">
+    </div>
+
+    <div>
+        <label>CUIT</label>
+        <input name="cuit" required 
+        oninput="
+        this.value = this.value.replace(/[^0-9]/g, '');
+        "
+        placeholder="CUIT">
+    </div>
+</div>
+
+<div class="grid">
+    <div>
+        <label>Fecha de Nacimiento</label>
+        <input type="date" name="fecha_nacimiento" required>
+    </div>
+
+    <div>
+        <label>Nacionalidad</label>
+        <input name="nacionalidad" required 
+        oninput="this.value = this.value.toUpperCase()">
+    </div>
+</div>
+
+<div class="grid">
+    <div>
+        <label>Provincia</label>
+        <input name="provincia" required 
+        oninput="this.value = this.value.toUpperCase()">
+    </div>
+
+    <div>
+        <label>Localidad</label>
+        <input name="localidad" required 
+        oninput="this.value = this.value.toUpperCase()">
+    </div>
+</div>
+
+<label>Domicilio</label>
+<input name="domicilio" required 
+oninput="this.value = this.value.toUpperCase()">
+
+<label>Email</label>
+<input name="email" type="email" required placeholder="ejemplo@mail.com">
+
+<label>CBU</label>
+<input name="cbu" required 
+oninput="
+this.value = this.value.replace(/[^0-9]/g, '');
+if(this.value.length > 22) this.value = this.value.slice(0,22);
+"
+placeholder="22 DIGITOS">
+
+</div>
+
+<!-- ================= REFERENCIA 1 ================= -->
+
+<div class="section">
+<h3>Referencia 1</h3>
+
+<label>Apellido y Nombre</label>
+<input name="ref1_nombre" required 
+oninput="
+this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
+this.value = this.value.toUpperCase();
+">
+
+<div class="grid">
+    <div>
+        <label>Teléfono</label>
+        <input name="ref1_tel" required 
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        placeholder="Celular">
+    </div>
+
+    <div>
+        <label>Relación</label>
+        <input name="ref1_relacion" required 
+        oninput="this.value = this.value.toUpperCase()">
+    </div>
+</div>
+</div>
+
+<!-- ================= REFERENCIA 2 ================= -->
+
+<div class="section">
+<h3>Referencia 2</h3>
+
+<label>Apellido y Nombre</label>
+<input name="ref2_nombre" required 
+oninput="
+this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
+this.value = this.value.toUpperCase();
+">
+
+<div class="grid">
+    <div>
+        <label>Teléfono</label>
+        <input name="ref2_tel" required 
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        placeholder="Celular">
+    </div>
+
+    <div>
+        <label>Relación</label>
+        <input name="ref2_relacion" required 
+        oninput="this.value = this.value.toUpperCase()">
+    </div>
+</div>
+</div>
+
+<button type="submit" id="btnEnviar">Enviar Datos</button>
+
+</form>
+
+</div>
+
+<script>
+
+// 🔥 Detectar entidad desde Jinja
+const entidad = "{{ entidad }}";
+
+const header = document.getElementById("headerEntidad");
+const titulo = document.getElementById("tituloEntidad");
+const boton = document.getElementById("btnEnviar");
+
+// 🎨 COLORES
+if (entidad === "quantum") {
+    header.style.background = "#2C2C2C";
+    header.style.color = "white";
+    titulo.innerText = "QUANTUM - Datero Online";
+    boton.style.background = "#2C2C2C";
+    boton.style.color = "white";
+} else {
+    header.style.background = "#1E40AF";
+    header.style.color = "white";
+    titulo.innerText = "AAMAS - Datero Online";
+    boton.style.background = "#1E40AF";
+    boton.style.color = "white";
+}
+
+</script>
+
+</body>
+</html>

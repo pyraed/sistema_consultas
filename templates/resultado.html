@@ -155,9 +155,15 @@ button {
 <div class="item">Membresía: {{ membresia }}</div>
 </div>
 
-<h4>Link para enviar</h4>
-
+<h4>Link Documentacion</h4>
 <input id="linkInput" value="{{ link }}" readonly>
+
+<h4>Link Datero Online</h4>
+
+<input id="formInput" value="{{ link_formulario }}" readonly>
+
+<button onclick="copiarFormulario()">Copiar Link Formulario</button>
+<span id="copiadoFormMsg" class="copiado-msg">✔ Copiado</span>
 
 <button onclick="copiarLink()">Copiar Link</button>
 <span id="copiadoLinkMsg" class="copiado-msg">✔ Copiado</span>
@@ -242,9 +248,13 @@ function copiarLeyenda() {
 
 function copiarTodo() {
     const leyenda = document.getElementById("textoLeyenda").innerText;
-    const link = document.getElementById("linkInput").value;
+    const linkDatero = document.getElementById("linkInput").value;
+    const linkFormulario = document.getElementById("formInput").value;
 
-    const textoCompleto = leyenda + "\n\nLINK:\n" + link;
+    const textoCompleto = 
+        leyenda +
+        "\n\n📄 DOCUMENTACIÓN:\n" + linkDatero +
+        "\n\n🧾 DATERO ONLINE:\n" + linkFormulario;
 
     navigator.clipboard.writeText(textoCompleto);
 
