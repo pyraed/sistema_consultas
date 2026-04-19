@@ -203,7 +203,12 @@ def guardar_formulario():
     cuotas = int(request.form["cuotas"])
 
     valor_cuota = calcular_cuota(monto, cuotas)
-    
+
+    # 🔥 AGREGADO (CLAVE)
+    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion.lower(), monto)
+
+    if entidad == "aamas" and monto <= 400000:
+        farmacia = 0
 
     nombre = request.form["nombre"].upper()
     dni = request.form["dni"].upper()
@@ -290,9 +295,9 @@ def guardar_formulario():
     titulo_seccion("DATOS DEL PRÉSTAMO")
 
     data_prestamo = [
-        ["Monto", f"<b>{formatear_moneda(monto)}</b>"],
+        ["Monto", formatear_moneda(monto)],
         ["Cantidad de cuotas", cuotas],
-        ["Valor de cuota", f"<b>{formatear_moneda(valor_cuota)}</b>"],
+        ["Valor de cuota", formatear_moneda(valor_cuota)],
 ]
 
     tabla2 = Table(data_prestamo, colWidths=[180, 300])
@@ -332,16 +337,8 @@ def guardar_formulario():
 ]))
     elements.append(tabla4)
 
-
-
     # Construir PDF
     doc.build(elements)
     buffer.seek(0)
 
     return send_file(buffer, as_attachment=True, download_name="datero.pdf", mimetype="application/pdf")
-
-
-# ---------------- RUN ----------------
-
-if __name__ == "__main__":
-    app.run(debug=True)
