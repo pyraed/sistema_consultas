@@ -134,7 +134,7 @@ def inicio():
 def calcular():
 
     entidad = request.form["entidad"]
-    reparticion = request.form["reparticion"].upper()
+    reparticion = request.form["reparticion"]
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])
 
@@ -154,9 +154,6 @@ def calcular():
 
     link = links_datero.get((entidad, reparticion), "#")
     link_formulario = f"https://sistema-consultas-8hfc.onrender.com/formulario?ent={entidad}&rep={reparticion}&monto={monto}&cuotas={cuotas}"
-
-    if link == "#":
-        return "No hay datero configurado para esta combinación"
 
 
     return render_template(
