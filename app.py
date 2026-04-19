@@ -141,7 +141,7 @@ def calcular():
     cuotas = int(request.form["cuotas"])
 
     # Calcular valores
-    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
+    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, float(monto))
     valor_cuota = calcular_cuota(monto, cuotas)
 
     # 🔥 FIX VISUAL + LOGICA
@@ -202,15 +202,6 @@ def guardar_formulario():
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])
     
-
-    # 🔥 CALCULO REAL
-    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
-    valor_cuota = calcular_cuota(monto, cuotas)
-
-    # 🔥 LOGICA
-    if entidad == "aamas" and monto <= 400000:
-        farmacia = 0
-
 
     nombre = request.form["nombre"].upper()
     dni = request.form["dni"].upper()
