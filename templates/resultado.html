@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Oferta</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+* { transition: all 0.2s ease; }
+
+body {
+    font-family: 'Inter', Arial;
+    background: #f5f6fa;
+    margin: 0;
+}
+
+.card {
+    max-width: 500px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
+}
+
+.header {
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+
+    {% if entidad == "quantum" %}
+    background: #2C2C2C;
+    color: white;
+    {% else %}
+    background: #1E3A8A;
+    color: white;
+    {% endif %}
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+.box {
+    background: #f1f3f6;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 16px;
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.btn-secundario {
+    margin-top: 10px;
+    background: #444;
+}
+
+.leyenda {
+    margin-top: 20px;
+    background: #f1f3f6;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+    position: relative;
+}
+
+.leyenda ul {
+    padding-left: 20px;
+}
+
+.copiar-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-copiar {
+    background: #e0e3e7;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.copiado-msg {
+    font-size: 12px;
+    color: green;
+    display: none;
+}
+
+#textoLeyenda {
+    padding-top: 30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="header">
+    {% if entidad == "quantum" %}
+        QUANTUM
+    {% else %}
+        AAMAS
+    {% endif %}
+</div>
+
+<div class="item"><b>Entidad:</b> {{ entidad }}</div>
+<div class="item"><b>Repartición:</b> {{ reparticion }}</div>
+<div class="item"><b>Monto:</b> {{ monto }}</div>
+<div class="item"><b>Cuotas:</b> {{ cuotas }}</div>
+<div class="item"><b>Valor Cuota:</b> {{ valor_cuota }}</div>
+
+<div class="box">
+<b>Membresía</b>
+<div class="item">Cuota Social: {{ cuota_social }}</div>
+<div class="item">Coseguro Médico: {{ medico }}</div>
+<div class="item">Coseguro Farmacia: {{ farmacia }}</div>
+<div class="item">Membresía: {{ membresia }}</div>
+</div>
+
+<h4>Link para enviar</h4>
+
+<input id="linkInput" value="{{ link }}" readonly>
+
+<button onclick="copiarLink()">Copiar Link</button>
+<span id="copiadoLinkMsg" class="copiado-msg">✔ Copiado</span>
+
+<button onclick="copiarTodo()" class="btn-secundario">Copiar Todo</button>
+<span id="copiadoTodoMsg" class="copiado-msg">✔ Copiado</span>
+
+</div>
+
+<div class="leyenda">
+
+<div class="copiar-container">
+    <button class="btn-copiar" onclick="copiarLeyenda()">📋</button>
+    <span id="copiadoMsg" class="copiado-msg">✔ Copiado</span>
+</div>
+
+<div id="textoLeyenda">
+
+<p><b>DESCUENTO HABERES</b></p>
+
+<p>
+Debe pedir el certificado de Afectación a nombre de 
+<b>
+{% if entidad == "quantum" %}
+    QUANTUM
+{% else %}
+    AAMAS
+{% endif %}
+</b>.
+</p>
+
+<p><b>PRE-APROBADO:</b> {{ monto }} en {{ cuotas }} cuotas de 
+$ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }} 
+<b>MONTO FINAL</b> (queda sujeto al monto del certificado)
+</p>
+
+<p><b>DOCUMENTACIÓN A ENVIAR:</b></p>
+
+<ul>
+    <li>DNI frente y dorso</li>
+    <li>Servicio</li>
+    <li>Recibo</li>
+    <li>Selfie con DNI en mano</li>
+    <li>CBU</li>
+
+    {% if reparticion == "educacion" %}
+    <li>Movimientos</li>
+    {% endif %}
+
+    {% if reparticion == "spb" %}
+    <li>Foto tarjeta de débito (frente y dorso)</li>
+    {% endif %}
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+function copiarLink() {
+    const link = document.getElementById("linkInput").value;
+    navigator.clipboard.writeText(link);
+
+    const msg = document.getElementById("copiadoLinkMsg");
+    msg.style.display = "inline";
+
+    setTimeout(() => {
+        msg.style.display = "none";
+    }, 2000);
+}
+
+function copiarLeyenda() {
+    const texto = document.getElementById("textoLeyenda").innerText;
+    navigator.clipboard.writeText(texto);
+
+    const msg = document.getElementById("copiadoMsg");
+    msg.style.display = "inline";
+
+    setTimeout(() => {
+        msg.style.display = "none";
+    }, 2000);
+}
+
+function copiarTodo() {
+    const leyenda = document.getElementById("textoLeyenda").innerText;
+    const link = document.getElementById("linkInput").value;
+
+    const textoCompleto = leyenda + "\n\nLINK:\n" + link;
+
+    navigator.clipboard.writeText(textoCompleto);
+
+    const msg = document.getElementById("copiadoTodoMsg");
+    msg.style.display = "inline";
+
+    setTimeout(() => {
+        msg.style.display = "none";
+    }, 2000);
+}
+</script>
+
+</body>
+</html>
