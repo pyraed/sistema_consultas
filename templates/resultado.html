@@ -176,10 +176,16 @@ button {
 
 <div id="textoLeyenda">
 
-<p><b>DESCUENTO HABERES</b></p>
+<p><b>OFERTA POR DESCUENTO HABERES</b></p>
+
+<p>Tiene una oferta  <b>pre-aprobada</b> por un monto de: ${{ monto }} en {{ cuotas }} cuotas de 
+$ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }} 
+esta oferta es <b>final.</b> 
+<p>(queda sujeta al disponible del certificado.)</p>
+</p>
 
 <p>
-Debe pedir el certificado de Afectación a nombre de 
+Para continuar, deberá solicitar el certificado de afectación a nombre de 
 <b>
 {% if entidad == "quantum" %}
     QUANTUM
@@ -189,28 +195,19 @@ Debe pedir el certificado de Afectación a nombre de
 </b>.
 </p>
 
-<p><b>PRE-APROBADO:</b> {{ monto }} en {{ cuotas }} cuotas de 
-$ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }} 
-<b>MONTO FINAL</b> (queda sujeto al monto del certificado)
-</p>
-
-<p><b>DOCUMENTACIÓN A ENVIAR:</b></p>
+<p><b>DOCUMENTACIÓN REQUERIDA:</b></p>
 
 <ul>
     <li>DNI frente y dorso</li>
-    <li>Servicio</li>
-    <li>Recibo</li>
+    <li>Certificado de Afectacion</li>
+    <li>Comprobante de Servicio</li>
+    <li>Ultimo Recibo de Sueldo</li>
     <li>Selfie con DNI en mano</li>
-    <li>CBU</li>
+    <li>Constancia de CBU</li>
 
-    {% if reparticion == "educacion" %}
-    <li>Movimientos</li>
-    {% endif %}
-
-    {% if reparticion == "spb" %}
-    <li>Foto tarjeta de débito (frente y dorso)</li>
-    {% endif %}
 </ul>
+
+<p>Enviar la documentacion al mail de depositos: <b>depositos@gmail.com</b></p>
 
 </div>
 
