@@ -201,6 +201,8 @@ def guardar_formulario():
     
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])
+
+    valor_cuota = calcular_cuota(monto, cuotas)
     
 
     nombre = request.form["nombre"].upper()
