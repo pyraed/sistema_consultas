@@ -231,19 +231,46 @@ def guardar_formulario():
 
     # ---------------- PDF ----------------
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=20)
 
     styles = getSampleStyleSheet()
     elements = []
 
-    # 🔥 TITULO
-    titulo = f"Datero Online - {entidad.upper()}"
-    elements.append(Paragraph(f"<b>{titulo}</b>", styles["Title"]))
-    elements.append(Spacer(1, 15))
+    # 🎨 COLOR SEGÚN ENTIDAD
+    if entidad == "aamas":
+        color_header = colors.HexColor("#0A3D91")
+    else:
+        color_header = colors.HexColor("#000000")
 
-    # 🔹 DATOS PERSONALES
-    elements.append(Paragraph("<b>Datos Personales</b>", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
+    # 🧱 HEADER
+    header = Table([[f"DATERO ONLINE - {entidad.upper()}"]], colWidths=[500])
+    header.setStyle(TableStyle([
+    ("BACKGROUND", (0,0), (-1,-1), color_header),
+    ("TEXTCOLOR", (0,0), (-1,-1), colors.white),
+    ("ALIGN", (0,0), (-1,-1), "CENTER"),
+    ("FONTSIZE", (0,0), (-1,-1), 16),
+    ("BOTTOMPADDING", (0,0), (-1,-1), 12),
+    ("TOPPADDING", (0,0), (-1,-1), 12),
+]))
+    elements.append(header)
+    elements.append(Spacer(1, 20))
+
+    # 🔹 ESTILO TABLAS
+    estilo_tabla = TableStyle([
+    ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+    ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#F2F2F2")),
+    ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+    ("FONTSIZE", (0,0), (-1,-1), 10),
+    ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#FAFAFA")]),
+])
+
+    # 🔹 TITULOS SECCIONES
+    def titulo_seccion(texto):
+        elements.append(Paragraph(f"<b>{texto}</b>", styles["Heading3"]))
+        elements.append(Spacer(1, 10))
+
+    # ---------------- DATOS PERSONALES ----------------
+    titulo_seccion("DATOS PERSONALES")
 
     data_personal = [
         ["Apellido y Nombre", nombre],
@@ -257,20 +284,29 @@ def guardar_formulario():
         ["Email", email],
         ["CBU", cbu],
         ["Repartición", reparticion],
-    ]
+]
 
-    table1 = Table(data_personal, colWidths=[180, 300])
-    table1.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (0,-1), colors.lightgrey)
-    ]))
-
-    elements.append(table1)
+    tabla1 = Table(data_personal, colWidths=[180, 300])
+    tabla1.setStyle(estilo_tabla)
+    elements.append(tabla1)
     elements.append(Spacer(1, 20))
 
-    # 🔹 SERVICIOS (NUEVO)
-    elements.append(Paragraph("<b>Servicios</b>", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
+    # ---------------- DATOS DEL PRÉSTAMO ----------------
+    titulo_seccion("DATOS DEL PRÉSTAMO")
+
+    data_prestamo = [
+        ["Monto", f"<b>{formatear_moneda(monto)}</b>"],
+        ["Cantidad de cuotas", cuotas],
+        ["Valor de cuota", f"<b>{formatear_moneda(valor_cuota)}</b>"],
+]
+
+    tabla2 = Table(data_prestamo, colWidths=[180, 300])
+    tabla2.setStyle(estilo_tabla)
+    elements.append(tabla2)
+    elements.append(Spacer(1, 20))
+
+    # ---------------- SERVICIOS ----------------
+    titulo_seccion("SERVICIOS")
 
     data_servicios = [
         ["Cuota Social", formatear_moneda(cuota_social)],
@@ -279,55 +315,32 @@ def guardar_formulario():
         ["Membresía", formatear_moneda(membresia)],
 ]
 
-    tabla_servicios = Table(data_servicios, colWidths=[200, 280])
-    tabla_servicios.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (0,-1), colors.lightgrey)
-    ]))
-
-    elements.append(tabla_servicios)
+    tabla3 = Table(data_servicios, colWidths=[180, 300])
+    tabla3.setStyle(estilo_tabla)
+    elements.append(tabla3)
     elements.append(Spacer(1, 20))
 
-    # 🔹 DATOS DEL PRÉSTAMO (NUEVO)
-    elements.append(Paragraph("<b>Datos del Préstamo</b>", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
-
-    data_prestamo = [
-        ["Monto", formatear_moneda(monto)],
-        ["Cantidad de cuotas", cuotas],
-        ["Valor de cuota", formatear_moneda(valor_cuota)],
-]
-
-    tabla_prestamo = Table(data_prestamo, colWidths=[200, 280])
-    tabla_prestamo.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (0,-1), colors.lightgrey)
-    ]))
-
-    elements.append(tabla_prestamo)
-    elements.append(Spacer(1, 20))
-
-    # 🔹 REFERENCIAS
-    elements.append(Paragraph("<b>Referencias</b>", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
+    # ---------------- REFERENCIAS ----------------
+    titulo_seccion("REFERENCIAS")
 
     data_refs = [
         ["Nombre", "Teléfono", "Relación"],
         [ref1_nombre, ref1_tel, ref1_relacion],
         [ref2_nombre, ref2_tel, ref2_relacion],
-    ]
+]
 
-    table2 = Table(data_refs, colWidths=[200, 150, 130])
-    table2.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey)
-    ]))
+    tabla4 = Table(data_refs, colWidths=[200, 150, 130])
+    tabla4.setStyle(TableStyle([
+    ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+    ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#EAEAEA")),
+    ("ALIGN", (0,0), (-1,-1), "CENTER"),
+]))
+    elements.append(tabla4)
 
-    elements.append(table2)
+
 
     # Construir PDF
     doc.build(elements)
-
     buffer.seek(0)
 
     return send_file(buffer, as_attachment=True, download_name="datero.pdf", mimetype="application/pdf")
