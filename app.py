@@ -195,7 +195,7 @@ def guardar_formulario():
 
     # ---------------- DATOS ----------------
     entidad = request.form["entidad"]
-    reparticion = request.form["reparticion"]
+    reparticion = request.form["reparticion"].upper()
     
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])

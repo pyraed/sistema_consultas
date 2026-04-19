@@ -156,7 +156,7 @@ button {
 </div>
 
 <h4>Link Documentacion</h4>
-<input id="linkInput" value="{{ link_formulario }}" readonly>
+<input id="linkInput" value="{{ link }}" readonly>
 
 <h4>Link Datero Online</h4>
 
@@ -165,7 +165,7 @@ button {
 <button onclick="copiarFormulario()">Copiar Link Formulario</button>
 <span id="copiadoFormMsg" class="copiado-msg">✔ Copiado</span>
 
-<button onclick="copiarLink()">Copiar Link</button>
+<button onclick="copiarLink()">Copiar Link Documentacion</button>
 <span id="copiadoLinkMsg" class="copiado-msg">✔ Copiado</span>
 
 <button onclick="copiarTodo()" class="btn-secundario">Copiar Todo</button>
@@ -222,6 +222,18 @@ Para continuar, deberá solicitar el certificado de afectación a nombre de
 </div>
 
 <script>
+function copiarFormulario() {
+    const link = document.getElementById("formInput").value;
+    navigator.clipboard.writeText(link);
+
+    const msg = document.getElementById("copiadoFormMsg");
+    msg.style.display = "inline";
+
+    setTimeout(() => {
+        msg.style.display = "none";
+    }, 2000);
+}
+
 function copiarLink() {
     const link = document.getElementById("linkInput").value;
     navigator.clipboard.writeText(link);
@@ -234,26 +246,14 @@ function copiarLink() {
     }, 2000);
 }
 
-function copiarLeyenda() {
-    const texto = document.getElementById("textoLeyenda").innerText;
-    navigator.clipboard.writeText(texto);
-
-    const msg = document.getElementById("copiadoMsg");
-    msg.style.display = "inline";
-
-    setTimeout(() => {
-        msg.style.display = "none";
-    }, 2000);
-}
-
 function copiarTodo() {
     const leyenda = document.getElementById("textoLeyenda").innerText;
-    const linkDatero = document.getElementById("linkInput").value;
+    const linkDoc = document.getElementById("linkInput").value;
     const linkFormulario = document.getElementById("formInput").value;
 
     const textoCompleto = 
         leyenda +
-        "\n\n📄 DOCUMENTACIÓN:\n" + linkDatero +
+        "\n\n📄 DOCUMENTACIÓN:\n" + linkDoc +
         "\n\n🧾 DATERO ONLINE:\n" + linkFormulario;
 
     navigator.clipboard.writeText(textoCompleto);
