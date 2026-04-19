@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request
 import pandas as pd
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from flask import send_file
 import io
+
 
 
 def formatear_moneda(valor):
