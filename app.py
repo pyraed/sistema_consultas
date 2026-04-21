@@ -591,8 +591,12 @@ def generar_pdf_final():
     buffer.seek(0)
 
     import time
+    import os
 
     filename = f"datero_{int(time.time())}.pdf"
+
+    os.makedirs("static", exist_ok=True)
+
     filepath = f"static/{filename}"
 
     with open(filepath, "wb") as f:
