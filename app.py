@@ -590,7 +590,15 @@ def generar_pdf_final():
     doc.build(elements)
     buffer.seek(0)
 
-    return send_file(buffer, as_attachment=True, download_name="datero_firmado.pdf", mimetype="application/pdf")
+    import time
+
+    filename = f"datero_{int(time.time())}.pdf"
+    filepath = f"static/{filename}"
+
+    with open(filepath, "wb") as f:
+        f.write(buffer.getvalue())
+
+    return render_template("descargar.html", archivo=filename)
 
 # ---------------- RUN ----------------
 
