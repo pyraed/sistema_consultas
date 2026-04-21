@@ -6,6 +6,8 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from flask import send_file
 import io
+import base64
+from reportlab.platypus import Image
 
 
 
@@ -213,6 +215,7 @@ def guardar_formulario():
     nombre = request.form["nombre"].upper()
     dni = request.form["dni"].upper()
     cuit = request.form["cuit"].upper()
+    telefono = request.form.get("telefono", "").upper()
     fecha = request.form["fecha_nacimiento"].upper()
     nacionalidad = request.form["nacionalidad"].upper()
     provincia = request.form["provincia"].upper()
@@ -228,10 +231,12 @@ def guardar_formulario():
     ref2_nombre = request.form["ref2_nombre"].upper()
     ref2_tel = request.form["ref2_tel"].upper()
     ref2_relacion = request.form["ref2_relacion"].upper()
+    
 
     # ---------------- PDF ----------------
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=20)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=15)
+
 
     styles = getSampleStyleSheet()
     elements = []
@@ -253,14 +258,14 @@ def guardar_formulario():
     ("TOPPADDING", (0,0), (-1,-1), 12),
 ]))
     elements.append(header)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # 🔹 ESTILO TABLAS
     estilo_tabla = TableStyle([
     ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
     ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#F2F2F2")),
     ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
-    ("FONTSIZE", (0,0), (-1,-1), 10),
+    ("FONTSIZE", (0,0), (-1,-1), 8),
     ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#FAFAFA")]),
 ])
 
@@ -276,6 +281,7 @@ def guardar_formulario():
         ["Apellido y Nombre", nombre],
         ["DNI", dni],
         ["CUIT", cuit],
+        ["Teléfono", telefono],
         ["Fecha Nacimiento", fecha],
         ["Nacionalidad", nacionalidad],
         ["Provincia", provincia],
@@ -289,7 +295,7 @@ def guardar_formulario():
     tabla1 = Table(data_personal, colWidths=[180, 300])
     tabla1.setStyle(estilo_tabla)
     elements.append(tabla1)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # ---------------- DATOS DEL PRÉSTAMO ----------------
     titulo_seccion("DATOS DEL PRÉSTAMO")
@@ -303,7 +309,7 @@ def guardar_formulario():
     tabla2 = Table(data_prestamo, colWidths=[180, 300])
     tabla2.setStyle(estilo_tabla)
     elements.append(tabla2)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # ---------------- SERVICIOS ----------------
     titulo_seccion("SERVICIOS")
@@ -318,7 +324,7 @@ def guardar_formulario():
     tabla3 = Table(data_servicios, colWidths=[180, 300])
     tabla3.setStyle(estilo_tabla)
     elements.append(tabla3)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # ---------------- REFERENCIAS ----------------
     titulo_seccion("REFERENCIAS")
@@ -329,16 +335,264 @@ def guardar_formulario():
         [ref2_nombre, ref2_tel, ref2_relacion],
 ]
 
-    tabla4 = Table(data_refs, colWidths=[200, 150, 130])
+    tabla4 = Table(
+    data_refs,
+    colWidths=[170, 120, 110],
+    rowHeights=14  # 🔥 ESTO ES CLAVE
+    )
+
     tabla4.setStyle(TableStyle([
     ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
     ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#EAEAEA")),
     ("ALIGN", (0,0), (-1,-1), "CENTER"),
-]))
+
+    # 🔥 ACHICAR TEXTO
+    ("FONTSIZE", (0,0), (-1,-1), 7),
+    ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+
+    # 🔥 ACHICAR ESPACIOS INTERNOS
+    ("TOPPADDING", (0,0), (-1,-1), 2),
+    ("BOTTOMPADDING", (0,0), (-1,-1), 2),
+    ("LEFTPADDING", (0,0), (-1,-1), 4),
+    ("RIGHTPADDING", (0,0), (-1,-1), 4),
+    ]))
     elements.append(tabla4)
 
-    # Construir PDF
+
+    return render_template(
+    "firma.html",
+    entidad=entidad,
+    reparticion=reparticion,
+    monto=monto,
+    monto_fmt=formatear_moneda(monto),
+    cuotas=cuotas,
+    valor_cuota=valor_cuota,
+    valor_cuota_fmt=formatear_moneda(valor_cuota),
+    cuota_social=cuota_social,
+    cuota_social_fmt=formatear_moneda(cuota_social),
+    medico=medico,
+    medico_fmt=formatear_moneda(medico),
+    farmacia=farmacia,
+    farmacia_fmt=formatear_moneda(farmacia),
+    membresia=membresia,
+    membresia_fmt=formatear_moneda(membresia),
+
+    # 🔥 DATOS PERSONALES
+    nombre=nombre,
+    dni=dni,
+    cuit=cuit,
+    telefono=telefono,
+    fecha=fecha,
+    nacionalidad=nacionalidad,
+    provincia=provincia,
+    localidad=localidad,
+    domicilio=domicilio,
+    email=email,
+    cbu=cbu,
+
+    # 🔥 REFERENCIAS
+    ref1_nombre=ref1_nombre,
+    ref1_tel=ref1_tel,
+    ref1_relacion=ref1_relacion,
+    ref2_nombre=ref2_nombre,
+    ref2_tel=ref2_tel,
+    ref2_relacion=ref2_relacion,
+)
+
+@app.route("/generar_pdf_final", methods=["POST"])
+def generar_pdf_final():
+
+    entidad = request.form["entidad"]
+    reparticion = request.form["reparticion"]
+
+    monto = float(request.form["monto"])
+    cuotas = int(request.form["cuotas"])
+    valor_cuota = float(request.form["valor_cuota"])
+
+    cuota_social = float(request.form["cuota_social"])
+    medico = float(request.form["medico"])
+    farmacia = float(request.form["farmacia"])
+    membresia = float(request.form["membresia"])
+
+    nombre = request.form.get("nombre", "")
+    dni = request.form.get("dni", "")
+    cuit = request.form.get("cuit", "")
+    telefono = request.form.get("telefono", "")
+    fecha = request.form.get("fecha_nacimiento", "")
+    nacionalidad = request.form.get("nacionalidad", "")
+    provincia = request.form.get("provincia", "")
+    localidad = request.form.get("localidad", "")
+    domicilio = request.form.get("domicilio", "")
+    email = request.form.get("email", "")
+    cbu = request.form.get("cbu", "")
+
+    ref1_nombre = request.form.get("ref1_nombre", "")
+    ref1_tel = request.form.get("ref1_tel", "")
+    ref1_relacion = request.form.get("ref1_relacion", "")
+
+    ref2_nombre = request.form.get("ref2_nombre", "")
+    ref2_tel = request.form.get("ref2_tel", "")
+    ref2_relacion = request.form.get("ref2_relacion", "")
+
+    firma = request.form["firma"]
+
+    import base64, io
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.enums import TA_CENTER
+
+    # 🔥 convertir firma
+    firma_data = firma.split(",")[1]
+    firma_bytes = base64.b64decode(firma_data)
+    firma_buffer = io.BytesIO(firma_bytes)
+
+    # ---------------- PDF ----------------
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=20)
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # 🎨 COLOR SEGÚN ENTIDAD
+    if entidad == "aamas":
+        color_header = colors.HexColor("#0A3D91")
+    else:
+        color_header = colors.HexColor("#000000")
+
+    # 🧱 HEADER
+    header = Table([[f"DATERO ONLINE - {entidad.upper()}"]], colWidths=[500])
+    header.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,-1), color_header),
+        ("TEXTCOLOR", (0,0), (-1,-1), colors.white),
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
+        ("FONTSIZE", (0,0), (-1,-1), 16),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 12),
+        ("TOPPADDING", (0,0), (-1,-1), 12),
+    ]))
+    elements.append(header)
+    elements.append(Spacer(1, 10))
+
+    # 🔹 ESTILO TABLAS
+    estilo_tabla = TableStyle([
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#F2F2F2")),
+        ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+        ("FONTSIZE", (0,0), (-1,-1), 8),
+        ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#FAFAFA")]),
+    ])
+
+    def titulo_seccion(texto):
+        elements.append(Paragraph(f"<b>{texto}</b>", styles["Heading3"]))
+        elements.append(Spacer(1, 10))
+
+    # ---------------- DATOS PERSONALES ----------------
+    titulo_seccion("DATOS PERSONALES")
+
+    data_personal = [
+        ["Apellido y Nombre", nombre],
+        ["DNI", dni],
+        ["CUIT", cuit],
+        ["Teléfono", telefono],
+        ["Fecha Nacimiento", fecha],
+        ["Nacionalidad", nacionalidad],
+        ["Provincia", provincia],
+        ["Localidad", localidad],
+        ["Domicilio", domicilio],
+        ["Email", email],
+        ["CBU", cbu],
+        ["Repartición", reparticion],
+    ]
+
+    tabla1 = Table(data_personal, colWidths=[180, 300])
+    tabla1.setStyle(estilo_tabla)
+    elements.append(tabla1)
+    elements.append(Spacer(1, 10))
+
+    # ---------------- DATOS DEL PRÉSTAMO ----------------
+    titulo_seccion("DATOS DEL PRÉSTAMO")
+
+    data_prestamo = [
+        ["Monto", formatear_moneda(monto)],
+        ["Cantidad de cuotas", cuotas],
+        ["Valor de cuota", formatear_moneda(valor_cuota)],
+    ]
+
+    tabla2 = Table(data_prestamo, colWidths=[180, 300])
+    tabla2.setStyle(estilo_tabla)
+    elements.append(tabla2)
+    elements.append(Spacer(1, 10))
+
+    # ---------------- SERVICIOS ----------------
+    titulo_seccion("SERVICIOS")
+
+    data_servicios = [
+        ["Cuota Social", formatear_moneda(cuota_social)],
+        ["Coseguro Médico", formatear_moneda(medico)],
+        ["Coseguro Farmacia", formatear_moneda(farmacia)],
+        ["Membresía", formatear_moneda(membresia)],
+    ]
+
+    tabla3 = Table(data_servicios, colWidths=[180, 300])
+    tabla3.setStyle(estilo_tabla)
+    elements.append(tabla3)
+    elements.append(Spacer(1, 10))
+
+    # ---------------- REFERENCIAS ----------------
+    titulo_seccion("REFERENCIAS")
+
+    data_refs = [
+        ["Nombre", "Teléfono", "Relación"],
+        [ref1_nombre, ref1_tel, ref1_relacion],
+        [ref2_nombre, ref2_tel, ref2_relacion],
+    ]
+
+    tabla4 = Table(data_refs, colWidths=[180, 140, 130], rowHeights=18)
+    tabla4.setStyle(TableStyle([
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#EAEAEA")),
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
+        ("FONTSIZE", (0,0), (-1,-1), 8),
+        ("TOPPADDING", (0,0), (-1,-1), 4),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
+    ]))
+
+    elements.append(tabla4)
+    elements.append(Spacer(1, 10))
+
+    # ---------------- FIRMA PRO (CORREGIDA) ----------------
+    elements.append(Spacer(1, 15))
+
+    img = Image(firma_buffer, width=120, height=50)
+    img.hAlign = 'CENTER'
+    elements.append(img)
+
+    elements.append(Spacer(1, 5))
+
+    linea = Table([[""]], colWidths=[200])
+    linea.setStyle(TableStyle([
+        ("LINEABOVE", (0,0), (-1,-1), 1, colors.black),
+        ("ALIGN", (0,0), (-1,-1), "CENTER")
+    ]))
+    elements.append(linea)
+
+    elements.append(Spacer(1, 5))
+
+    style_centro = styles["Normal"]
+    style_centro.alignment = TA_CENTER
+
+    elements.append(Paragraph(f"<b>{nombre}</b>", style_centro))
+    elements.append(Spacer(1, 3))
+    elements.append(Paragraph("FIRMA DEL CLIENTE", style_centro))
+
+    # 🔹 FINAL
     doc.build(elements)
     buffer.seek(0)
 
-    return send_file(buffer, as_attachment=True, download_name="datero.pdf", mimetype="application/pdf")
+    return send_file(buffer, as_attachment=True, download_name="datero_firmado.pdf", mimetype="application/pdf")
+
+# ---------------- RUN ----------------
+
+if __name__ == "__main__":
+    app.run()

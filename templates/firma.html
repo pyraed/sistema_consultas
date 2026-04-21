@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmación Datero</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f6fa;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .titulo {
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        canvas {
+            border: 1px solid black;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #0A3D91;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #082c6b;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Datero - {{ entidad.upper() }}</h2>
+
+<div class="section">
+<div class="titulo">Datos del Préstamo</div>
+<p>Monto: {{ monto_fmt }}</p>
+<p>Cuotas: {{ cuotas }}</p>
+<p>Valor cuota: {{ valor_cuota_fmt }}</p>
+</div>
+
+<div class="section">
+<div class="titulo">Servicios</div>
+<p>Cuota Social: {{ cuota_social_fmt }}</p>
+<p>Médico: {{ medico_fmt }}</p>
+<p>Farmacia: {{ farmacia_fmt }}</p>
+<p>Membresía: {{ membresia_fmt }}</p>
+</div>
+
+<div class="section">
+<div class="titulo">Firma</div>
+
+<canvas id="firmaCanvas" width="300" height="150" style="width:100%; max-width:350px; border:1px solid #000; border-radius:8px;"></canvas>
+<br><br>
+
+<button onclick="limpiarFirma()">Limpiar</button>
+</div>
+
+<form method="POST" action="/generar_pdf_final">
+<input type="hidden" name="firma" id="firmaInput">
+
+<input type="hidden" name="entidad" value="{{ entidad }}">
+<input type="hidden" name="reparticion" value="{{ reparticion }}">
+<input type="hidden" name="monto" value="{{ monto }}">
+<input type="hidden" name="cuotas" value="{{ cuotas }}">
+<input type="hidden" name="valor_cuota" value="{{ valor_cuota }}">
+<input type="hidden" name="cuota_social" value="{{ cuota_social }}">
+<input type="hidden" name="medico" value="{{ medico }}">
+<input type="hidden" name="farmacia" value="{{ farmacia }}">
+<input type="hidden" name="membresia" value="{{ membresia }}">
+
+<!-- 🔥 DATOS PERSONALES -->
+<input type="hidden" name="nombre" value="{{ nombre }}">
+<input type="hidden" name="dni" value="{{ dni }}">
+<input type="hidden" name="cuit" value="{{ cuit }}">
+<input type="hidden" name="telefono" value="{{ telefono }}">
+<input type="hidden" name="fecha_nacimiento" value="{{ fecha }}">
+<input type="hidden" name="nacionalidad" value="{{ nacionalidad }}">
+<input type="hidden" name="provincia" value="{{ provincia }}">
+<input type="hidden" name="localidad" value="{{ localidad }}">
+<input type="hidden" name="domicilio" value="{{ domicilio }}">
+<input type="hidden" name="email" value="{{ email }}">
+<input type="hidden" name="cbu" value="{{ cbu }}">
+
+<!-- 🔥 REFERENCIAS -->
+<input type="hidden" name="ref1_nombre" value="{{ ref1_nombre }}">
+<input type="hidden" name="ref1_tel" value="{{ ref1_tel }}">
+<input type="hidden" name="ref1_relacion" value="{{ ref1_relacion }}">
+<input type="hidden" name="ref2_nombre" value="{{ ref2_nombre }}">
+<input type="hidden" name="ref2_tel" value="{{ ref2_tel }}">
+<input type="hidden" name="ref2_relacion" value="{{ ref2_relacion }}">
+
+<br>
+<button type="submit">Firmar y Descargar</button>
+</form>
+
+</div>
+
+<script>
+const canvas = document.getElementById("firmaCanvas");
+const ctx = canvas.getContext("2d");
+
+let dibujando = false;
+
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches) {
+        return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+        };
+    }
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+
+// PC
+canvas.addEventListener("mousedown", () => dibujando = true);
+canvas.addEventListener("mouseup", () => {
+    dibujando = false;
+    ctx.beginPath();
+});
+canvas.addEventListener("mousemove", dibujar);
+
+// 📱 CELULAR
+canvas.addEventListener("touchstart", () => dibujando = true);
+canvas.addEventListener("touchend", () => {
+    dibujando = false;
+    ctx.beginPath();
+});
+canvas.addEventListener("touchmove", dibujar);
+
+function dibujar(e){
+    if(!dibujando) return;
+
+    e.preventDefault();
+
+    const pos = getPos(e);
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+}
+
+function limpiarFirma(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+document.querySelector("form").addEventListener("submit", function(){
+    const dataURL = canvas.toDataURL("image/png");
+    document.getElementById("firmaInput").value = dataURL;
+});
+</script>
+
+</body>
+</html>

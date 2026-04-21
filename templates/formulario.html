@@ -174,6 +174,15 @@ oninput="this.value = this.value.toUpperCase()">
 <label>Email</label>
 <input name="email" type="email" required placeholder="ejemplo@mail.com">
 
+<!-- 🔥 NUEVO TELÉFONO -->
+<label>Teléfono</label>
+<input name="telefono" required 
+oninput="
+this.value = this.value.replace(/[^0-9]/g, '');
+if(this.value.length > 15) this.value = this.value.slice(0,15);
+"
+placeholder="Solo números (ej: 2211234567)">
+
 <label>CBU</label>
 <input name="cbu" required 
 oninput="
@@ -269,6 +278,7 @@ if (entidad === "quantum") {
     boton.style.background = "#1E40AF";
     boton.style.color = "white";
 }
+
 
 </script>
 
