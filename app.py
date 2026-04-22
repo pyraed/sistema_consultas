@@ -665,7 +665,7 @@ def generar_pdf_final():
     elements.append(Paragraph("DNI FRENTE", styles["Heading3"]))
     elements.append(Spacer(1, 10))
     img = Image(ruta_frente)
-    img._restrictSize(240, 180)
+    img._restrictSize(240, 140)
     elements.append(img)
     elements.append(Spacer(1, 10))
 
@@ -673,7 +673,7 @@ def generar_pdf_final():
     elements.append(Paragraph("DNI DORSO", styles["Heading3"]))
     elements.append(Spacer(1, 10))
     img = Image(ruta_dorso)
-    img._restrictSize(240, 180)
+    img._restrictSize(240, 140)
     elements.append(img)
     elements.append(Spacer(1, 10))
 
@@ -681,7 +681,7 @@ def generar_pdf_final():
     elements.append(Paragraph("SELFIE CON DNI", styles["Heading3"]))
     elements.append(Spacer(1, 10))
     img = Image(ruta_selfie)
-    img._restrictSize(240, 180)
+    img._restrictSize(240, 140)
     elements.append(img)
     elements.append(Spacer(1, 15))
 
