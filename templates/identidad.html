@@ -126,7 +126,13 @@ Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
 
 <div class="section">
 <label>DNI Dorso</label>
-<input type="file" name="dni_dorso" accept="image/*" capture="environment" required>
+
+<div class="camera-box">
+    <div class="overlay"></div>
+    <input type="file" name="dni_dorso" accept="image/*" capture="environment" required>
+</div>
+
+<img id="previewDorso" style="width:100%; margin-top:10px; border-radius:8px; display:none;">
 </div>
 
 <div class="section">
