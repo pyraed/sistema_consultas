@@ -664,19 +664,19 @@ def generar_pdf_final():
     # DNI FRENTE
     elements.append(Paragraph("DNI FRENTE", styles["Heading3"]))
     elements.append(Spacer(1, 10))
-    elements.append(Image(ruta_frente, width=180, height=110))
+    elements.append(Image(ruta_frente, width=220, height=140))
     elements.append(Spacer(1, 10))
 
     # DNI DORSO
     elements.append(Paragraph("DNI DORSO", styles["Heading3"]))
     elements.append(Spacer(1, 10))
-    elements.append(Image(ruta_dorso, width=180, height=110))
+    elements.append(Image(ruta_dorso, width=220, height=140))
     elements.append(Spacer(1, 10))
 
     # SELFIE
     elements.append(Paragraph("SELFIE CON DNI", styles["Heading3"]))
     elements.append(Spacer(1, 10))
-    elements.append(Image(ruta_selfie, width=180, height=110))
+    elements.append(Image(ruta_selfie, width=220, height=140))
     elements.append(Spacer(1, 15))
 
     # 🔥 FIRMA FINAL (segunda hoja)
