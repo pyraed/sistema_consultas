@@ -8,6 +8,34 @@ from flask import send_file
 import io
 import base64
 from reportlab.platypus import Image
+from PIL import Image, ExifTags
+
+# 🔥 PEGÁS LA FUNCIÓN ACÁ
+def corregir_orientacion(ruta):
+    image = Image.open(ruta)
+
+    try:
+        exif = image._getexif()
+
+        if exif is not None:
+            orientation = None
+            for tag, name in ExifTags.TAGS.items():
+                if name == 'Orientation':
+                    orientation = tag
+                    break
+
+            if orientation and orientation in exif:
+                if exif[orientation] == 3:
+                    image = image.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    image = image.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    image = image.rotate(90, expand=True)
+
+    except:
+        pass
+
+    image.save(ruta)
 
 
 
@@ -246,6 +274,12 @@ def guardar_formulario():
     dni_frente.save(ruta_frente)
     dni_dorso.save(ruta_dorso)
     selfie.save(ruta_selfie)
+
+    corregir_orientacion(ruta_frente)
+    corregir_orientacion(ruta_dorso)
+    corregir_orientacion(ruta_selfie)
+
+
 
     ref1_nombre = request.form["ref1_nombre"].upper()
     ref1_tel = request.form["ref1_tel"].upper()
