@@ -116,23 +116,31 @@ Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
 <div class="section">
 <label>DNI Frente</label>
 
-<div class="camera-box">
+<div class="camera-box" id="boxFrente">
     <div class="overlay"></div>
     <input type="file" name="dni_frente" accept="image/*" capture="environment" required>
 </div>
 
-<img id="previewFrente" style="width:100%; margin-top:10px; border-radius:8px; display:none;">
+<div id="checkFrente" style="display:none; color:green; font-weight:bold; margin-top:5px;">
+✔ Foto cargada correctamente
+</div>
+
+<img id="previewFrente" style="width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:8px; display:none;">
 </div>
 
 <div class="section">
 <label>DNI Dorso</label>
 
-<div class="camera-box">
+<div class="camera-box" id="boxDorso">
     <div class="overlay"></div>
     <input type="file" name="dni_dorso" accept="image/*" capture="environment" required>
 </div>
 
-<img id="previewDorso" style="width:100%; margin-top:10px; border-radius:8px; display:none;">
+<div id="checkDorso" style="display:none; color:green; font-weight:bold; margin-top:5px;">
+✔ Foto cargada correctamente
+</div>
+
+<img id="previewDorso" style="width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:8px; display:none;">
 </div>
 
 <div class="section">
@@ -149,17 +157,39 @@ Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
 </div>
 
 <script>
-document.querySelector('input[name="dni_frente"]').addEventListener('change', function(e){
-    const file = e.target.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(ev){
-            const img = document.getElementById("previewFrente");
-            img.src = ev.target.result;
-            img.style.display = "block";
+document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', function(e){
+        const file = e.target.files[0];
+        if(file){
+            const reader = new FileReader();
+
+            reader.onload = function(ev){
+
+                // 📸 DNI FRENTE
+                if(input.name === "dni_frente"){
+                    const img = document.getElementById("previewFrente");
+                    img.src = ev.target.result;
+                    img.style.display = "block";
+
+                    document.getElementById("boxFrente").style.display = "none";
+                    document.getElementById("checkFrente").style.display = "block";
+                }
+
+                // 📸 DNI DORSO
+                if(input.name === "dni_dorso"){
+                    const img = document.getElementById("previewDorso");
+                    img.src = ev.target.result;
+                    img.style.display = "block";
+
+                    document.getElementById("boxDorso").style.display = "none";
+                    document.getElementById("checkDorso").style.display = "block";
+                }
+
+            }
+
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
-    }
+    });
 });
 </script>
 
