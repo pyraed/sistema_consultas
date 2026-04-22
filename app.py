@@ -10,7 +10,7 @@ import base64
 from reportlab.platypus import Image
 from PIL import Image, ExifTags
 
-# 🔥 PEGÁS LA FUNCIÓN ACÁ
+
 def corregir_orientacion(ruta):
     image = Image.open(ruta)
 
@@ -34,6 +34,45 @@ def corregir_orientacion(ruta):
 
     except:
         pass
+
+    image.save(ruta)
+
+def corregir_orientacion_y_recortar(ruta):
+    image = Image.open(ruta)
+
+    try:
+        exif = image._getexif()
+
+        if exif is not None:
+            orientation = None
+            for tag, name in ExifTags.TAGS.items():
+                if name == 'Orientation':
+                    orientation = tag
+                    break
+
+            if orientation and orientation in exif:
+                if exif[orientation] == 3:
+                    image = image.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    image = image.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    image = image.rotate(90, expand=True)
+
+    except:
+        pass
+
+    # 🔥 RECORTE CENTRAL (CLAVE)
+    width, height = image.size
+
+    new_width = int(width * 0.7)
+    new_height = int(height * 0.5)
+
+    left = (width - new_width) / 2
+    top = (height - new_height) / 2
+    right = (width + new_width) / 2
+    bottom = (height + new_height) / 2
+
+    image = image.crop((left, top, right, bottom))
 
     image.save(ruta)
 
@@ -275,8 +314,8 @@ def guardar_formulario():
     dni_dorso.save(ruta_dorso)
     selfie.save(ruta_selfie)
 
-    corregir_orientacion(ruta_frente)
-    corregir_orientacion(ruta_dorso)
+    corregir_orientacion_y_recortar(ruta_frente)
+    corregir_orientacion_y_recortar(ruta_dorso)
     corregir_orientacion(ruta_selfie)
 
 
