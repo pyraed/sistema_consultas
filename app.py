@@ -64,8 +64,8 @@ def corregir_orientacion_y_recortar(ruta):
     # 🔥 RECORTE CENTRAL (CLAVE)
     width, height = image.size
 
-    new_width = int(width * 0.7)
-    new_height = int(height * 0.5)
+    new_width = int(width * 0.9)
+    new_height = int(height * 0.7)
 
     left = (width - new_width) / 2
     top = (height - new_height) / 2
