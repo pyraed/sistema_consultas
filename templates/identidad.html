@@ -63,6 +63,35 @@ button:hover {
     color: #555;
     margin-bottom: 15px;
 }
+
+.camera-box {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px dashed #0A3D91;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+}
+
+.overlay {
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    width: 80%;
+    height: 60%;
+    border: 2px solid #0A3D91;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.camera-box input {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
 </style>
 
 </head>
@@ -86,7 +115,13 @@ Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
 
 <div class="section">
 <label>DNI Frente</label>
-<input type="file" name="dni_frente" accept="image/*" capture="environment" required>
+
+<div class="camera-box">
+    <div class="overlay"></div>
+    <input type="file" name="dni_frente" accept="image/*" capture="environment" required>
+</div>
+
+<img id="previewFrente" style="width:100%; margin-top:10px; border-radius:8px; display:none;">
 </div>
 
 <div class="section">
@@ -106,6 +141,21 @@ Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
 </form>
 
 </div>
+
+<script>
+document.querySelector('input[name="dni_frente"]').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(ev){
+            const img = document.getElementById("previewFrente");
+            img.src = ev.target.result;
+            img.style.display = "block";
+        }
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 
 </body>
 </html>
