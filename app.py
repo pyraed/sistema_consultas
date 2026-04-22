@@ -194,6 +194,11 @@ def formulario():
 
     return render_template("formulario.html", entidad=entidad, reparticion=reparticion)
 
+@app.route("/identidad", methods=["POST"])
+def identidad():
+    datos = request.form.to_dict()
+    return render_template("identidad.html", **datos)
+
 @app.route("/guardar_formulario", methods=["POST"])
 def guardar_formulario():
 
@@ -223,6 +228,24 @@ def guardar_formulario():
     domicilio = request.form["domicilio"].upper()
     email = request.form["email"].upper()
     cbu = request.form["cbu"].upper()
+    dni_frente = request.files["dni_frente"]
+    dni_dorso = request.files["dni_dorso"]
+    selfie = request.files["selfie"]
+
+    import os
+    import time
+
+    os.makedirs("static/fotos", exist_ok=True)
+
+    timestamp = int(time.time())
+
+    ruta_frente = f"static/fotos/frente_{timestamp}.jpg"
+    ruta_dorso = f"static/fotos/dorso_{timestamp}.jpg"
+    ruta_selfie = f"static/fotos/selfie_{timestamp}.jpg"
+
+    dni_frente.save(ruta_frente)
+    dni_dorso.save(ruta_dorso)
+    selfie.save(ruta_selfie)
 
     ref1_nombre = request.form["ref1_nombre"].upper()
     ref1_tel = request.form["ref1_tel"].upper()
@@ -389,6 +412,9 @@ def guardar_formulario():
     domicilio=domicilio,
     email=email,
     cbu=cbu,
+    ruta_frente=ruta_frente,
+    ruta_dorso=ruta_dorso,
+    ruta_selfie=ruta_selfie,
 
     # 🔥 REFERENCIAS
     ref1_nombre=ref1_nombre,
@@ -408,6 +434,10 @@ def generar_pdf_final():
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])
     valor_cuota = float(request.form["valor_cuota"])
+
+    ruta_frente = request.form["ruta_frente"]
+    ruta_dorso = request.form["ruta_dorso"]
+    ruta_selfie = request.form["ruta_selfie"]
 
     cuota_social = float(request.form["cuota_social"])
     medico = float(request.form["medico"])
@@ -575,6 +605,61 @@ def generar_pdf_final():
         ("LINEABOVE", (0,0), (-1,-1), 1, colors.black),
         ("ALIGN", (0,0), (-1,-1), "CENTER")
     ]))
+    elements.append(linea)
+
+    elements.append(Spacer(1, 5))
+
+    style_centro = styles["Normal"]
+    style_centro.alignment = TA_CENTER
+
+    elements.append(Paragraph(f"<b>{nombre}</b>", style_centro))
+    elements.append(Spacer(1, 3))
+    elements.append(Paragraph("FIRMA DEL CLIENTE", style_centro))
+
+    # 🔥 ------------------------------------
+    # 🔥 NUEVA HOJA CON DOCUMENTACIÓN
+    # 🔥 ------------------------------------
+
+    from reportlab.platypus import PageBreak
+
+    elements.append(PageBreak())
+
+    elements.append(Paragraph("DOCUMENTACIÓN DEL CLIENTE", styles["Title"]))
+    elements.append(Spacer(1, 10))
+
+    # DNI FRENTE
+    elements.append(Paragraph("DNI FRENTE", styles["Heading3"]))
+    elements.append(Spacer(1, 10))
+    elements.append(Image(ruta_frente, width=180, height=110))
+    elements.append(Spacer(1, 10))
+
+    # DNI DORSO
+    elements.append(Paragraph("DNI DORSO", styles["Heading3"]))
+    elements.append(Spacer(1, 10))
+    elements.append(Image(ruta_dorso, width=180, height=110))
+    elements.append(Spacer(1, 10))
+
+    # SELFIE
+    elements.append(Paragraph("SELFIE CON DNI", styles["Heading3"]))
+    elements.append(Spacer(1, 10))
+    elements.append(Image(ruta_selfie, width=180, height=110))
+    elements.append(Spacer(1, 15))
+
+    # 🔥 FIRMA FINAL (segunda hoja)
+    elements.append(Paragraph("FIRMA DEL CLIENTE", styles["Heading3"]))
+    elements.append(Spacer(1, 10))
+
+    img = Image(firma_buffer, width=120, height=50)
+    img.hAlign = 'CENTER'
+    elements.append(img)
+
+    elements.append(Spacer(1, 5))
+
+    linea = Table([[""]], colWidths=[200])
+    linea.setStyle(TableStyle([
+    ("LINEABOVE", (0,0), (-1,-1), 1, colors.black),
+    ("ALIGN", (0,0), (-1,-1), "CENTER")
+]))
     elements.append(linea)
 
     elements.append(Spacer(1, 5))
