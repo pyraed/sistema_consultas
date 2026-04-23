@@ -3,3 +3,4 @@ gunicorn
 reportlab
 pandas
 openpyxl
+PyPDF2
