@@ -9,6 +9,10 @@ import io
 import base64
 from reportlab.platypus import Image
 from PIL import Image, ExifTags
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+import io
+from reportlab.lib.utils import ImageReader
 
 
 def corregir_orientacion(ruta):
@@ -504,6 +508,35 @@ def generar_pdf_final():
     entidad = request.form["entidad"]
     reparticion = request.form["reparticion"]
 
+    # ---------------- CONTRATO SEGUN LOGICA ----------------
+
+    ent = entidad.lower()
+    rep = reparticion.lower()
+
+    if ent == "aamas":
+
+        if rep in ["policia", "spb"]:
+            contrato_path = "static/contratos/datero_policia_spb_aamas.pdf"
+
+        elif rep == "educacion":
+            contrato_path = "static/contratos/datero_educacion_aamas.pdf"
+
+        elif rep == "ips":
+            contrato_path = "static/contratos/datero_ips_aamas.pdf"
+
+        else:
+            contrato_path = "static/contratos/datero_educacion_aamas.pdf"
+
+
+    elif ent == "quantum":
+
+        contrato_path = "static/contratos/datero_educacion_quantum.pdf"
+
+    else:
+        contrato_path = "static/contratos/datero_educacion_aamas.pdf"
+
+
+
     monto = float(request.form["monto"])
     cuotas = int(request.form["cuotas"])
     valor_cuota = float(request.form["valor_cuota"])
@@ -754,17 +787,132 @@ def generar_pdf_final():
     doc.build(elements)
     buffer.seek(0)
 
+     # --------- CREAR OVERLAY DE FIRMA ---------
+    packet = io.BytesIO()
+    c = canvas.Canvas(packet)
+
+    from reportlab.lib.utils import ImageReader
+    # 🔥 CLAVE
+    firma_buffer.seek(0)
+
+     # 📍 POSICIÓN DE FIRMA (AJUSTAR DESPUÉS)
+    firma_img = ImageReader(firma_buffer)
+    c.drawImage(firma_img, 220, 90, width=140, height=60, mask='auto')
+
+    c.save()
+    packet.seek(0)
+
+    contrato_pdf = PdfReader(contrato_path)
+    writer_contrato = PdfWriter()
+
+    posiciones_firma = {
+        0: (30, 80),   # izquierda solicitud de ingreso
+        1: (30, 80),   # izquierda no lleva firma solicitud de servicio 1
+        2: (80, 90),   # no mencionaste → queda igual solicitud de servicio 2 con firma
+        3: (80, 50),   # izquierda autorizacion de descuento
+
+        4: (10, 70),   # izquierda + más abajo solicitud de credito
+        5: (20, 200),   # izquierda solicitud de subsidio economico
+
+        6: (50, 150),  # izquierda + arriba debito directo banco provincia
+        7: (550, 220),  # izquierda + arriba sistema nacional de pagos banco provincia
+
+        8: (10, 230),   # sin cambio autorizacion de descuento general
+        9: (220, 90),   # sin cambio contrato de mutuo no lleva firma
+
+        10: (80, 130),  # abajo mutuo con firma
+        11: (30, 350), #  pagare
+
+        12: (110, 280), # izquierda + arriba afiliacion educacion
+
+        13: (120, 430), # izquierda + arriba ficha prestamo educacion
+
+}
+    # 🔥 SOLO PARA POLICIA (NO TOCAR NADA MÁS)
+    if ent == "aamas" and rep in ["policia", "spb"]:
+        posiciones_firma[13] = (20, 20)
+        posiciones_firma[14] = (40, 480)
+        posiciones_firma[15] = (10, 10)
+
+    if ent == "quantum":
+        posiciones_firma[0] = (50, 100)
+        posiciones_firma[3] = (100, 80)
+        posiciones_firma[5] = (20, 230)
+        
+
+    for i, page in enumerate(contrato_pdf.pages):
+        if i == 1 or i == 9: 
+            writer_contrato.add_page(page)
+            continue
+
+        # 🔥 buscar posición según página
+        x, y = posiciones_firma.get(i, (220, 90))  # default si no está
+
+        # crear overlay nuevo para esta página
+        packet = io.BytesIO()
+        c = canvas.Canvas(packet)
+
+        firma_buffer.seek(0)
+        firma_img = ImageReader(firma_buffer)
+
+        if i == 7:  # hoja 7
+            c.saveState()
+            c.translate(x, y)
+            c.rotate(90)
+            c.drawImage(firma_img, -100, 20, width=140, height=60, mask='auto')
+            c.restoreState()
+
+        elif i == 11:  # hoja 11
+            c.saveState()
+            c.translate(x, y)
+            c.rotate(-90)
+            c.drawImage(firma_img, -100, 20, width=140, height=60, mask='auto')
+            c.restoreState()
+
+        else:
+            c.drawImage(firma_img, x, y, width=140, height=60, mask='auto')
+
+       
+
+        c.save()
+        packet.seek(0)
+
+        overlay = PdfReader(packet)
+
+        page.merge_page(overlay.pages[0])
+        writer_contrato.add_page(page)
+
+    
+
     import time
     import os
 
-    filename = f"datero_{int(time.time())}.pdf"
+    # --------- UNIR TODO ---------
+    datero_pdf = PdfReader(buffer)
+
+    final_writer = PdfWriter()
+
+    # agregar datero
+    for page in datero_pdf.pages:
+        final_writer.add_page(page)
+
+    # agregar contrato firmado
+    for page in writer_contrato.pages:
+        final_writer.add_page(page)
+
+    # generar archivo final
+    output = io.BytesIO()
+    final_writer.write(output)
+    output.seek(0)
+
+    # guardar archivo final
+    filename = f"contrato_final_{int(time.time())}.pdf"
 
     os.makedirs("static", exist_ok=True)
-
     filepath = f"static/{filename}"
 
     with open(filepath, "wb") as f:
-        f.write(buffer.getvalue())
+        f.write(output.getvalue())
 
     return render_template("descargar.html", archivo=filename)
 
