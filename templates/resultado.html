@@ -165,9 +165,6 @@ button {
 <button onclick="copiarFormulario()">Copiar Link Formulario</button>
 <span id="copiadoFormMsg" class="copiado-msg">✔ Copiado</span>
 
-<button onclick="copiarLink()">Copiar Link Documentacion</button>
-<span id="copiadoLinkMsg" class="copiado-msg">✔ Copiado</span>
-
 <button onclick="copiarTodo()" class="btn-secundario">Copiar Todo</button>
 <span id="copiadoTodoMsg" class="copiado-msg">✔ Copiado</span>
 
@@ -214,7 +211,7 @@ Para continuar, deberá solicitar el certificado de afectación a nombre de
 
 {% if reparticion in ["educacion", "ips"] %}
 <p>
-Si lo desea, la entidad puede gestionar el certificado de afectación en su nombre para facilitar el proceso.
+Si lo desea, la entidad puede gestionar el certificado de afectación en su nombre para agilizar el proceso.
 </p>
 {% endif %}
 
@@ -263,12 +260,10 @@ function copiarLink() {
 
 function copiarTodo() {
     const leyenda = document.getElementById("textoLeyenda").innerText;
-    const linkDoc = document.getElementById("linkInput").value;
     const linkFormulario = document.getElementById("formInput").value;
 
     const textoCompleto = 
         leyenda +
-        "\n\n📄 DOCUMENTACIÓN:\n" + linkDoc +
         "\n\n🧾 DATERO ONLINE:\n" + linkFormulario;
 
     navigator.clipboard.writeText(textoCompleto);
