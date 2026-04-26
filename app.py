@@ -855,6 +855,29 @@ def generar_pdf_final():
         firma_buffer.seek(0)
         firma_img = ImageReader(firma_buffer)
 
+        # 🔥 TEXTO SEGÚN REPARTICIÓN Y HOJA
+
+        # EDUCACION
+        if rep == "educacion":
+            if i == 13:
+                c.setFont("Helvetica", 10)
+                c.drawString(100, 700, nombre)
+                c.drawString(100, 680, dni)
+
+        # POLICIA / SPB
+        elif rep in ["policia", "spb"]:
+                if i == 14:
+                c.setFont("Helvetica", 10)
+                c.drawString(120, 650, nombre)
+                c.drawString(120, 630, dni)
+
+        # IPS
+        elif rep == "ips":
+            if i == 1:
+                c.setFont("Helvetica", 10)
+                c.drawString(110, 700, nombre)
+                c.drawString(110, 680, dni)
+
         if i == 7:  # hoja 7
             c.saveState()
             c.translate(x, y)
