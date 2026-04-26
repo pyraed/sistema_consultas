@@ -859,10 +859,10 @@ def generar_pdf_final():
 
         # EDUCACION
         if rep == "educacion":
-            if i == 13:
+            if i in [12, 13]:
                 c.setFont("Helvetica", 10)
-                c.drawString(100, 700, nombre)
-                c.drawString(100, 680, dni)
+                c.drawString(200, 500, nombre)
+                c.drawString(200, 480, dni)
 
         # POLICIA / SPB
         elif rep in ["policia", "spb"]:
