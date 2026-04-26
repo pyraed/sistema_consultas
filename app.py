@@ -866,17 +866,11 @@ def generar_pdf_final():
 
         # POLICIA / SPB
         elif rep in ["policia", "spb"]:
-                if i == 14:
+            if i == 14:
                 c.setFont("Helvetica", 10)
                 c.drawString(120, 650, nombre)
                 c.drawString(120, 630, dni)
 
-        # IPS
-        elif rep == "ips":
-            if i == 1:
-                c.setFont("Helvetica", 10)
-                c.drawString(110, 700, nombre)
-                c.drawString(110, 680, dni)
 
         if i == 7:  # hoja 7
             c.saveState()
