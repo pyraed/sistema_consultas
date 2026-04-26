@@ -805,6 +805,19 @@ def generar_pdf_final():
     contrato_pdf = PdfReader(contrato_path)
     writer_contrato = PdfWriter()
 
+    # 🔥 ACA
+    cuotas = int(cuotas)
+    monto = int(monto)
+
+    tablas = {
+        6: tabla_6,
+        12: tabla_12,
+        18: tabla_18,
+        24: tabla_24
+}
+
+    cuota_prestamo = tablas.get(cuotas, {}).get(monto, 0)
+
     posiciones_firma = {
         0: (30, 80),   # izquierda solicitud de ingreso
         1: (30, 80),   # izquierda no lleva firma solicitud de servicio 1
@@ -859,17 +872,45 @@ def generar_pdf_final():
 
         # EDUCACION
         if rep == "educacion":
+
+            c.setFont("Helvetica", 10)
+
+            # 🟢 HOJA 12 Y 13 → DATOS PERSONALES (COMPARTIDO)
             if i in [12, 13]:
-                c.setFont("Helvetica", 10)
-                c.drawString(200, 500, nombre)
-                c.drawString(200, 480, dni)
+                c.drawString(200, 645, nombre)
+                c.drawString(200, 630, dni)
+                c.drawString(200, 615, email)
+                c.drawString(400, 600, telefono)
+
+            # 🔵 SOLO HOJA 13 → COSEGUROS
+            if i == 12:
+                c.drawString(200, 510, "Cuota Social")
+                c.drawString(400, 510, str(cuota_social))
+
+                c.drawString(200, 480, "Coseguro Médico")
+                c.drawString(400, 480, str(medico))
+
+                c.drawString(200, 450, "Coseguro Farmacia")
+                c.drawString(400, 450, str(farmacia))
+
+                c.drawString(200, 420, "Cuota Prestamo")
+                c.drawString(400, 420, str(cuota_prestamo))
+    
+
 
         # POLICIA / SPB
         elif rep in ["policia", "spb"]:
-            if i == 14:
+            if i == 13:
                 c.setFont("Helvetica", 10)
-                c.drawString(120, 650, nombre)
-                c.drawString(120, 630, dni)
+                c.drawString(320, 690, nombre)
+                c.drawString(320, 670, dni)
+            if i == 12:
+                c.setFont("Helvetica", 10)
+                c.drawString(210, 505, nombre)
+                c.drawString(160, 485, dni)
+                c.drawString(290, 470, email)
+
+                
 
 
         if i == 7:  # hoja 7
