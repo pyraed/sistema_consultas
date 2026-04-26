@@ -884,15 +884,19 @@ def generar_pdf_final():
 
             # 🔵 SOLO HOJA 13 → COSEGUROS
             if i == 12:
+                c.drawString(70, 505, "30150")
                 c.drawString(200, 510, "Cuota Social")
                 c.drawString(400, 510, str(cuota_social))
 
+                c.drawString(70, 480, "30150")
                 c.drawString(200, 480, "Coseguro Médico")
                 c.drawString(400, 480, str(medico))
 
+                c.drawString(70, 450, "30150")
                 c.drawString(200, 450, "Coseguro Farmacia")
                 c.drawString(400, 450, str(farmacia))
 
+                c.drawString(70, 425, "30150")
                 c.drawString(200, 420, "Cuota Prestamo")
                 c.drawString(400, 420, str(cuota_prestamo))
     
