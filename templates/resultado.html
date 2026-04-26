@@ -187,6 +187,7 @@ button {
 <p>Tiene una oferta  <b>pre-aprobada</b> por un monto de: ${{ monto }} en {{ cuotas }} cuotas de 
 $ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }} 
 esta oferta es <b>final.</b>
+<p>(queda sujeta al disponible del certificado.)</p>
 
 {% if reparticion in ["policia", "spb"] %}
 <p>
@@ -197,7 +198,7 @@ También cuenta con una <b>ayuda económica alternativa</b> de
 {% endif %}
 
 <p>+ $7.500 por CBU </p>
-<p>(queda sujeta al disponible del certificado.)</p>
+
 </p>
 
 <p>
