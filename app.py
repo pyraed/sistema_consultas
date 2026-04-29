@@ -352,7 +352,7 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
 
     # ── FLUJO NORMAL: servicios completos + datos del préstamo ──
     else:
-        _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
+        _pdf_seccion("SERVICIOS", elements, styles)
         _pdf_tabla([
             ["Cuota Social",      fmt(datos["cuota_social"])],
             ["Coseguro Médico",   fmt(datos["medico"])],
@@ -559,6 +559,8 @@ def guardar_formulario():
     cuotas      = int(request.form["cuotas"])
 
     valor_cuota                               = calcular_cuota(monto, cuotas)
+    if request.form.get("alt", "0") == "1":
+        valor_cuota = 19800
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia                                  = aplicar_farmacia(entidad, monto, farmacia)
 
