@@ -33,17 +33,14 @@
   .header {
     background: var(--primary);
     padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     height: 60px;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-logo {
-    width: 32px; height: 32px;
-    border-radius: 8px;
+    width: 32px; height: 32px; border-radius: 8px;
     background: rgba(255,255,255,0.15);
     display: flex; align-items: center; justify-content: center;
     font-family: 'DM Mono', monospace;
@@ -77,11 +74,11 @@
     font-size: 11px; font-weight: 600; color: var(--text-muted);
     font-family: 'DM Mono', monospace; flex-shrink: 0;
   }
-  .progress-dot.done { background: #22c55e; border-color: #22c55e; color: white; }
+  .progress-dot.done  { background: #22c55e; border-color: #22c55e; color: white; }
   .progress-dot.active { background: var(--primary); border-color: var(--primary); color: white; }
   .progress-label { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
   .progress-label.active { color: var(--primary-text); font-weight: 500; }
-  .progress-label.done { color: #16a34a; }
+  .progress-label.done   { color: #16a34a; }
   .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
   .progress-line.done { background: #86efac; }
 
@@ -183,13 +180,17 @@
   .leyenda-body b { font-weight: 600; }
   .leyenda-monto { font-size: 16px; font-weight: 700; color: var(--primary-text); }
 
-  .leyenda-alerta {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: #fefce8; border: 1px solid #fde68a;
-    border-radius: var(--radius-sm); padding: 12px 14px;
-    margin: 14px 0; font-size: 13px; color: #854d0e; line-height: 1.5;
+  /* OFERTA ALTERNATIVA — mismo estilo que oferta común */
+  .oferta-alt-info {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
   }
-  .leyenda-alerta svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; stroke: #ca8a04; }
 
   .leyenda-docs {
     background: var(--surface-2); border: 1px solid var(--border);
@@ -284,7 +285,7 @@
       </div>
     </div>
 
-    <!-- OFERTA -->
+    <!-- OFERTA COMÚN -->
     <div class="card">
       <div class="card-header">
         <div class="card-icon">
@@ -340,7 +341,7 @@
       </div>
     </div>
 
-    <!-- LINK DATERO -->
+    <!-- LINK DATERO OFERTA COMÚN -->
     <div class="card">
       <div class="card-header">
         <div class="card-icon">
@@ -367,6 +368,70 @@
         </div>
       </div>
     </div>
+
+    <!-- OFERTA ALTERNATIVA POLICÍA / SPB -->
+    {% if reparticion in ["policia", "spb"] %}
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Oferta Alternativa</p>
+          <p class="card-subtitle">sin certificado de afectación</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="oferta-grid">
+          <div class="oferta-item highlight">
+            <div class="oferta-item-label">Monto</div>
+            <div class="oferta-item-value">$ 80.000</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Cuotas</div>
+            <div class="oferta-item-value">18</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Valor por cuota</div>
+            <div class="oferta-item-value">$ 19.800</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINK DATERO OFERTA ALTERNATIVA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Link Oferta Alternativa</p>
+          <p class="card-subtitle">$80.000 · 18 cuotas · sin certificado</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="link-row">
+          <input class="link-input" id="formInputAlt"
+            value="https://sistema-consultas-8hfc.onrender.com/formulario?ent={{ entidad }}&rep={{ reparticion }}&monto=80000&cuotas=18&alt=1"
+            readonly>
+          <button class="btn-copy-link" onclick="copiarFormularioAlt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- LEYENDA -->
     <div class="leyenda-card">
@@ -396,17 +461,10 @@
         <p>(Queda sujeta al disponible del certificado.)</p>
 
         {% if reparticion in ["policia", "spb"] %}
-        <div class="leyenda-alerta">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          <span>
-            También cuenta con una <b>ayuda económica alternativa</b> de
-            <b>$80.000 en 18 cuotas de $19.800 sin certificado de afectación</b>.
-            Podrá optar por <b>una</b> de las dos opciones.
-          </span>
+        <div class="oferta-alt-info">
+          También cuenta con una <b>ayuda económica alternativa</b> de
+          <b>$80.000 en 18 cuotas de $19.800 sin certificado de afectación</b>.
+          Podrá optar por <b>una</b> de las dos opciones.
         </div>
         {% endif %}
 
@@ -416,7 +474,6 @@
           Para continuar, deberá solicitar el certificado de afectación a nombre de
           <b>{% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}</b>.
         </p>
-
 
         <div class="leyenda-docs">
           <p class="leyenda-docs-title">Documentación requerida</p>
@@ -448,6 +505,25 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// Función de copia compatible con HTTP y HTTPS
+function copiarTexto(texto, callback) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(callback);
+  } else {
+    // Fallback para HTTP local
+    const ta = document.createElement("textarea");
+    ta.value = texto;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    callback();
+  }
+}
+
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
@@ -457,7 +533,7 @@ function showToast(msg) {
 
 function copiarFormulario(btn) {
   const link = document.getElementById("formInput").value;
-  navigator.clipboard.writeText(link).then(() => {
+  copiarTexto(link, () => {
     const orig = btn.innerHTML;
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
     btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
@@ -466,9 +542,20 @@ function copiarFormulario(btn) {
   });
 }
 
+function copiarFormularioAlt(btn) {
+  const link = document.getElementById("formInputAlt").value;
+  copiarTexto(link, () => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
+    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = ""; btn.style.color = ""; btn.style.background = ""; }, 2000);
+    showToast("✓ Link oferta alternativa copiado");
+  });
+}
+
 function copiarLeyenda(btn) {
   const leyenda = document.getElementById("textoLeyenda").innerText;
-  navigator.clipboard.writeText(leyenda).then(() => {
+  copiarTexto(leyenda, () => {
     btn.classList.add("copied");
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
     setTimeout(() => {
@@ -483,7 +570,7 @@ function copiarTodo(btn) {
   const leyenda = document.getElementById("textoLeyenda").innerText;
   const link    = document.getElementById("formInput").value;
   const texto   = leyenda + "\n\n🧾 DATERO ONLINE:\n" + link;
-  navigator.clipboard.writeText(texto).then(() => {
+  copiarTexto(texto, () => {
     btn.classList.add("copied");
     const orig = btn.innerHTML;
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg> ¡Todo copiado!`;

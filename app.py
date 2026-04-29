@@ -105,7 +105,6 @@ PAGINAS_SIN_FIRMA = {1, 9}
 # ══════════════════════════════════════════════════════════
 
 def fmt(valor) -> str:
-    """Formatea número como moneda argentina: $ 1.234,56"""
     return "$ {:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
 
 
@@ -324,7 +323,7 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     styles, estilo_tabla, estilo_refs = _estilos_pdf(datos["entidad"])
     elements = []
 
-    # Hoja 1 — Datos
+    # ── Hoja 1 ──
     _pdf_header(datos["entidad"], elements, styles)
 
     _pdf_seccion("DATOS PERSONALES", elements, styles)
@@ -343,21 +342,30 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         ["Repartición",       datos["reparticion"]],
     ], [185, 310], estilo_tabla, elements)
 
+    # ── OFERTA ALTERNATIVA: solo Cuota Social + Coseguro Médico, sin préstamo ──
+    if datos.get("alt") == "1":
+        _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
+        _pdf_tabla([
+            ["Cuota Social",    fmt(datos["cuota_social"])],
+            ["Coseguro Médico", fmt(datos["medico"])],
+        ], [185, 310], estilo_tabla, elements)
 
-    _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
-    _pdf_tabla([
-        ["Cuota Social",      fmt(datos["cuota_social"])],
-        ["Coseguro Médico",   fmt(datos["medico"])],
-        ["Coseguro Farmacia", fmt(datos["farmacia"])],
-        ["Membresía",         fmt(datos["membresia"])],
-    ], [185, 310], estilo_tabla, elements)
+    # ── FLUJO NORMAL: servicios completos + datos del préstamo ──
+    else:
+        _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
+        _pdf_tabla([
+            ["Cuota Social",      fmt(datos["cuota_social"])],
+            ["Coseguro Médico",   fmt(datos["medico"])],
+            ["Coseguro Farmacia", fmt(datos["farmacia"])],
+            ["Membresía",         fmt(datos["membresia"])],
+        ], [185, 310], estilo_tabla, elements)
 
-    _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
-    _pdf_tabla([
-        ["Monto",              fmt(datos["monto"])],
-        ["Cantidad de cuotas", datos["cuotas"]],
-        ["Valor de cuota",     fmt(datos["valor_cuota"])],
-    ], [185, 310], estilo_tabla, elements)
+        _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
+        _pdf_tabla([
+            ["Monto",              fmt(datos["monto"])],
+            ["Cantidad de cuotas", datos["cuotas"]],
+            ["Valor de cuota",     fmt(datos["valor_cuota"])],
+        ], [185, 310], estilo_tabla, elements)
 
     _pdf_seccion("REFERENCIAS PERSONALES", elements, styles)
     _pdf_tabla([
@@ -369,7 +377,7 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     elements.append(Spacer(1, 18))
     _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
 
-    # Hoja 2 — Documentación fotográfica
+    # ── Hoja 2: fotos + firma ──
     elements.append(PageBreak())
 
     doc_header = Table([["DOCUMENTACIÓN DEL SOLICITANTE"]], colWidths=[535])
@@ -385,12 +393,10 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     elements.append(doc_header)
     elements.append(Spacer(1, 14))
 
-    # 📸 Fotos más chicas para que entren las 3 + firma en una sola hoja
     _pdf_imagen_doc(datos["ruta_frente"], "DNI — FRENTE",   elements, styles, 220, 120)
     _pdf_imagen_doc(datos["ruta_dorso"],  "DNI — DORSO",    elements, styles, 220, 120)
     _pdf_imagen_doc(datos["ruta_selfie"], "SELFIE CON DNI", elements, styles, 180, 130)
 
-    # ✅ Firma en la MISMA hoja, sin PageBreak
     elements.append(Spacer(1, 8))
     _pdf_seccion("FIRMA DEL SOLICITANTE", elements, styles)
     elements.append(Spacer(1, 6))
@@ -406,7 +412,6 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
 # ══════════════════════════════════════════════════════════
 
 def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
-    """Escribe datos del solicitante sobre páginas específicas del contrato."""
     rep = rep.lower()
     c.setFont("Helvetica", 10)
 
@@ -534,6 +539,7 @@ def formulario():
         reparticion=request.args.get("rep"),
         monto=request.args.get("monto"),
         cuotas=request.args.get("cuotas"),
+        alt=request.args.get("alt", "0"),
     )
 
 
@@ -553,7 +559,6 @@ def guardar_formulario():
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia                                  = aplicar_farmacia(entidad, monto, farmacia)
 
-    # Datos personales — todos en mayúsculas
     campos = [
         "nombre", "dni", "cuit", "telefono", "fecha_nacimiento",
         "nacionalidad", "provincia", "localidad", "domicilio", "email", "cbu",
@@ -562,7 +567,6 @@ def guardar_formulario():
     ]
     datos = {c: request.form.get(c, "").upper() for c in campos}
 
-    # Guardar fotos
     os.makedirs("static/fotos", exist_ok=True)
     ts = int(time.time())
     rutas = {
@@ -663,20 +667,18 @@ def generar_pdf_final():
         "ruta_frente":   request.form["ruta_frente"],
         "ruta_dorso":    request.form["ruta_dorso"],
         "ruta_selfie":   request.form["ruta_selfie"],
+        "alt":           request.form.get("alt", "0"),
     }
 
     cuota_prestamo = TABLAS.get(cuotas, {}).get(int(monto), 0)
 
-    # Generar PDF datero (datos + fotos)
     datero_buffer = generar_pdf_datero(datos, firma_buffer)
 
-    # Firmar contrato
     writer_contrato = firmar_contrato(
         get_contrato_path(entidad, reparticion),
         firma_buffer, entidad, reparticion, datos, cuota_prestamo
     )
 
-    # Unir datero + contrato firmado
     final_writer = PdfWriter()
 
     for page in PdfReader(datero_buffer).pages:
@@ -689,7 +691,6 @@ def generar_pdf_final():
     for page in PdfReader(contrato_output).pages:
         final_writer.add_page(page)
 
-    # Guardar
     os.makedirs("static", exist_ok=True)
     filename = f"contrato_{entidad}_{int(time.time())}.pdf"
     with open(f"static/{filename}", "wb") as f:
