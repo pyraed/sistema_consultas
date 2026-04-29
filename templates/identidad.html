@@ -587,9 +587,27 @@ async function abrirCamara(nombre) {
     }
 
     if (err.name === "NotAllowedError") {
-      alert("Permiso de cámara denegado. Por favor habilitá el acceso a la cámara en la configuración del navegador.");
+      alert(
+        "📵 Sin acceso a la cámara\n\n" +
+        "Para habilitarla seguí estos pasos:\n\n" +
+        "1. Salí de esta pantalla\n" +
+        "2. Abrí los Ajustes del teléfono\n" +
+        "3. Tocá Aplicaciones\n" +
+        "4. Buscá Chrome (o el navegador que estés usando)\n" +
+        "5. Tocá Permisos\n" +
+        "6. Tocá Cámara y seleccioná Permitir\n" +
+        "7. Volvé a esta página y recargala\n\n" +
+        "Si el problema continúa, contactá al operador."
+      );
     } else {
-      alert("No se pudo acceder a la cámara. Intentá recargar la página.");
+      alert(
+        "⚠️ No se pudo abrir la cámara\n\n" +
+        "Intentá lo siguiente:\n\n" +
+        "1. Cerrá esta página completamente\n" +
+        "2. Volvé a abrirla con el link que te enviaron\n" +
+        "3. Cuando el sistema pida acceso a la cámara, tocá Permitir\n\n" +
+        "Si el problema continúa, contactá al operador."
+      );
     }
   }
 }
