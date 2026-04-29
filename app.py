@@ -343,12 +343,6 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         ["Repartición",       datos["reparticion"]],
     ], [185, 310], estilo_tabla, elements)
 
-    _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
-    _pdf_tabla([
-        ["Monto",              fmt(datos["monto"])],
-        ["Cantidad de cuotas", datos["cuotas"]],
-        ["Valor de cuota",     fmt(datos["valor_cuota"])],
-    ], [185, 310], estilo_tabla, elements)
 
     _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
     _pdf_tabla([
@@ -356,6 +350,13 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         ["Coseguro Médico",   fmt(datos["medico"])],
         ["Coseguro Farmacia", fmt(datos["farmacia"])],
         ["Membresía",         fmt(datos["membresia"])],
+    ], [185, 310], estilo_tabla, elements)
+
+    _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
+    _pdf_tabla([
+        ["Monto",              fmt(datos["monto"])],
+        ["Cantidad de cuotas", datos["cuotas"]],
+        ["Valor de cuota",     fmt(datos["valor_cuota"])],
     ], [185, 310], estilo_tabla, elements)
 
     _pdf_seccion("REFERENCIAS PERSONALES", elements, styles)
@@ -384,11 +385,13 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     elements.append(doc_header)
     elements.append(Spacer(1, 14))
 
-    _pdf_imagen_doc(datos["ruta_frente"], "DNI — FRENTE",   elements, styles)
-    _pdf_imagen_doc(datos["ruta_dorso"],  "DNI — DORSO",    elements, styles)
-    _pdf_imagen_doc(datos["ruta_selfie"], "SELFIE CON DNI", elements, styles, 220, 170)
+    # 📸 Fotos más chicas para que entren las 3 + firma en una sola hoja
+    _pdf_imagen_doc(datos["ruta_frente"], "DNI — FRENTE",   elements, styles, 220, 120)
+    _pdf_imagen_doc(datos["ruta_dorso"],  "DNI — DORSO",    elements, styles, 220, 120)
+    _pdf_imagen_doc(datos["ruta_selfie"], "SELFIE CON DNI", elements, styles, 180, 130)
 
-    elements.append(Spacer(1, 10))
+    # ✅ Firma en la MISMA hoja, sin PageBreak
+    elements.append(Spacer(1, 8))
     _pdf_seccion("FIRMA DEL SOLICITANTE", elements, styles)
     elements.append(Spacer(1, 6))
     _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
