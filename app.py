@@ -53,6 +53,7 @@ df = df[
 
 TABLAS = {
     6:  dict(zip(df["Monto"], df["Cuotas6"])),
+    9:  dict(zip(df["Monto"], df["Cuotas9"])),
     12: dict(zip(df["Monto"], df["Cuotas12"])),
     18: dict(zip(df["Monto"], df["Cuotas18"])),
     24: dict(zip(df["Monto"], df["Cuotas24"])),
