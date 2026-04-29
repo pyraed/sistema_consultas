@@ -1,285 +1,712 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-
 <title>Datero Online</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --primary: #1E3A8A;
+    --primary-hover: #1e40af;
+    --primary-light: #dbeafe;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --border-focus: #3b82f6;
+    --border-error: #ef4444;
+    --border-ok: #22c55e;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --error-bg: #fef2f2;
+    --ok-bg: #f0fdf4;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
 
-* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body.quantum {
+    --primary: #18181b;
+    --primary-hover: #27272a;
+    --primary-light: #f4f4f5;
+    --border-focus: #71717a;
+  }
 
-body {
-    margin: 0;
-    background: #f5f6fa;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* HEADER */
-.header {
-    padding: 18px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 18px;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* CONTENEDOR */
-.container {
-    max-width: 600px;
-    margin: 30px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
-}
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    transition: background 0.3s ease;
+  }
 
-/* TITULOS */
-h2 {
-    margin-bottom: 10px;
-    text-align: center;
-}
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-.section {
-    margin-top: 25px;
-}
-
-/* LABELS */
-label {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-/* INPUTS */
-input, select {
-    width: 100%;
-    padding: 14px;
-    margin-top: 6px;
-    margin-bottom: 15px;
+  .header-logo {
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-}
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+  }
 
-/* GRID */
-.grid {
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .header-badge {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .main {
+    flex: 1;
+    padding: 32px 16px 48px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 620px;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .progress-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .progress-dot.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .progress-label.active {
+    color: var(--primary);
+    font-weight: 500;
+  }
+
+  .progress-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin: 0 8px;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .card-header {
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--primary);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .card-body {
+    padding: 22px 24px 24px;
+  }
+
+  .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+    gap: 14px;
+  }
 
-/* BOTON */
-button {
+  .field { margin-bottom: 0; }
+  .field + .field { margin-top: 14px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .field-required { color: #ef4444; font-size: 10px; }
+
+  .field-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .input-wrap { position: relative; }
+
+  .input-wrap .status-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .input-wrap input.valid  ~ .status-icon,
+  .input-wrap input.invalid ~ .status-icon { opacity: 1; }
+
+  .input-wrap input.valid  ~ .status-icon::before { content: '✓'; color: #22c55e; }
+  .input-wrap input.invalid ~ .status-icon::before { content: '✕'; color: #ef4444; }
+
+  input, select {
     width: 100%;
-    padding: 16px;
-    border-radius: 10px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input::placeholder { color: var(--text-muted); font-size: 13px; }
+  input:hover, select:hover { border-color: #94a3b8; }
+
+  input:focus, select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+
+  input.valid   { border-color: var(--border-ok);    background: var(--ok-bg); }
+  input.invalid { border-color: var(--border-error);  background: var(--error-bg); }
+  input.invalid:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+
+  input.with-icon { padding-right: 36px; }
+
+  .inner-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    border-radius: var(--radius);
     border: none;
+    background: var(--primary);
+    color: white;
     font-weight: 600;
-    font-size: 16px;
-    margin-top: 20px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
     cursor: pointer;
-}
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+    margin-top: 20px;
+  }
 
-/* RESPONSIVE */
-@media(max-width:600px){
-    .grid {
-        grid-template-columns: 1fr;
-    }
-}
+  .btn-submit:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.18);
+  }
 
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 560px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .progress-label { display: none; }
+    .card-body { padding: 18px 16px 20px; }
+    .card-header { padding: 16px 16px 14px; }
+  }
 </style>
 </head>
 
-<body>
+<body id="bodyEl">
 
-<div class="header" id="headerEntidad">
-    Datero Online
-</div>
+<header class="header" id="headerEl">
+  <div class="header-brand">
+    <div class="header-logo" id="headerLogo">A</div>
+    <span class="header-title" id="headerTitle">AAMAS</span>
+  </div>
+  <span class="header-badge">DATERO ONLINE</span>
+</header>
 
-<div class="container">
+<main class="main">
+  <div class="wrapper">
 
-<h2 id="tituloEntidad"></h2>
-
-<form method="POST" action="/identidad">
-<input type="hidden" name="entidad" value="{{ entidad }}">
-<input type="hidden" name="reparticion" value="{{ reparticion }}">
-<input type="hidden" name="monto" value="{{ monto }}">
-<input type="hidden" name="cuotas" value="{{ cuotas }}">
-
-<!-- ================= DATOS PERSONALES ================= -->
-
-<div class="section">
-<h3>Datos Personales</h3>
-
-<label>Apellido y Nombre</label>
-<input name="nombre" required 
-oninput="
-this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
-this.value = this.value.toUpperCase();
-"
-placeholder="Apellido y Nombre">
-
-<div class="grid">
-    <div>
-        <label>DNI</label>
-        <input name="dni" required 
-        oninput="
-        this.value = this.value.replace(/[^0-9]/g, '');
-        "
-        placeholder="DNI">
+    <div class="progress">
+      <div class="progress-step">
+        <div class="progress-dot active">1</div>
+        <span class="progress-label active">Datos</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">2</div>
+        <span class="progress-label">Identidad</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">3</div>
+        <span class="progress-label">Firma</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">4</div>
+        <span class="progress-label">Resultado</span>
+      </div>
     </div>
 
-    <div>
-        <label>CUIT</label>
-        <input name="cuit" required 
-        oninput="
-        this.value = this.value.replace(/[^0-9]/g, '');
-        "
-        placeholder="CUIT">
-    </div>
-</div>
+    <form method="POST" action="/identidad" id="formPrincipal" novalidate>
 
-<div class="grid">
-    <div>
-        <label>Fecha de Nacimiento</label>
-        <input type="date" name="fecha_nacimiento" required>
-    </div>
+      <input type="hidden" name="entidad"     value="{{ entidad }}">
+      <input type="hidden" name="reparticion" value="{{ reparticion }}">
+      <input type="hidden" name="monto"       value="{{ monto }}">
+      <input type="hidden" name="cuotas"      value="{{ cuotas }}">
 
-    <div>
-        <label>Nacionalidad</label>
-        <input name="nacionalidad" required 
-        oninput="this.value = this.value.toUpperCase()">
-    </div>
-</div>
+      <!-- DATOS PERSONALES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <p class="card-title">Datos Personales</p>
+            <p class="card-subtitle">información del solicitante</p>
+          </div>
+        </div>
+        <div class="card-body">
 
-<div class="grid">
-    <div>
-        <label>Provincia</label>
-        <input name="provincia" required 
-        oninput="this.value = this.value.toUpperCase()">
-    </div>
+          <div class="field">
+            <label class="field-label">Apellido y Nombre <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <input name="nombre" id="nombre" required autocomplete="off" class="with-icon"
+                placeholder="APELLIDO Y NOMBRE"
+                oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateNombre(this);">
+              <span class="status-icon"></span>
+            </div>
+          </div>
 
-    <div>
-        <label>Localidad</label>
-        <input name="localidad" required 
-        oninput="this.value = this.value.toUpperCase()">
-    </div>
-</div>
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="field">
+              <label class="field-label">DNI <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="dni" id="dni" required inputmode="numeric" class="with-icon"
+                  placeholder="Sin puntos (7 u 8 dígitos)"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>8)this.value=this.value.slice(0,8); validateDNI(this);">
+                <span class="status-icon"></span>
+              </div>
+              <p class="field-hint">7 u 8 dígitos · solo números</p>
+            </div>
+            <div class="field">
+              <label class="field-label">CUIT <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="cuit" id="cuit" required inputmode="numeric" class="with-icon"
+                  placeholder="11 dígitos sin guiones"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>11)this.value=this.value.slice(0,11); validateCUIT(this);">
+                <span class="status-icon"></span>
+              </div>
+              <p class="field-hint">ej: 20389588637 · 11 dígitos</p>
+            </div>
+          </div>
 
-<label>Domicilio</label>
-<input name="domicilio" required 
-oninput="this.value = this.value.toUpperCase()">
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="field">
+              <label class="field-label">Fecha de Nacimiento <span class="field-required">*</span></label>
+              <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required
+                oninput="validateFecha(this)">
+            </div>
+            <div class="field">
+              <label class="field-label">Nacionalidad <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="nacionalidad" required class="with-icon" placeholder="ARGENTINA"
+                  oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateReq(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+          </div>
 
-<label>Email</label>
-<input name="email" type="email" required placeholder="ejemplo@mail.com">
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="field">
+              <label class="field-label">Provincia <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="provincia" required class="with-icon" placeholder="BUENOS AIRES"
+                  oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateReq(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Localidad <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="localidad" required class="with-icon" placeholder="LA PLATA"
+                  oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateReq(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+          </div>
 
-<!-- 🔥 NUEVO TELÉFONO -->
-<label>Teléfono</label>
-<input name="telefono" required 
-oninput="
-this.value = this.value.replace(/[^0-9]/g, '');
-if(this.value.length > 15) this.value = this.value.slice(0,15);
-"
-placeholder="Solo números (ej: 2211234567)">
+          <div class="field" style="margin-top:14px;">
+            <label class="field-label">Domicilio <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <input name="domicilio" required class="with-icon" placeholder="CALLE 123 N°456"
+                oninput="this.value=this.value.toUpperCase(); validateReq(this);">
+              <span class="status-icon"></span>
+            </div>
+          </div>
 
-<label>CBU</label>
-<input name="cbu" required 
-oninput="
-this.value = this.value.replace(/[^0-9]/g, '');
-if(this.value.length > 22) this.value = this.value.slice(0,22);
-"
-placeholder="22 DIGITOS">
+          <div class="inner-divider"></div>
 
-</div>
+          <div class="grid-2">
+            <div class="field">
+              <label class="field-label">Email <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input type="email" name="email" id="email" required class="with-icon"
+                  placeholder="ejemplo@mail.com" oninput="validateEmail(this)">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Teléfono <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="telefono" required inputmode="numeric" class="with-icon"
+                  placeholder="2211234567"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>15)this.value=this.value.slice(0,15); validateTelefono(this);">
+                <span class="status-icon"></span>
+              </div>
+              <p class="field-hint">sin 0 ni 15 · solo números</p>
+            </div>
+          </div>
 
-<!-- ================= REFERENCIA 1 ================= -->
+          <div class="field" style="margin-top:14px;">
+            <label class="field-label">CBU <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <input name="cbu" id="cbu" required inputmode="numeric" class="with-icon"
+                placeholder="22 dígitos"
+                oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>22)this.value=this.value.slice(0,22); validateCBU(this);">
+              <span class="status-icon"></span>
+            </div>
+            <p class="field-hint">exactamente 22 dígitos</p>
+          </div>
 
-<div class="section">
-<h3>Referencia 1</h3>
+        </div>
+      </div>
 
-<label>Apellido y Nombre</label>
-<input name="ref1_nombre" required 
-oninput="
-this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
-this.value = this.value.toUpperCase();
-">
+      <!-- REFERENCIA 1 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <p class="card-title">Referencia 1</p>
+            <p class="card-subtitle">contacto de referencia personal</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="field-label">Apellido y Nombre <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <input name="ref1_nombre" required class="with-icon" placeholder="APELLIDO Y NOMBRE"
+                oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateNombre(this);">
+              <span class="status-icon"></span>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="field">
+              <label class="field-label">Teléfono <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="ref1_tel" required inputmode="numeric" class="with-icon" placeholder="2211234567"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>15)this.value=this.value.slice(0,15); validateTelefono(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Relación <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="ref1_relacion" required class="with-icon" placeholder="FAMILIAR / AMIGO"
+                  oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ /]/g,'').toUpperCase(); validateReq(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<div class="grid">
-    <div>
-        <label>Teléfono</label>
-        <input name="ref1_tel" required 
-        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-        placeholder="Celular">
-    </div>
+      <!-- REFERENCIA 2 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <p class="card-title">Referencia 2</p>
+            <p class="card-subtitle">segundo contacto de referencia</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="field-label">Apellido y Nombre <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <input name="ref2_nombre" required class="with-icon" placeholder="APELLIDO Y NOMBRE"
+                oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g,'').toUpperCase(); validateNombre(this);">
+              <span class="status-icon"></span>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:14px;">
+            <div class="field">
+              <label class="field-label">Teléfono <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="ref2_tel" required inputmode="numeric" class="with-icon" placeholder="2211234567"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length>15)this.value=this.value.slice(0,15); validateTelefono(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Relación <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input name="ref2_relacion" required class="with-icon" placeholder="FAMILIAR / AMIGO"
+                  oninput="this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ /]/g,'').toUpperCase(); validateReq(this);">
+                <span class="status-icon"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div>
-        <label>Relación</label>
-        <input name="ref1_relacion" required 
-        oninput="this.value = this.value.toUpperCase()">
-    </div>
-</div>
-</div>
+      <button type="submit" class="btn-submit" id="btnEnviar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+        Continuar a Identidad
+      </button>
 
-<!-- ================= REFERENCIA 2 ================= -->
-
-<div class="section">
-<h3>Referencia 2</h3>
-
-<label>Apellido y Nombre</label>
-<input name="ref2_nombre" required 
-oninput="
-this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ ]/g, '');
-this.value = this.value.toUpperCase();
-">
-
-<div class="grid">
-    <div>
-        <label>Teléfono</label>
-        <input name="ref2_tel" required 
-        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-        placeholder="Celular">
-    </div>
-
-    <div>
-        <label>Relación</label>
-        <input name="ref2_relacion" required 
-        oninput="this.value = this.value.toUpperCase()">
-    </div>
-</div>
-</div>
-
-<button type="submit" id="btnEnviar">Enviar Datos</button>
-
-</form>
-
-</div>
+    </form>
+  </div>
+</main>
 
 <script>
-
-// 🔥 Detectar entidad desde Jinja
 const entidad = "{{ entidad }}";
+const headerEl    = document.getElementById("headerEl");
+const headerLogo  = document.getElementById("headerLogo");
+const headerTitle = document.getElementById("headerTitle");
 
-const header = document.getElementById("headerEntidad");
-const titulo = document.getElementById("tituloEntidad");
-const boton = document.getElementById("btnEnviar");
-
-// 🎨 COLORES
 if (entidad === "quantum") {
-    header.style.background = "#2C2C2C";
-    header.style.color = "white";
-    titulo.innerText = "QUANTUM - Datero Online";
-    boton.style.background = "#2C2C2C";
-    boton.style.color = "white";
+  document.body.classList.add("quantum");
+  headerEl.style.background = "#18181b";
+  headerLogo.textContent    = "Q";
+  headerTitle.textContent   = "QUANTUM";
 } else {
-    header.style.background = "#1E40AF";
-    header.style.color = "white";
-    titulo.innerText = "AAMAS - Datero Online";
-    boton.style.background = "#1E40AF";
-    boton.style.color = "white";
+  headerEl.style.background = "#1E3A8A";
+  headerLogo.textContent    = "A";
+  headerTitle.textContent   = "AAMAS";
 }
 
+// Fecha máxima = hoy
+const fechaNacInput = document.getElementById("fecha_nacimiento");
+if (fechaNacInput) {
+  const hoy = new Date();
+  fechaNacInput.max = hoy.toISOString().split("T")[0];
+}
 
+function setValid(el)   { el.classList.add("valid");   el.classList.remove("invalid"); }
+function setInvalid(el) { el.classList.add("invalid"); el.classList.remove("valid");   }
+function clearState(el) { el.classList.remove("valid", "invalid"); }
+
+function validateNombre(el) {
+  const v = el.value.trim();
+  if (v.length >= 3 && v.includes(" ")) setValid(el);
+  else if (v.length > 0)                setInvalid(el);
+  else                                   clearState(el);
+}
+
+function validateDNI(el) {
+  const v = el.value;
+  if (v.length >= 7 && v.length <= 8) setValid(el);
+  else if (v.length > 0)              setInvalid(el);
+  else                                clearState(el);
+}
+
+function validateCUIT(el) {
+  if (el.value.length === 11)    setValid(el);
+  else if (el.value.length > 0)  setInvalid(el);
+  else                           clearState(el);
+}
+
+function validateCBU(el) {
+  if (el.value.length === 22)    setValid(el);
+  else if (el.value.length > 0)  setInvalid(el);
+  else                           clearState(el);
+}
+
+function validateEmail(el) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (el.value === "")        clearState(el);
+  else if (re.test(el.value)) setValid(el);
+  else                        setInvalid(el);
+}
+
+function validateTelefono(el) {
+  const v = el.value;
+  if (v.length >= 8 && v.length <= 15) setValid(el);
+  else if (v.length > 0)               setInvalid(el);
+  else                                 clearState(el);
+}
+
+function validateFecha(el) {
+  if (!el.value) { clearState(el); return; }
+  const fecha = new Date(el.value);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  if (fecha <= hoy && fecha.getFullYear() >= 1900) setValid(el);
+  else setInvalid(el);
+}
+
+function validateReq(el) {
+  if (el.value.trim().length >= 2) setValid(el);
+  else if (el.value.length > 0)    setInvalid(el);
+  else                             clearState(el);
+}
+
+document.getElementById("formPrincipal").addEventListener("submit", function(e) {
+  let ok = true;
+  this.querySelectorAll("[required]").forEach(function(el) {
+    if (!el.value.trim()) { setInvalid(el); ok = false; }
+  });
+
+  const cuit  = document.getElementById("cuit");
+  const cbu   = document.getElementById("cbu");
+  const dni   = document.getElementById("dni");
+  const email = document.getElementById("email");
+
+  if (cuit  && cuit.value.length !== 11)                        { setInvalid(cuit);  ok = false; }
+  if (cbu   && cbu.value.length !== 22)                         { setInvalid(cbu);   ok = false; }
+  if (dni   && (dni.value.length < 7 || dni.value.length > 8))  { setInvalid(dni);   ok = false; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { setInvalid(email); ok = false; }
+
+  if (!ok) {
+    e.preventDefault();
+    const first = document.querySelector("input.invalid");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+});
 </script>
 
 </body>

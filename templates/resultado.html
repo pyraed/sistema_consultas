@@ -1,277 +1,495 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-
 <title>Oferta</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --primary: {% if entidad == "quantum" %}#18181b{% else %}#1E3A8A{% endif %};
+    --primary-hover: {% if entidad == "quantum" %}#27272a{% else %}#1e40af{% endif %};
+    --primary-light: {% if entidad == "quantum" %}#f4f4f5{% else %}#dbeafe{% endif %};
+    --primary-text: {% if entidad == "quantum" %}#18181b{% else %}#1E3A8A{% endif %};
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
 
-* { transition: all 0.2s ease; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-    font-family: 'Inter', Arial;
-    background: #f5f6fa;
-    margin: 0;
-}
-
-.card {
-    max-width: 500px;
-    margin: 30px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
-}
-
-.header {
-    padding: 12px;
-    font-weight: 600;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: center;
-
-    {% if entidad == "quantum" %}
-    background: #2C2C2C;
-    color: white;
-    {% else %}
-    background: #1E3A8A;
-    color: white;
-    {% endif %}
-}
-
-.item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    font-size: 15px;
-}
-
-.box {
-    background: #f1f3f6;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
-input {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 16px;
-}
-
-button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 16px;
-    background: #1a1a1a;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.btn-secundario {
-    margin-top: 10px;
-    background: #444;
-}
-
-.leyenda {
-    margin-top: 20px;
-    background: #f1f3f6;
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.6;
-    position: relative;
-}
-
-.leyenda ul {
-    padding-left: 20px;
-}
-
-.copiar-container {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex;
     align-items: center;
-    gap: 5px;
-}
+    justify-content: space-between;
+    height: 60px;
+  }
 
-.btn-copiar {
-    background: #e0e3e7;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 8px;
-    cursor: pointer;
-    font-size: 14px;
-}
+  .header-brand { display: flex; align-items: center; gap: 10px; }
 
-.copiado-msg {
-    font-size: 12px;
-    color: green;
-    display: none;
-}
+  .header-logo {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500; color: white;
+  }
 
-#textoLeyenda {
-    padding-top: 30px;
-}
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
 
+  .header-badge {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
+  }
+
+  .main {
+    flex: 1; padding: 32px 16px 48px;
+    display: flex; justify-content: center;
+  }
+
+  .wrapper {
+    width: 100%; max-width: 540px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* PROGRESS */
+  .progress { display: flex; align-items: center; margin-bottom: 4px; }
+  .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .progress-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; flex-shrink: 0;
+  }
+  .progress-dot.done { background: #22c55e; border-color: #22c55e; color: white; }
+  .progress-dot.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .progress-label { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .progress-label.active { color: var(--primary-text); font-weight: 500; }
+  .progress-label.done { color: #16a34a; }
+  .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+  .progress-line.done { background: #86efac; }
+
+  /* CARD */
+  .card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+  .card-header {
+    padding: 18px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .card-icon svg { width: 17px; height: 17px; stroke: var(--primary-text); }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
+  .card-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+  .card-body { padding: 20px 24px 22px; }
+
+  /* OFERTA GRID */
+  .oferta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .oferta-item {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+  }
+  .oferta-item-label {
+    font-size: 10px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace; margin-bottom: 4px;
+  }
+  .oferta-item-value { font-size: 16px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.3px; }
+  .oferta-item.highlight {
+    background: var(--primary-light); border-color: transparent; grid-column: 1 / -1;
+  }
+  .oferta-item.highlight .oferta-item-value { font-size: 22px; color: var(--primary-text); }
+
+  /* MEMBRESIA */
+  .membresia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .memb-item { display: flex; flex-direction: column; gap: 2px; }
+  .memb-label { font-size: 10px; color: var(--text-muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.4px; }
+  .memb-value { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+  /* LINK */
+  .link-row { display: flex; gap: 8px; align-items: stretch; }
+  .link-input {
+    flex: 1; padding: 10px 14px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    font-size: 13px; font-family: 'DM Mono', monospace;
+    color: var(--text-secondary); background: var(--surface-2); outline: none;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .btn-copy-link {
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-primary); font-size: 13px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    transition: border-color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .btn-copy-link:hover { border-color: #94a3b8; background: var(--surface-2); }
+  .btn-copy-link svg { width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0; }
+
+  /* LEYENDA */
+  .leyenda-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+  .leyenda-header {
+    padding: 16px 24px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .leyenda-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--primary-light); color: var(--primary-text);
+    font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
+    letter-spacing: 0.4px; padding: 4px 10px; border-radius: 20px;
+  }
+  .leyenda-badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary-text); opacity: 0.5;
+  }
+  .btn-copiar-leyenda {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary); cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s; white-space: nowrap;
+  }
+  .btn-copiar-leyenda:hover { border-color: #94a3b8; background: var(--surface-2); }
+  .btn-copiar-leyenda.copied { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
+  .btn-copiar-leyenda svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .leyenda-body {
+    padding: 22px 24px 24px;
+    font-size: 14px; line-height: 1.7; color: var(--text-primary);
+  }
+  .leyenda-body p { margin-bottom: 12px; }
+  .leyenda-body p:last-child { margin-bottom: 0; }
+  .leyenda-body b { font-weight: 600; }
+  .leyenda-monto { font-size: 16px; font-weight: 700; color: var(--primary-text); }
+
+  .leyenda-alerta {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #fefce8; border: 1px solid #fde68a;
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    margin: 14px 0; font-size: 13px; color: #854d0e; line-height: 1.5;
+  }
+  .leyenda-alerta svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; stroke: #ca8a04; }
+
+  .leyenda-docs {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 16px;
+  }
+  .leyenda-docs-title {
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    font-family: 'DM Mono', monospace; margin-bottom: 10px;
+  }
+  .doc-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .doc-list li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); }
+  .doc-list li::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary-text); opacity: 0.4; flex-shrink: 0;
+  }
+
+  /* BOTÓN COPIAR TODO */
+  .btn-copiar-todo {
+    width: 100%; padding: 15px; border-radius: var(--radius); border: none;
+    background: var(--primary); color: white;
+    font-weight: 600; font-size: 15px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-copiar-todo:hover {
+    background: var(--primary-hover); transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.18);
+  }
+  .btn-copiar-todo:active { transform: translateY(0); }
+  .btn-copiar-todo svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .btn-copiar-todo.copied { background: #16a34a; box-shadow: none; transform: none; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #0f172a; color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none; white-space: nowrap; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .oferta-grid { grid-template-columns: 1fr; }
+    .oferta-item.highlight { grid-column: auto; }
+    .membresia-grid { grid-template-columns: 1fr; }
+    .progress-label { display: none; }
+    .card-body { padding: 16px 16px 18px; }
+    .card-header { padding: 14px 16px 12px; }
+    .leyenda-body { padding: 18px 16px 20px; }
+    .leyenda-header { padding: 14px 16px 12px; flex-wrap: wrap; gap: 10px; }
+  }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">{% if entidad == "quantum" %}Q{% else %}A{% endif %}</div>
+    <span class="header-title">{% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}</span>
+  </div>
+  <span class="header-badge">OFERTA GENERADA</span>
+</header>
 
-<div class="header">
-    {% if entidad == "quantum" %}
-        QUANTUM
-    {% else %}
-        AAMAS
-    {% endif %}
-</div>
+<main class="main">
+  <div class="wrapper">
 
-<div class="item"><b>Entidad:</b> {{ entidad }}</div>
-<div class="item"><b>Repartición:</b> {{ reparticion }}</div>
-<div class="item"><b>Monto:</b> {{ monto }}</div>
-<div class="item"><b>Cuotas:</b> {{ cuotas }}</div>
-<div class="item"><b>Valor Cuota:</b> {{ valor_cuota }}</div>
+    <!-- PROGRESO -->
+    <div class="progress">
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Datos</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Identidad</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Firma</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot active">4</div>
+        <span class="progress-label active">Resultado</span>
+      </div>
+    </div>
 
-<div class="box">
-<b>Membresía</b>
-<div class="item">Cuota Social: {{ cuota_social }}</div>
-<div class="item">Coseguro Médico: {{ medico }}</div>
-<div class="item">Coseguro Farmacia: {{ farmacia }}</div>
-<div class="item">Membresía: {{ membresia }}</div>
-</div>
+    <!-- OFERTA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Resumen de la oferta</p>
+          <p class="card-subtitle">{{ reparticion }} · {{ cuotas }} cuotas</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="oferta-grid">
+          <div class="oferta-item highlight">
+            <div class="oferta-item-label">Monto del préstamo</div>
+            <div class="oferta-item-value">{{ monto }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Cuotas</div>
+            <div class="oferta-item-value">{{ cuotas }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Valor por cuota</div>
+            <div class="oferta-item-value">{{ valor_cuota }}</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-secondary);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">
+          Membresía
+        </div>
+        <div class="membresia-grid">
+          <div class="memb-item">
+            <span class="memb-label">Cuota Social</span>
+            <span class="memb-value">{{ cuota_social }}</span>
+          </div>
+          <div class="memb-item">
+            <span class="memb-label">Coseguro Médico</span>
+            <span class="memb-value">{{ medico }}</span>
+          </div>
+          <div class="memb-item">
+            <span class="memb-label">Coseguro Farmacia</span>
+            <span class="memb-value">{{ farmacia }}</span>
+          </div>
+          <div class="memb-item">
+            <span class="memb-label">Membresía Total</span>
+            <span class="memb-value">{{ membresia }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINK DATERO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Link Datero Online</p>
+          <p class="card-subtitle">compartir con el solicitante</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="link-row">
+          <input class="link-input" id="formInput" value="{{ link_formulario }}" readonly>
+          <button class="btn-copy-link" onclick="copiarFormulario(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEYENDA -->
+    <div class="leyenda-card">
+      <div class="leyenda-header">
+        <span class="leyenda-badge">MENSAJE PARA ENVIAR</span>
+        <button class="btn-copiar-leyenda" id="btnCopiarLeyenda" onclick="copiarLeyenda(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copiar mensaje
+        </button>
+      </div>
+
+      <div class="leyenda-body" id="textoLeyenda">
+
+        <p><b>OFERTA POR DESCUENTO HABERES</b></p>
+
+        <p>
+          Tiene una oferta <b>pre-aprobada</b> por un monto de:
+          <span class="leyenda-monto">{{ monto }}</span>
+          en {{ cuotas }} cuotas de
+          <b>$ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }}</b>
+          — esta oferta es <b>final.</b>
+        </p>
+
+        <p>(Queda sujeta al disponible del certificado.)</p>
+
+        {% if reparticion in ["policia", "spb"] %}
+        <div class="leyenda-alerta">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span>
+            También cuenta con una <b>ayuda económica alternativa</b> de
+            <b>$80.000 en 18 cuotas de $19.800 sin certificado de afectación</b>.
+            Podrá optar por <b>una</b> de las dos opciones.
+          </span>
+        </div>
+        {% endif %}
+
+        <p>+ $7.500 por CBU</p>
+
+        <p>
+          Para continuar, deberá solicitar el certificado de afectación a nombre de
+          <b>{% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}</b>.
+        </p>
 
 
-<h4>Link Datero Online</h4>
+        <div class="leyenda-docs">
+          <p class="leyenda-docs-title">Documentación requerida</p>
+          <ul class="doc-list">
+            <li>DNI frente y dorso</li>
+            <li>Certificado de Afectación</li>
+            <li>Comprobante de Servicio</li>
+            <li>Último Recibo de Sueldo</li>
+            <li>Selfie con DNI en mano</li>
+            <li>Constancia de CBU</li>
+          </ul>
+        </div>
 
-<input id="formInput" value="{{ link_formulario }}" readonly>
+      </div>
+    </div>
 
-<button onclick="copiarFormulario()">Copiar Link Formulario</button>
-<span id="copiadoFormMsg" class="copiado-msg">✔ Copiado</span>
+    <!-- COPIAR TODO -->
+    <button class="btn-copiar-todo" id="btnCopiarTodo" onclick="copiarTodo(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+        <rect x="10" y="10" width="12" height="12" rx="2"/>
+      </svg>
+      Copiar mensaje completo + link
+    </button>
 
-<button onclick="copiarTodo()" class="btn-secundario">Copiar Todo</button>
-<span id="copiadoTodoMsg" class="copiado-msg">✔ Copiado</span>
+  </div>
+</main>
 
-</div>
-
-<div class="leyenda">
-
-<div class="copiar-container">
-    <button class="btn-copiar" onclick="copiarLeyenda()">📋</button>
-    <span id="copiadoMsg" class="copiado-msg">✔ Copiado</span>
-</div>
-
-<div id="textoLeyenda">
-
-<p><b>OFERTA POR DESCUENTO HABERES</b></p>
-
-<p>Tiene una oferta  <b>pre-aprobada</b> por un monto de: ${{ monto }} en {{ cuotas }} cuotas de 
-$ {{ "{:,.2f}".format(cuota_total).replace(",", "X").replace(".", ",").replace("X", ".") }} 
-esta oferta es <b>final.</b>
-<p>(queda sujeta al disponible del certificado.)</p>
-
-{% if reparticion in ["policia", "spb"] %}
-<p>
-También cuenta con una <b>ayuda económica alternativa</b> de 
-<b>$80.000 en 18 cuotas de $19.800 sin certificado de afectación</b>.</p>
-<p>Podrá optar por <b>una</b> de las dos opciones.</p>
-
-{% endif %}
-
-<p>+ $7.500 por CBU </p>
-
-</p>
-
-<p>
-Para continuar, deberá solicitar el certificado de afectación a nombre de 
-<b>
-{% if entidad == "quantum" %}
-    QUANTUM
-{% else %}
-    AAMAS
-{% endif %}
-</b>.
-</p>
-
-{% if reparticion in ["educacion", "ips"] %}
-<p>
-Si lo desea, la entidad puede gestionar el certificado de afectación en su nombre para agilizar el proceso.
-</p>
-{% endif %}
-
-<p><b>DOCUMENTACIÓN REQUERIDA:</b></p>
-
-<ul>
-    <li>DNI frente y dorso</li>
-    <li>Certificado de Afectacion</li>
-    <li>Comprobante de Servicio</li>
-    <li>Ultimo Recibo de Sueldo</li>
-    <li>Selfie con DNI en mano</li>
-    <li>Constancia de CBU</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-function copiarFormulario() {
-    const link = document.getElementById("formInput").value;
-    navigator.clipboard.writeText(link);
-
-    const msg = document.getElementById("copiadoFormMsg");
-    msg.style.display = "inline";
-
-    setTimeout(() => {
-        msg.style.display = "none";
-    }, 2000);
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
 }
 
-function copiarLink() {
-    const link = document.getElementById("linkInput").value;
-    navigator.clipboard.writeText(link);
-
-    const msg = document.getElementById("copiadoLinkMsg");
-    msg.style.display = "inline";
-
-    setTimeout(() => {
-        msg.style.display = "none";
-    }, 2000);
+function copiarFormulario(btn) {
+  const link = document.getElementById("formInput").value;
+  navigator.clipboard.writeText(link).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
+    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = ""; btn.style.color = ""; btn.style.background = ""; }, 2000);
+    showToast("✓ Link copiado al portapapeles");
+  });
 }
 
-function copiarTodo() {
-    const leyenda = document.getElementById("textoLeyenda").innerText;
-    const linkFormulario = document.getElementById("formInput").value;
-
-    const textoCompleto = 
-        leyenda +
-        "\n\n🧾 DATERO ONLINE:\n" + linkFormulario;
-
-    navigator.clipboard.writeText(textoCompleto);
-
-    const msg = document.getElementById("copiadoTodoMsg");
-    msg.style.display = "inline";
-
+function copiarLeyenda(btn) {
+  const leyenda = document.getElementById("textoLeyenda").innerText;
+  navigator.clipboard.writeText(leyenda).then(() => {
+    btn.classList.add("copied");
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
     setTimeout(() => {
-        msg.style.display = "none";
+      btn.classList.remove("copied");
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar mensaje`;
     }, 2000);
+    showToast("✓ Mensaje copiado al portapapeles");
+  });
+}
+
+function copiarTodo(btn) {
+  const leyenda = document.getElementById("textoLeyenda").innerText;
+  const link    = document.getElementById("formInput").value;
+  const texto   = leyenda + "\n\n🧾 DATERO ONLINE:\n" + link;
+  navigator.clipboard.writeText(texto).then(() => {
+    btn.classList.add("copied");
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg> ¡Todo copiado!`;
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = orig; }, 2200);
+    showToast("✓ Mensaje completo + link copiados");
+  });
 }
 </script>
 

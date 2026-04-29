@@ -1,196 +1,529 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Validación de Identidad</title>
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-body {
-    font-family: Arial;
-    background: #f5f6fa;
-    padding: 30px;
-}
+  :root {
+    --primary: #1E3A8A;
+    --primary-hover: #1e40af;
+    --primary-light: #dbeafe;
+    --primary-text: #1E3A8A;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
 
-.card {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: auto;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-.section {
-    margin-bottom: 20px;
-}
+  /* ── HEADER ── */
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
 
-label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-}
+  .header-brand { display: flex; align-items: center; gap: 10px; }
 
-input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+  .header-logo {
+    width: 32px; height: 32px;
     border-radius: 8px;
-    background: #fafafa;
-}
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500; color: white;
+  }
 
-button {
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
+
+  .header-badge {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    padding: 32px 16px 48px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .wrapper {
     width: 100%;
-    padding: 12px;
-    border: none;
-    background: #0A3D91;
-    color: white;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-}
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-button:hover {
-    background: #082c6b;
-}
+  /* ── PROGRESS ── */
+  .progress { display: flex; align-items: center; margin-bottom: 4px; }
+  .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
 
-.info {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 15px;
-}
+  .progress-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; flex-shrink: 0;
+  }
 
-.camera-box {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    border-radius: 10px;
+  .progress-dot.done   { background: #22c55e; border-color: #22c55e; color: white; }
+  .progress-dot.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  .progress-label { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .progress-label.done   { color: #16a34a; }
+  .progress-label.active { color: var(--primary-text); font-weight: 500; }
+
+  .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+  .progress-line.done { background: #86efac; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
     overflow: hidden;
-    border: 2px dashed #0A3D91;
-    margin-bottom: 10px;
-    background: #f9f9f9;
-}
+  }
 
-.overlay {
+  .card-header {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .card-icon svg { width: 18px; height: 18px; stroke: var(--primary-text); }
+
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
+  .card-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .card-body { padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 22px; }
+
+  /* ── INTRO BANNER ── */
+  .intro-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--primary-text);
+    line-height: 1.5;
+  }
+
+  .intro-banner svg { width: 18px; height: 18px; stroke: var(--primary-text); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── UPLOAD SECTION ── */
+  .upload-section { display: flex; flex-direction: column; gap: 8px; }
+
+  .upload-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .upload-label-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary); opacity: 0.5;
+  }
+
+  /* Zona de carga */
+  .upload-zone {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .upload-zone:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .upload-zone.loaded {
+    border-style: solid;
+    border-color: #22c55e;
+    background: #f0fdf4;
+  }
+
+  .upload-zone-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .upload-zone-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); }
+
+  .upload-zone-text {
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    text-align: center; line-height: 1.4;
+  }
+
+  .upload-zone-hint {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Input file invisible sobre toda la zona */
+  .upload-zone input[type="file"] {
     position: absolute;
-    top: 20px;
-    left: 10%;
-    width: 80%;
-    height: 60%;
-    border: 2px solid #0A3D91;
-    border-radius: 8px;
-    pointer-events: none;
-}
-
-.camera-box input {
-    width: 100%;
-    height: 100%;
+    inset: 0;
+    width: 100%; height: 100%;
     opacity: 0;
     cursor: pointer;
-}
-</style>
+    font-size: 0;
+  }
 
+  /* Preview */
+  .preview-wrap {
+    display: none;
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1.5px solid #86efac;
+    background: #f0fdf4;
+  }
+
+  .preview-wrap img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .preview-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: #16a34a;
+    color: white;
+    font-size: 11px; font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .preview-retake {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    font-size: 11px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+  }
+
+  .preview-retake:hover { background: rgba(0,0,0,0.75); }
+
+  /* Selfie — cámara frontal, diseño diferente */
+  .upload-zone.selfie { min-height: 160px; }
+
+  .upload-zone.selfie .upload-zone-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+  }
+
+  .upload-zone.selfie .upload-zone-icon svg { width: 24px; height: 24px; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); }
+
+  /* ── BOTÓN ── */
+  .btn-submit {
+    width: 100%; padding: 15px;
+    border-radius: var(--radius); border: none;
+    background: var(--primary); color: white;
+    font-weight: 600; font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-submit:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.18);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .progress-label { display: none; }
+    .card-body { padding: 18px 16px 22px; }
+    .card-header { padding: 14px 16px 12px; }
+  }
+</style>
 </head>
 
 <body>
 
-<div class="card">
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">
+      {% if entidad == "quantum" %}Q{% else %}A{% endif %}
+    </div>
+    <span class="header-title">
+      {% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}
+    </span>
+  </div>
+  <span class="header-badge">VALIDACIÓN DE IDENTIDAD</span>
+</header>
 
-<h2>Validación de Identidad</h2>
+<main class="main">
+  <div class="wrapper">
 
-<p class="info">
-Por favor tomá fotos claras de tu DNI y una selfie sosteniendo el documento.
-</p>
+    <!-- PROGRESO -->
+    <div class="progress">
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Datos</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot active">2</div>
+        <span class="progress-label active">Identidad</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">3</div>
+        <span class="progress-label">Firma</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">4</div>
+        <span class="progress-label">Resultado</span>
+      </div>
+    </div>
 
-<form method="POST" action="/guardar_formulario" enctype="multipart/form-data">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <circle cx="12" cy="11" r="3"/>
+            <path d="M7 20v-1a5 5 0 0 1 10 0v1"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Validación de Identidad</p>
+          <p class="card-subtitle">paso 2 de 4 · fotos del documento</p>
+        </div>
+      </div>
 
-<!-- 🔥 REENVÍA TODOS LOS DATOS -->
-{% for key, value in request.form.items() %}
-<input type="hidden" name="{{ key }}" value="{{ value }}">
-{% endfor %}
+      <div class="card-body">
 
-<div class="section">
-<label>DNI Frente</label>
+        <!-- BANNER INTRO -->
+        <div class="intro-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Tomá fotos claras y bien iluminadas. Asegurate de que el texto del DNI sea legible y que en la selfie se vea tu rostro junto al documento.</span>
+        </div>
 
-<div class="camera-box" id="boxFrente">
-    <div class="overlay"></div>
-    <input type="file" name="dni_frente" accept="image/*" capture="environment" required>
-</div>
+        <form method="POST" action="/guardar_formulario" enctype="multipart/form-data" id="formIdentidad">
 
-<div id="checkFrente" style="display:none; color:green; font-weight:bold; margin-top:5px;">
-✔ Foto cargada correctamente
-</div>
+          <!-- Reenvío de datos -->
+          {% for key, value in request.form.items() %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
 
-<img id="previewFrente" style="width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:8px; display:none;">
-</div>
+          <!-- DNI FRENTE -->
+          <div class="upload-section">
+            <div class="upload-label">
+              <div class="upload-label-dot"></div>
+              DNI Frente
+            </div>
 
-<div class="section">
-<label>DNI Dorso</label>
+            <div class="upload-zone" id="zoneFrente">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <line x1="8" y1="10" x2="16" y2="10"/>
+                  <line x1="8" y1="14" x2="12" y2="14"/>
+                </svg>
+              </div>
+              <div class="upload-zone-text">Tocá para fotografiar el frente</div>
+              <div class="upload-zone-hint">orientación horizontal · buena luz</div>
+              <input type="file" name="dni_frente" id="inputFrente" accept="image/*" capture="environment" required>
+            </div>
 
-<div class="camera-box" id="boxDorso">
-    <div class="overlay"></div>
-    <input type="file" name="dni_dorso" accept="image/*" capture="environment" required>
-</div>
+            <div class="preview-wrap" id="previewWrapFrente">
+              <img id="previewFrente" src="" alt="DNI Frente">
+              <div class="preview-badge">✓ Frente cargado</div>
+              <button type="button" class="preview-retake" onclick="retake('Frente')">Volver a tomar</button>
+            </div>
+          </div>
 
-<div id="checkDorso" style="display:none; color:green; font-weight:bold; margin-top:5px;">
-✔ Foto cargada correctamente
-</div>
+          <div class="divider"></div>
 
-<img id="previewDorso" style="width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:8px; display:none;">
-</div>
+          <!-- DNI DORSO -->
+          <div class="upload-section">
+            <div class="upload-label">
+              <div class="upload-label-dot"></div>
+              DNI Dorso
+            </div>
 
-<div class="section">
-<label>Selfie con DNI</label>
-<input type="file" name="selfie" accept="image/*" capture="user" required>
-</div>
+            <div class="upload-zone" id="zoneDorso">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <line x1="8" y1="10" x2="16" y2="10"/>
+                  <line x1="8" y1="14" x2="14" y2="14"/>
+                  <circle cx="17" cy="14" r="1"/>
+                </svg>
+              </div>
+              <div class="upload-zone-text">Tocá para fotografiar el dorso</div>
+              <div class="upload-zone-hint">orientación horizontal · buena luz</div>
+              <input type="file" name="dni_dorso" id="inputDorso" accept="image/*" capture="environment" required>
+            </div>
 
-<br>
+            <div class="preview-wrap" id="previewWrapDorso">
+              <img id="previewDorso" src="" alt="DNI Dorso">
+              <div class="preview-badge">✓ Dorso cargado</div>
+              <button type="button" class="preview-retake" onclick="retake('Dorso')">Volver a tomar</button>
+            </div>
+          </div>
 
-<button type="submit">Continuar</button>
+          <div class="divider"></div>
 
-</form>
+          <!-- SELFIE -->
+          <div class="upload-section">
+            <div class="upload-label">
+              <div class="upload-label-dot"></div>
+              Selfie con DNI en mano
+            </div>
 
-</div>
+            <div class="upload-zone selfie" id="zoneSelfie">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+              <div class="upload-zone-text">Tocá para tomar la selfie</div>
+              <div class="upload-zone-hint">cámara frontal · sostenés el DNI visible</div>
+              <input type="file" name="selfie" id="inputSelfie" accept="image/*" capture="user" required>
+            </div>
+
+            <div class="preview-wrap" id="previewWrapSelfie">
+              <img id="previewSelfie" src="" alt="Selfie">
+              <div class="preview-badge">✓ Selfie cargada</div>
+              <button type="button" class="preview-retake" onclick="retake('Selfie')">Volver a tomar</button>
+            </div>
+          </div>
+
+          <!-- BOTÓN -->
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+            Continuar a Firma
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
 
 <script>
-document.querySelectorAll('input[type="file"]').forEach(input => {
-    input.addEventListener('change', function(e){
-        const file = e.target.files[0];
-        if(file){
-            const reader = new FileReader();
+// Tema por entidad
+const entidad = "{{ entidad }}";
+if (entidad === "quantum") {
+  document.querySelector(".header").style.background = "#18181b";
+  document.documentElement.style.setProperty("--primary", "#18181b");
+  document.documentElement.style.setProperty("--primary-hover", "#27272a");
+  document.documentElement.style.setProperty("--primary-light", "#f4f4f5");
+  document.documentElement.style.setProperty("--primary-text", "#18181b");
+  document.documentElement.style.setProperty("--border-focus", "#71717a");
+}
 
-            reader.onload = function(ev){
+// Preview genérico
+function setupPreview(inputId, zoneId, previewWrapId, previewImgId) {
+  const input      = document.getElementById(inputId);
+  const zone       = document.getElementById(zoneId);
+  const previewW   = document.getElementById(previewWrapId);
+  const previewImg = document.getElementById(previewImgId);
 
-                // 📸 DNI FRENTE
-                if(input.name === "dni_frente"){
-                    const img = document.getElementById("previewFrente");
-                    img.src = ev.target.result;
-                    img.style.display = "block";
+  input.addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
 
-                    document.getElementById("boxFrente").style.display = "none";
-                    document.getElementById("checkFrente").style.display = "block";
-                }
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      previewImg.src     = ev.target.result;
+      zone.style.display = "none";
+      previewW.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
-                // 📸 DNI DORSO
-                if(input.name === "dni_dorso"){
-                    const img = document.getElementById("previewDorso");
-                    img.src = ev.target.result;
-                    img.style.display = "block";
+setupPreview("inputFrente", "zoneFrente", "previewWrapFrente", "previewFrente");
+setupPreview("inputDorso",  "zoneDorso",  "previewWrapDorso",  "previewDorso");
+setupPreview("inputSelfie", "zoneSelfie", "previewWrapSelfie", "previewSelfie");
 
-                    document.getElementById("boxDorso").style.display = "none";
-                    document.getElementById("checkDorso").style.display = "block";
-                }
-
-            }
-
-            reader.readAsDataURL(file);
-        }
-    });
-});
+// Botón "Volver a tomar" — limpia el input y muestra la zona de carga
+function retake(which) {
+  const map = {
+    Frente: { zone: "zoneFrente",  wrap: "previewWrapFrente", input: "inputFrente" },
+    Dorso:  { zone: "zoneDorso",   wrap: "previewWrapDorso",  input: "inputDorso"  },
+    Selfie: { zone: "zoneSelfie",  wrap: "previewWrapSelfie", input: "inputSelfie" },
+  };
+  const { zone, wrap, input } = map[which];
+  document.getElementById(zone).style.display  = "";
+  document.getElementById(wrap).style.display  = "none";
+  document.getElementById(input).value         = "";
+}
 </script>
 
 </body>

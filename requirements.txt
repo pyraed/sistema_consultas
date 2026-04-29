@@ -4,3 +4,4 @@ reportlab
 pandas
 openpyxl
 PyPDF2
+Pillow

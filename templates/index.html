@@ -1,180 +1,430 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-
 <title>Simulador de Oferta</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --aamas-primary: #1E3A8A;
+    --aamas-secondary: #1e40af;
+    --aamas-accent: #3b82f6;
+    --aamas-light: #dbeafe;
+    --quantum-primary: #18181b;
+    --quantum-secondary: #27272a;
+    --quantum-accent: #a1a1aa;
+    --quantum-light: #f4f4f5;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
 
-* { transition: all 0.2s ease; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-    font-family: 'Inter', sans-serif;
-    background: #f5f6fa;
-    margin: 0;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-.header {
-    background: #1E3A8A;
-    color: white;
-    padding: 16px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 18px;
-}
+  .header {
+    background: var(--aamas-primary);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s ease;
+  }
 
-.container {
-    max-width: 500px;
-    margin: 30px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
-}
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -60px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
 
-h2 {
-    margin-bottom: 20px;
-    text-align: center;
-}
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-label {
-    font-weight: 600;
-    font-size: 14px;
-}
-
-select {
-    width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-    margin-bottom: 18px;
+  .header-logo {
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 16px;
-}
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    letter-spacing: -0.5px;
+  }
 
-button {
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+
+  .header-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
     width: 100%;
-    padding: 16px;
-    border-radius: 10px;
+    max-width: 440px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 28px 32px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .card-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+  }
+
+  .card-body {
+    padding: 28px 32px 32px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .field-control {
+    position: relative;
+  }
+
+  .field-control::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--text-muted);
+    pointer-events: none;
+  }
+
+  select {
+    width: 100%;
+    padding: 13px 40px 13px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    color: var(--text-primary);
+    background: var(--surface);
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  select:hover { border-color: #94a3b8; }
+
+  select:focus {
+    border-color: var(--aamas-accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+
+  body.quantum select:focus {
+    border-color: var(--quantum-accent);
+    box-shadow: 0 0 0 3px rgba(161,161,170,0.15);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .entity-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--aamas-light);
+    transition: background 0.3s ease;
+  }
+
+  .entity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--aamas-accent);
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+  }
+
+  .entity-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--aamas-primary);
+    font-family: 'DM Mono', monospace;
+    transition: color 0.3s ease;
+  }
+
+  body.quantum .entity-indicator { background: var(--quantum-light); }
+  body.quantum .entity-dot { background: var(--quantum-secondary); }
+  body.quantum .entity-name { color: var(--quantum-primary); }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    border-radius: var(--radius-sm);
     border: none;
-    background: #1a1a1a;
+    background: var(--aamas-primary);
     color: white;
     font-weight: 600;
-    font-size: 16px;
-}
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    margin-top: 28px;
+  }
 
-button:hover {
-    background: #333;
-    transform: scale(1.02);
-}
+  .btn-submit:hover {
+    background: var(--aamas-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.2);
+  }
 
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.85;
+    flex-shrink: 0;
+  }
+
+  body.quantum .btn-submit { background: var(--quantum-primary); }
+
+  body.quantum .btn-submit:hover {
+    background: var(--quantum-secondary);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="header" id="headerEntidad">AAMAS</div>
+<header class="header" id="headerEntidad">
+  <div class="header-brand">
+    <div class="header-logo" id="headerLogo">A</div>
+    <span class="header-title" id="headerText">AAMAS</span>
+  </div>
+  <span class="header-badge">SISTEMA INTERNO</span>
+</header>
 
-<div class="container">
+<main class="main">
+  <div class="card">
+    <div class="card-header">
+      <p class="card-eyebrow">Módulo de préstamos</p>
+      <h1 class="card-title">Simular oferta</h1>
+    </div>
 
-<h2>Simular Oferta</h2>
+    <div class="card-body">
+      <form id="formulario" method="post" action="/calcular">
 
-<form id="formulario" method="post" action="/calcular">
+        <input type="hidden" name="linea" value="haberes">
 
-<label>Entidad</label>
-<select name="entidad" id="entidad">
-    <option value="aamas">AAMAS</option>
-    <option value="quantum">QUANTUM</option>
-</select>
+        <div class="entity-indicator">
+          <div class="entity-dot" id="entityDot"></div>
+          <span class="entity-name" id="entityName">AAMAS — activo</span>
+        </div>
 
-<!-- 🔥 Eliminamos línea completamente -->
-<input type="hidden" name="linea" value="haberes">
+        <div class="field">
+          <label class="field-label" for="entidad">Entidad</label>
+          <div class="field-control">
+            <select name="entidad" id="entidad">
+              <option value="aamas">AAMAS</option>
+              <option value="quantum">QUANTUM</option>
+            </select>
+          </div>
+        </div>
 
-<label>Repartición</label>
-<select name="reparticion" id="reparticion">
-    <option value="policia">Policía</option>
-    <option value="educacion" selected>Educación</option>
-    <option value="spb">SPB</option>
-    <option value="ips">IPS</option>
-</select>
+        <div class="field">
+          <label class="field-label" for="reparticion">Repartición</label>
+          <div class="field-control">
+            <select name="reparticion" id="reparticion">
+              <option value="policia">Policía</option>
+              <option value="educacion" selected>Educación</option>
+              <option value="spb">SPB</option>
+              <option value="ips">IPS</option>
+            </select>
+          </div>
+        </div>
 
-<div>
-    <label>Monto</label>
-    <select name="monto">
-        {% for i in montos %}
-        <option value="{{ i }}">
-            $ {{ "{:,}".format(i).replace(",", ".") }}
-        </option>
-        {% endfor %}
-    </select>
-</div>
+        <div class="divider"></div>
 
-<div>
-    <label>Cuotas</label>
-    <select name="cuotas">
-        <option value="6">6 cuotas</option>
-        <option value="12">12 cuotas</option>
-        <option value="18">18 cuotas</option>
-        <option value="24" selected>24 cuotas</option>
-    </select>
-</div>
+        <div class="field">
+          <label class="field-label" for="monto">Monto</label>
+          <div class="field-control">
+            <select name="monto" id="monto">
+              {% for i in montos %}
+              <option value="{{ i }}">
+                $ {{ "{:,}".format(i).replace(",", ".") }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
 
-<button type="submit">Calcular Oferta</button>
+        <div class="field">
+          <label class="field-label" for="cuotas">Cuotas</label>
+          <div class="field-control">
+            <select name="cuotas" id="cuotas">
+              <option value="6">6 cuotas</option>
+              <option value="12">12 cuotas</option>
+              <option value="18">18 cuotas</option>
+              <option value="24" selected>24 cuotas</option>
+            </select>
+          </div>
+        </div>
 
-</form>
+        <button type="submit" class="btn-submit">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Calcular oferta
+        </button>
 
-</div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  v1.0 &nbsp;·&nbsp; sistema de gestión mutual
+</footer>
 
 <script>
-
-const entidadSelect = document.getElementById("entidad");
-const header = document.getElementById("headerEntidad");
+const entidadSelect     = document.getElementById("entidad");
+const header            = document.getElementById("headerEntidad");
+const headerLogo        = document.getElementById("headerLogo");
+const headerText        = document.getElementById("headerText");
 const reparticionSelect = document.getElementById("reparticion");
+const entityName        = document.getElementById("entityName");
 
-// Opciones AAMAS
 const opcionesAAMAS = `
-    <option value="policia">Policía</option>
-    <option value="educacion" selected>Educación</option>
-    <option value="spb">SPB</option>
-    <option value="ips">IPS</option>
+  <option value="policia">Policía</option>
+  <option value="educacion" selected>Educación</option>
+  <option value="spb">SPB</option>
+  <option value="ips">IPS</option>
 `;
 
-// Opciones QUANTUM
 const opcionesQuantum = `
-    <option value="educacion">Educación</option>
+  <option value="educacion">Educación</option>
 `;
 
-entidadSelect.addEventListener("change", function() {
+entidadSelect.addEventListener("change", function () {
+  const esQuantum = this.value === "quantum";
 
-    const entidad = this.value;
-
-    // 🔵 CAMBIO DE HEADER
-    if (entidad === "quantum") {
-        header.innerText = "QUANTUM";
-        header.style.background = "#2C2C2C";
-        header.style.color = "white";
-
-        reparticionSelect.innerHTML = opcionesQuantum;
-
-    } else {
-        header.innerText = "AAMAS";
-        header.style.background = "#1E3A8A";
-        header.style.color = "white";
-
-        reparticionSelect.innerHTML = opcionesAAMAS;
-    }
-
+  if (esQuantum) {
+    header.style.background     = "#18181b";
+    headerLogo.textContent      = "Q";
+    headerText.textContent      = "QUANTUM";
+    entityName.textContent      = "QUANTUM — ACTIVO";
+    document.body.classList.add("quantum");
+    document.body.classList.remove("aamas");
+    reparticionSelect.innerHTML = opcionesQuantum;
+  } else {
+    header.style.background     = "#1E3A8A";
+    headerLogo.textContent      = "A";
+    headerText.textContent      = "AAMAS";
+    entityName.textContent      = "AAMAS — ACTIVO";
+    document.body.classList.add("aamas");
+    document.body.classList.remove("quantum");
+    reparticionSelect.innerHTML = opcionesAAMAS;
+  }
 });
 
-// 🔥 IMPORTANTE: ejecutar al cargar
-window.onload = function() {
-    entidadSelect.dispatchEvent(new Event("change"));
+window.onload = function () {
+  entidadSelect.dispatchEvent(new Event("change"));
 };
-
 </script>
 
 </body>

@@ -1,194 +1,610 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Confirmación Datero</title>
+<title>Firma del Datero</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: {% if entidad == "quantum" %}#18181b{% else %}#1E3A8A{% endif %};
+    --primary-hover: {% if entidad == "quantum" %}#27272a{% else %}#1e40af{% endif %};
+    --primary-light: {% if entidad == "quantum" %}#f4f4f5{% else %}#dbeafe{% endif %};
+    --primary-text: {% if entidad == "quantum" %}#18181b{% else %}#1E3A8A{% endif %};
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f6fa;
-            padding: 30px;
-        }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
+  /* ── HEADER ── */
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
 
-        h2 {
-            text-align: center;
-        }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
 
-        .section {
-            margin-bottom: 20px;
-        }
+  .header-logo {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500; color: white;
+  }
 
-        .titulo {
-            font-weight: bold;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
-        }
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
 
-        canvas {
-            border: 1px solid black;
-            border-radius: 8px;
-        }
+  .header-badge {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
+  }
 
-        button {
-            padding: 10px 15px;
-            border: none;
-            background: #0A3D91;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    padding: 32px 16px 48px;
+    display: flex;
+    justify-content: center;
+  }
 
-        button:hover {
-            background: #082c6b;
-        }
-    </style>
+  .wrapper {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress { display: flex; align-items: center; margin-bottom: 4px; }
+  .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
+
+  .progress-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; flex-shrink: 0;
+  }
+
+  .progress-dot.done   { background: #22c55e; border-color: #22c55e; color: white; }
+  .progress-dot.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  .progress-label { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .progress-label.done   { color: #16a34a; }
+  .progress-label.active { color: var(--primary-text); font-weight: 500; }
+
+  .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+  .progress-line.done { background: #86efac; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .card-icon svg { width: 18px; height: 18px; stroke: var(--primary-text); }
+
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
+  .card-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .card-body { padding: 22px 24px 26px; }
+
+  /* ── RESUMEN GRID ── */
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .resumen-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+  }
+
+  .resumen-item.full { grid-column: 1 / -1; }
+
+  .resumen-label {
+    font-size: 10px; font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 3px;
+  }
+
+  .resumen-value {
+    font-size: 15px; font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .resumen-item.highlight {
+    background: var(--primary-light);
+    border-color: transparent;
+  }
+
+  .resumen-item.highlight .resumen-value {
+    color: var(--primary-text);
+    font-size: 18px;
+  }
+
+  /* ── MEMB STRIP ── */
+  .memb-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .memb-cell {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 10px;
+  }
+
+  .memb-cell-label {
+    font-size: 9px; font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 3px;
+  }
+
+  .memb-cell-value { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── FIRMA SECTION ── */
+  .firma-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .firma-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .btn-limpiar {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    font-size: 12px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .btn-limpiar:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+  .btn-limpiar svg { width: 12px; height: 12px; stroke: currentColor; flex-shrink: 0; }
+
+  /* Canvas wrapper */
+  .canvas-wrap {
+    position: relative;
+    border-radius: var(--radius);
+    border: 2px dashed var(--border);
+    background: var(--surface-2);
+    overflow: hidden;
+    transition: border-color 0.2s;
+    cursor: crosshair;
+  }
+
+  .canvas-wrap.active { border-color: var(--primary); border-style: solid; }
+  .canvas-wrap.signed { border-color: #22c55e; border-style: solid; background: #f0fdf4; }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 180px;
+    touch-action: none;
+  }
+
+  .canvas-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .canvas-placeholder svg { width: 28px; height: 28px; stroke: var(--text-muted); }
+
+  .canvas-placeholder-text {
+    font-size: 13px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .canvas-signed-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: #16a34a;
+    color: white;
+    font-size: 11px; font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: none;
+  }
+
+  /* ── HINT ── */
+  .firma-hint {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* ── BOTÓN ── */
+  .btn-submit {
+    width: 100%; padding: 15px;
+    border-radius: var(--radius); border: none;
+    background: var(--primary); color: white;
+    font-weight: 600; font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+    margin-top: 24px;
+  }
+
+  .btn-submit:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.18);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .progress-label { display: none; }
+    .resumen-grid { grid-template-columns: 1fr; }
+    .resumen-item.full { grid-column: auto; }
+    .memb-strip { grid-template-columns: 1fr 1fr; }
+    .card-body { padding: 18px 16px 22px; }
+    .card-header { padding: 14px 16px 12px; }
+  }
+</style>
 </head>
 
 <body>
 
-<div class="card">
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">{% if entidad == "quantum" %}Q{% else %}A{% endif %}</div>
+    <span class="header-title">{% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}</span>
+  </div>
+  <span class="header-badge">FIRMA DEL DATERO</span>
+</header>
 
-<h2>Datero - {{ entidad.upper() }}</h2>
+<main class="main">
+  <div class="wrapper">
 
-<div class="section">
-<div class="titulo">Datos del Préstamo</div>
-<p>Monto: {{ monto_fmt }}</p>
-<p>Cuotas: {{ cuotas }}</p>
-<p>Valor cuota: {{ valor_cuota_fmt }}</p>
-</div>
+    <!-- PROGRESO -->
+    <div class="progress">
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Datos</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Identidad</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot active">3</div>
+        <span class="progress-label active">Firma</span>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step">
+        <div class="progress-dot">4</div>
+        <span class="progress-label">Resultado</span>
+      </div>
+    </div>
 
-<div class="section">
-<div class="titulo">Servicios</div>
-<p>Cuota Social: {{ cuota_social_fmt }}</p>
-<p>Médico: {{ medico_fmt }}</p>
-<p>Farmacia: {{ farmacia_fmt }}</p>
-<p>Membresía: {{ membresia_fmt }}</p>
-</div>
+    <!-- CARD RESUMEN -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Resumen del préstamo</p>
+          <p class="card-subtitle">{{ entidad.upper() }} · {{ reparticion }}</p>
+        </div>
+      </div>
+      <div class="card-body">
 
-<div class="section">
-<div class="titulo">Firma</div>
+        <div class="resumen-grid">
+          <div class="resumen-item highlight full">
+            <div class="resumen-label">Monto aprobado</div>
+            <div class="resumen-value">{{ monto_fmt }}</div>
+          </div>
+          <div class="resumen-item">
+            <div class="resumen-label">Cuotas</div>
+            <div class="resumen-value">{{ cuotas }}</div>
+          </div>
+          <div class="resumen-item">
+            <div class="resumen-label">Valor por cuota</div>
+            <div class="resumen-value">{{ valor_cuota_fmt }}</div>
+          </div>
+        </div>
 
-<canvas id="firmaCanvas" width="300" height="150" style="width:100%; max-width:350px; border:1px solid #000; border-radius:8px;"></canvas>
-<br><br>
+        <div class="memb-strip">
+          <div class="memb-cell">
+            <div class="memb-cell-label">Cuota Social</div>
+            <div class="memb-cell-value">{{ cuota_social_fmt }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Médico</div>
+            <div class="memb-cell-value">{{ medico_fmt }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Farmacia</div>
+            <div class="memb-cell-value">{{ farmacia_fmt }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Membresía</div>
+            <div class="memb-cell-value">{{ membresia_fmt }}</div>
+          </div>
+        </div>
 
-<button onclick="limpiarFirma()">Limpiar</button>
-</div>
+      </div>
+    </div>
 
-<form method="POST" action="/generar_pdf_final">
-<input type="hidden" name="firma" id="firmaInput">
+    <!-- CARD FIRMA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Firma del solicitante</p>
+          <p class="card-subtitle">firmar con el dedo o mouse en el recuadro</p>
+        </div>
+      </div>
 
-<input type="hidden" name="entidad" value="{{ entidad }}">
-<input type="hidden" name="reparticion" value="{{ reparticion }}">
-<input type="hidden" name="monto" value="{{ monto }}">
-<input type="hidden" name="cuotas" value="{{ cuotas }}">
-<input type="hidden" name="valor_cuota" value="{{ valor_cuota }}">
-<input type="hidden" name="cuota_social" value="{{ cuota_social }}">
-<input type="hidden" name="medico" value="{{ medico }}">
-<input type="hidden" name="farmacia" value="{{ farmacia }}">
-<input type="hidden" name="membresia" value="{{ membresia }}">
+      <div class="card-body">
 
-<!-- 🔥 DATOS PERSONALES -->
-<input type="hidden" name="nombre" value="{{ nombre }}">
-<input type="hidden" name="dni" value="{{ dni }}">
-<input type="hidden" name="cuit" value="{{ cuit }}">
-<input type="hidden" name="telefono" value="{{ telefono }}">
-<input type="hidden" name="fecha_nacimiento" value="{{ fecha }}">
-<input type="hidden" name="nacionalidad" value="{{ nacionalidad }}">
-<input type="hidden" name="provincia" value="{{ provincia }}">
-<input type="hidden" name="localidad" value="{{ localidad }}">
-<input type="hidden" name="domicilio" value="{{ domicilio }}">
-<input type="hidden" name="email" value="{{ email }}">
-<input type="hidden" name="cbu" value="{{ cbu }}">
+        <form method="POST" action="/generar_pdf_final" id="firmaForm">
+          <input type="hidden" name="firma" id="firmaInput">
 
-<!-- 🔥 REFERENCIAS -->
-<input type="hidden" name="ref1_nombre" value="{{ ref1_nombre }}">
-<input type="hidden" name="ref1_tel" value="{{ ref1_tel }}">
-<input type="hidden" name="ref1_relacion" value="{{ ref1_relacion }}">
-<input type="hidden" name="ref2_nombre" value="{{ ref2_nombre }}">
-<input type="hidden" name="ref2_tel" value="{{ ref2_tel }}">
-<input type="hidden" name="ref2_relacion" value="{{ ref2_relacion }}">
+          <!-- Todos los campos ocultos -->
+          <input type="hidden" name="entidad"          value="{{ entidad }}">
+          <input type="hidden" name="reparticion"      value="{{ reparticion }}">
+          <input type="hidden" name="monto"            value="{{ monto }}">
+          <input type="hidden" name="cuotas"           value="{{ cuotas }}">
+          <input type="hidden" name="valor_cuota"      value="{{ valor_cuota }}">
+          <input type="hidden" name="cuota_social"     value="{{ cuota_social }}">
+          <input type="hidden" name="medico"           value="{{ medico }}">
+          <input type="hidden" name="farmacia"         value="{{ farmacia }}">
+          <input type="hidden" name="membresia"        value="{{ membresia }}">
+          <input type="hidden" name="nombre"           value="{{ nombre }}">
+          <input type="hidden" name="dni"              value="{{ dni }}">
+          <input type="hidden" name="cuit"             value="{{ cuit }}">
+          <input type="hidden" name="telefono"         value="{{ telefono }}">
+          <input type="hidden" name="fecha_nacimiento" value="{{ fecha }}">
+          <input type="hidden" name="nacionalidad"     value="{{ nacionalidad }}">
+          <input type="hidden" name="provincia"        value="{{ provincia }}">
+          <input type="hidden" name="localidad"        value="{{ localidad }}">
+          <input type="hidden" name="domicilio"        value="{{ domicilio }}">
+          <input type="hidden" name="email"            value="{{ email }}">
+          <input type="hidden" name="cbu"              value="{{ cbu }}">
+          <input type="hidden" name="ref1_nombre"      value="{{ ref1_nombre }}">
+          <input type="hidden" name="ref1_tel"         value="{{ ref1_tel }}">
+          <input type="hidden" name="ref1_relacion"    value="{{ ref1_relacion }}">
+          <input type="hidden" name="ref2_nombre"      value="{{ ref2_nombre }}">
+          <input type="hidden" name="ref2_tel"         value="{{ ref2_tel }}">
+          <input type="hidden" name="ref2_relacion"    value="{{ ref2_relacion }}">
+          <input type="hidden" name="ruta_frente"      value="{{ ruta_frente }}">
+          <input type="hidden" name="ruta_dorso"       value="{{ ruta_dorso }}">
+          <input type="hidden" name="ruta_selfie"      value="{{ ruta_selfie }}">
 
-<input type="hidden" name="ruta_frente" value="{{ ruta_frente }}">
-<input type="hidden" name="ruta_dorso" value="{{ ruta_dorso }}">
-<input type="hidden" name="ruta_selfie" value="{{ ruta_selfie }}">
+          <!-- FIRMA -->
+          <div class="firma-label-row">
+            <span class="firma-label">Área de firma</span>
+            <button type="button" class="btn-limpiar" onclick="limpiarFirma()">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+              </svg>
+              Limpiar
+            </button>
+          </div>
 
-<br>
-<button type="submit">Firmar y Descargar</button>
-</form>
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="firmaCanvas" width="800" height="300"></canvas>
+            <div class="canvas-placeholder" id="placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span class="canvas-placeholder-text">Firmá aquí</span>
+            </div>
+            <div class="canvas-signed-badge" id="signedBadge">✓ Firmado</div>
+          </div>
 
-</div>
+          <p class="firma-hint">Usá el dedo (celular) o el mouse (PC) para firmar</p>
+
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Firmar y Generar PDF
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
 
 <script>
-const canvas = document.getElementById("firmaCanvas");
-const ctx = canvas.getContext("2d");
+const canvas    = document.getElementById("firmaCanvas");
+const ctx       = canvas.getContext("2d");
+const wrap      = document.getElementById("canvasWrap");
+const placeholder = document.getElementById("placeholder");
+const signedBadge = document.getElementById("signedBadge");
 
-let dibujando = false;
+let dibujando  = false;
+let hasFirma   = false;
+
+// Ajustar resolución real del canvas al tamaño CSS
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const dpr  = window.devicePixelRatio || 1;
+  canvas.width  = rect.width  * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = "#0f172a";
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = "round";
+  ctx.lineJoin    = "round";
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches) {
-        return {
-            x: e.touches[0].clientX - rect.left,
-            y: e.touches[0].clientY - rect.top
-        };
-    }
+  const rect = canvas.getBoundingClientRect();
+  if (e.touches) {
     return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top
     };
+  }
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
 }
 
-// PC
-canvas.addEventListener("mousedown", () => dibujando = true);
-canvas.addEventListener("mouseup", () => {
-    dibujando = false;
-    ctx.beginPath();
-});
-canvas.addEventListener("mousemove", dibujar);
+function startDraw(e) {
+  dibujando = true;
+  ctx.beginPath();
+  const pos = getPos(e);
+  ctx.moveTo(pos.x, pos.y);
+  // Ocultar placeholder al primer trazo
+  if (!hasFirma) {
+    placeholder.style.opacity = "0";
+  }
+}
 
-// 📱 CELULAR
-canvas.addEventListener("touchstart", () => dibujando = true);
-canvas.addEventListener("touchend", () => {
-    dibujando = false;
-    ctx.beginPath();
-});
-canvas.addEventListener("touchmove", dibujar);
+function draw(e) {
+  if (!dibujando) return;
+  e.preventDefault();
+  const pos = getPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  hasFirma = true;
+  wrap.classList.add("signed");
+  signedBadge.style.display = "block";
+}
 
-function dibujar(e){
-    if(!dibujando) return;
+function stopDraw() {
+  dibujando = false;
+  ctx.beginPath();
+}
 
+// Mouse
+canvas.addEventListener("mousedown",  startDraw);
+canvas.addEventListener("mousemove",  draw);
+canvas.addEventListener("mouseup",    stopDraw);
+canvas.addEventListener("mouseleave", stopDraw);
+
+// Touch
+canvas.addEventListener("touchstart", startDraw, { passive: false });
+canvas.addEventListener("touchmove",  draw,       { passive: false });
+canvas.addEventListener("touchend",   stopDraw);
+
+function limpiarFirma() {
+  const rect = canvas.getBoundingClientRect();
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  hasFirma = false;
+  wrap.classList.remove("signed");
+  signedBadge.style.display = "none";
+  placeholder.style.opacity = "1";
+}
+
+// Al enviar: captura la firma y valida que no esté vacía
+document.getElementById("firmaForm").addEventListener("submit", function(e) {
+  if (!hasFirma) {
     e.preventDefault();
-
-    const pos = getPos(e);
-
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-}
-
-function limpiarFirma(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-document.querySelector("form").addEventListener("submit", function(){
-    const dataURL = canvas.toDataURL("image/png");
-    document.getElementById("firmaInput").value = dataURL;
+    wrap.style.borderColor = "#ef4444";
+    wrap.style.borderStyle = "solid";
+    wrap.style.background  = "#fef2f2";
+    placeholder.style.opacity = "1";
+    placeholder.querySelector(".canvas-placeholder-text").textContent = "Se requiere la firma";
+    placeholder.querySelector(".canvas-placeholder-text").style.color = "#ef4444";
+    return;
+  }
+  document.getElementById("firmaInput").value = canvas.toDataURL("image/png");
 });
 </script>
 

@@ -1,28 +1,348 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descargar PDF</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datero Generado</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1E3A8A;
+    --primary-hover: #1e40af;
+    --primary-light: #dbeafe;
+    --primary-text: #1E3A8A;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-logo {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500; color: white;
+  }
+
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
+
+  .header-badge {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    padding: 32px 16px 48px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress { display: flex; align-items: center; margin-bottom: 4px; }
+  .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
+
+  .progress-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; flex-shrink: 0;
+  }
+
+  .progress-dot.done { background: #22c55e; border-color: #22c55e; color: white; }
+
+  .progress-label { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .progress-label.done { color: #16a34a; }
+
+  .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+  .progress-line.done { background: #86efac; }
+
+  /* ── SUCCESS CARD ── */
+  .success-card {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .success-top {
+    padding: 40px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .success-icon-wrap {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    display: flex; align-items: center; justify-content: center;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(0.6); opacity: 0; }
+    70%  { transform: scale(1.08); }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+
+  .success-icon-wrap svg {
+    width: 36px; height: 36px;
+    stroke: #16a34a;
+  }
+
+  .success-title {
+    font-size: 20px; font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+  }
+
+  .success-subtitle {
+    font-size: 14px; color: var(--text-secondary);
+    line-height: 1.5; max-width: 320px;
+  }
+
+  /* ── ARCHIVO INFO ── */
+  .archivo-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    text-align: left;
+    margin: 0 32px;
+  }
+
+  .archivo-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .archivo-icon svg { width: 18px; height: 18px; stroke: var(--primary-text); }
+
+  .archivo-name {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+    font-family: 'DM Mono', monospace;
+    word-break: break-all;
+  }
+
+  .archivo-meta {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  /* ── ACCIONES ── */
+  .acciones {
+    padding: 24px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 28px;
+  }
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-download:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(30,58,138,0.18);
+  }
+
+  .btn-download:active { transform: translateY(0); }
+
+  .btn-download svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+  .btn-nueva {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+
+  .btn-nueva:hover {
+    border-color: #94a3b8;
+    background: var(--surface-2);
+    color: var(--text-primary);
+  }
+
+  .btn-nueva svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .progress-label { display: none; }
+    .success-top { padding: 32px 20px 24px; }
+    .archivo-info { margin: 0 20px; }
+    .acciones { padding: 20px 20px 28px; }
+  }
+</style>
 </head>
 
-<body style="font-family: Arial; text-align: center; padding: 40px;">
+<body>
 
-<h2>✅ Datero generado correctamente</h2>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">M</div>
+    <span class="header-title">Sistema Mutual</span>
+  </div>
+  <span class="header-badge">PROCESO COMPLETADO</span>
+</header>
 
-<p>Presioná el botón para descargar tu PDF</p>
+<main class="main">
+  <div class="wrapper">
 
-<a href="/static/{{ archivo }}" download style="
-padding: 15px 20px;
-background: #1E40AF;
-color: white;
-border-radius: 8px;
-text-decoration: none;
-font-size: 18px;
-display: inline-block;
-margin-top: 20px;
-">
-📄 Descargar PDF
-</a>
+    <!-- PROGRESO — todos completos -->
+    <div class="progress">
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Datos</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Identidad</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Firma</span>
+      </div>
+      <div class="progress-line done"></div>
+      <div class="progress-step">
+        <div class="progress-dot done">✓</div>
+        <span class="progress-label done">Resultado</span>
+      </div>
+    </div>
+
+    <!-- CARD ÉXITO -->
+    <div class="success-card">
+
+      <div class="success-top">
+        <div class="success-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div>
+          <p class="success-title">Datero generado con éxito</p>
+        </div>
+        <p class="success-subtitle">
+          El documento fue firmado y generado correctamente. Descargalo usando el botón de abajo.
+        </p>
+      </div>
+
+      <!-- Info del archivo -->
+      <div class="archivo-info">
+        <div class="archivo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="archivo-name">{{ archivo }}</div>
+          <div class="archivo-meta">PDF · listo para descargar</div>
+        </div>
+      </div>
+
+      <div class="acciones">
+
+        <a href="/static/{{ archivo }}" download class="btn-download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Descargar PDF
+        </a>
+
+        <a href="/" class="btn-nueva">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+          </svg>
+          Nueva simulación
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</main>
 
 </body>
 </html>

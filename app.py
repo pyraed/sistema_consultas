@@ -1,984 +1,704 @@
-from flask import Flask, render_template, request
-import pandas as pd
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from flask import send_file
+"""
+app.py — Sistema de Gestión Mutual
+AAMAS / QUANTUM
+"""
+
+import os
 import io
+import time
 import base64
-from reportlab.platypus import Image
+
+from flask import Flask, render_template, request
+
+import pandas as pd
 from PIL import Image, ExifTags
 from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
-import io
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer,
+    Table, TableStyle, Image as RLImage, PageBreak
+)
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas as rl_canvas
 from reportlab.lib.utils import ImageReader
 
 
-def corregir_orientacion(ruta):
-    image = Image.open(ruta)
-
-    try:
-        exif = image._getexif()
-
-        if exif is not None:
-            orientation = None
-            for tag, name in ExifTags.TAGS.items():
-                if name == 'Orientation':
-                    orientation = tag
-                    break
-
-            if orientation and orientation in exif:
-                if exif[orientation] == 3:
-                    image = image.rotate(180, expand=True)
-                elif exif[orientation] == 6:
-                    image = image.rotate(270, expand=True)
-                elif exif[orientation] == 8:
-                    image = image.rotate(90, expand=True)
-
-    except:
-        pass
-
-    image.save(ruta)
-
-def corregir_orientacion_y_recortar(ruta):
-    image = Image.open(ruta)
-
-    try:
-        exif = image._getexif()
-
-        if exif is not None:
-            orientation = None
-            for tag, name in ExifTags.TAGS.items():
-                if name == 'Orientation':
-                    orientation = tag
-                    break
-
-            if orientation and orientation in exif:
-                if exif[orientation] == 3:
-                    image = image.rotate(180, expand=True)
-                elif exif[orientation] == 6:
-                    image = image.rotate(270, expand=True)
-                elif exif[orientation] == 8:
-                    image = image.rotate(90, expand=True)
-
-    except:
-        pass
-
-    # 🔥 RECORTE CENTRAL (CLAVE)
-    width, height = image.size
-
-    new_width = int(width * 0.9)
-    new_height = int(height * 0.7)
-
-    left = (width - new_width) / 2
-    top = (height - new_height) / 2
-    right = (width + new_width) / 2
-    bottom = (height + new_height) / 2
-
-    image = image.crop((left, top, right, bottom))
-
-    image.save(ruta)
-
-
-
-def formatear_moneda(valor):
-    return "$ {:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
-
-# ---------------- BASE ----------------
-
-# Cargar grilla
-df = pd.read_excel("grilla.xlsx")
-df = df[
-    (df["Monto"] >= 100000) & 
-    (df["Monto"] <= 600000) & 
-    (df["Monto"] % 50000 == 0)
-]
-
-tabla_6 = dict(zip(df["Monto"], df["Cuotas6"]))
-tabla_12 = dict(zip(df["Monto"], df["Cuotas12"]))
-tabla_18 = dict(zip(df["Monto"], df["Cuotas18"]))
-tabla_24 = dict(zip(df["Monto"], df["Cuotas24"]))
+# ══════════════════════════════════════════════════════════
+#  CONFIGURACIÓN
+# ══════════════════════════════════════════════════════════
 
 app = Flask(__name__)
 
-# ---------------- UTIL ----------------
-
-def formatear(numero):
-    return "{:,.2f}".format(numero).replace(",", "X").replace(".", ",").replace("X", ".")
-
-# ---------------- LOGICA NUEVA ----------------
-
-def calcular_membresia(entidad, reparticion, monto):
-
-    # 🔹 AAMAS
-    if entidad == "aamas":
-
-        if reparticion in ["policia", "spb", "ips"]:
-            cuota_social = 7975
-            medico = 11825
-            farmacia = 10750
-            membresia = 8810
-
-        elif reparticion == "educacion":
-            cuota_social = 6972
-            medico = 9950
-            farmacia = 9317
-            membresia = 6000
-
-        else:
-            cuota_social = 0
-            medico = 0
-            farmacia = 0
-            membresia = 0
-
-    # 🔹 QUANTUM
-    elif entidad == "quantum":
-
-        # Quantum solo usa educación pero igual cubrimos todo
-        cuota_social = 9594
-        medico = 8172
-        farmacia = 7343
-        membresia = 6000
-
-    else:
-        cuota_social = 0
-        medico = 0
-        farmacia = 0
-        membresia = 0
-
-    return cuota_social, medico, farmacia, membresia
+COLOR_AAMAS       = colors.HexColor("#1E3A8A")
+COLOR_QUANTUM     = colors.HexColor("#18181b")
+COLOR_HEADER_TEXT = colors.white
+COLOR_ROW_ALT     = colors.HexColor("#F8FAFC")
+COLOR_LABEL       = colors.HexColor("#F1F5F9")
+COLOR_BORDER      = colors.HexColor("#CBD5E1")
 
 
-def calcular_cuota(monto, cuotas):
+# ══════════════════════════════════════════════════════════
+#  CARGA DE GRILLA
+# ══════════════════════════════════════════════════════════
 
-    monto = float(monto)
+df = pd.read_excel("grilla.xlsx")
+df = df[
+    (df["Monto"] >= 100_000) &
+    (df["Monto"] <= 600_000) &
+    (df["Monto"] % 50_000 == 0)
+]
 
-    if cuotas == 6:
-        return tabla_6.get(monto, 0)
-    elif cuotas == 12:
-        return tabla_12.get(monto, 0)
-    elif cuotas == 18:
-        return tabla_18.get(monto, 0)
-    elif cuotas == 24:
-        return tabla_24.get(monto, 0)
-    else:
-        return 0
-
-
-def calcular_total(entidad, reparticion, monto, valor_cuota,
-                   cuota_social, medico, farmacia, membresia):
-
-    # ---------------- AAMAS ----------------
-    if entidad == "aamas":
-
-        if monto <= 400000:
-            total = valor_cuota + cuota_social + medico + membresia
-        else:
-            total = valor_cuota + cuota_social + medico + farmacia + membresia
-
-    # ---------------- QUANTUM ----------------
-    elif entidad == "quantum":
-
-        total = valor_cuota + cuota_social + medico + farmacia + membresia
-
-    return total
-
-
-links_datero = {
-    # AAMAS
-    ("aamas", "policia"): "https://drive.google.com/file/d/12UzO8MQajtYY1z1XoI7ZRUJzASPXQE-S/view?usp=drive_link",
-    ("aamas", "spb"): "https://drive.google.com/file/d/12UzO8MQajtYY1z1XoI7ZRUJzASPXQE-S/view?usp=drive_link",
-    ("aamas", "ips"): "https://drive.google.com/file/d/1Lm829VsapuzVrTd3v3H7RZ1riXxjEAGM/view?usp=drive_link",
-    ("aamas", "educacion"): "https://drive.google.com/file/d/11L99L9Z_gd-JHLdn-2GvQBc2xLaI5a01/view?usp=drive_link",
-
-    # QUANTUM
-    ("quantum", "educacion"): "https://drive.google.com/file/d/1lJD7_qeYlJndC0SbAx6fXN58fIKM0uGS/view?usp=drive_link"
+TABLAS = {
+    6:  dict(zip(df["Monto"], df["Cuotas6"])),
+    12: dict(zip(df["Monto"], df["Cuotas12"])),
+    18: dict(zip(df["Monto"], df["Cuotas18"])),
+    24: dict(zip(df["Monto"], df["Cuotas24"])),
 }
 
 
+# ══════════════════════════════════════════════════════════
+#  LINKS Y CONTRATOS
+# ══════════════════════════════════════════════════════════
 
-# ---------------- RUTAS ----------------
+LINKS_DATERO = {
+    ("aamas",   "policia"):   "https://drive.google.com/file/d/12UzO8MQajtYY1z1XoI7ZRUJzASPXQE-S/view?usp=drive_link",
+    ("aamas",   "spb"):       "https://drive.google.com/file/d/12UzO8MQajtYY1z1XoI7ZRUJzASPXQE-S/view?usp=drive_link",
+    ("aamas",   "ips"):       "https://drive.google.com/file/d/1Lm829VsapuzVrTd3v3H7RZ1riXxjEAGM/view?usp=drive_link",
+    ("aamas",   "educacion"): "https://drive.google.com/file/d/11L99L9Z_gd-JHLdn-2GvQBc2xLaI5a01/view?usp=drive_link",
+    ("quantum", "educacion"): "https://drive.google.com/file/d/1lJD7_qeYlJndC0SbAx6fXN58fIKM0uGS/view?usp=drive_link",
+}
+
+CONTRATOS = {
+    ("aamas",   "policia"):   "static/contratos/datero_policia_spb_aamas.pdf",
+    ("aamas",   "spb"):       "static/contratos/datero_policia_spb_aamas.pdf",
+    ("aamas",   "educacion"): "static/contratos/datero_educacion_aamas.pdf",
+    ("aamas",   "ips"):       "static/contratos/datero_ips_aamas.pdf",
+    ("quantum", "educacion"): "static/contratos/datero_educacion_quantum.pdf",
+}
+
+BASE_URL = "https://sistema-consultas-8hfc.onrender.com"
+
+
+# ══════════════════════════════════════════════════════════
+#  POSICIONES DE FIRMA
+# ══════════════════════════════════════════════════════════
+
+POSICIONES_FIRMA_BASE = {
+    0:  (30,  80),   1:  (30,  80),   2:  (80,  90),
+    3:  (80,  50),   4:  (10,  70),   5:  (20,  200),
+    6:  (50,  150),  7:  (550, 220),  8:  (10,  230),
+    9:  (220, 90),   10: (80,  130),  11: (30,  350),
+    12: (110, 280),  13: (120, 430),
+}
+
+POSICIONES_POLICIA_SPB = {13: (20, 20), 14: (40, 480), 15: (10, 10)}
+POSICIONES_QUANTUM     = {0: (50, 100), 3: (100, 80),  5: (20, 230)}
+
+PAGINAS_SIN_FIRMA = {1, 9}
+
+
+# ══════════════════════════════════════════════════════════
+#  UTILIDADES
+# ══════════════════════════════════════════════════════════
+
+def fmt(valor) -> str:
+    """Formatea número como moneda argentina: $ 1.234,56"""
+    return "$ {:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def color_entidad(entidad: str) -> colors.Color:
+    return COLOR_AAMAS if entidad.lower() == "aamas" else COLOR_QUANTUM
+
+
+def _corregir_exif(image: Image.Image) -> Image.Image:
+    try:
+        exif = image._getexif()
+        if exif is None:
+            return image
+        orientation_tag = next(
+            (tag for tag, name in ExifTags.TAGS.items() if name == "Orientation"), None
+        )
+        if orientation_tag and orientation_tag in exif:
+            rotaciones = {3: 180, 6: 270, 8: 90}
+            grados = rotaciones.get(exif[orientation_tag])
+            if grados:
+                image = image.rotate(grados, expand=True)
+    except Exception:
+        pass
+    return image
+
+
+def corregir_orientacion(ruta: str):
+    img = Image.open(ruta)
+    img = _corregir_exif(img)
+    img.save(ruta)
+
+
+def corregir_orientacion_y_recortar(ruta: str, recorte_w=0.9, recorte_h=0.7):
+    img = Image.open(ruta)
+    img = _corregir_exif(img)
+    w, h = img.size
+    nw, nh = int(w * recorte_w), int(h * recorte_h)
+    left = (w - nw) // 2
+    top  = (h - nh) // 2
+    img  = img.crop((left, top, left + nw, top + nh))
+    img.save(ruta)
+
+
+# ══════════════════════════════════════════════════════════
+#  LÓGICA DE NEGOCIO
+# ══════════════════════════════════════════════════════════
+
+def calcular_membresia(entidad: str, reparticion: str, monto: float) -> tuple:
+    ent, rep = entidad.lower(), reparticion.lower()
+    if ent == "aamas":
+        if rep in ("policia", "spb", "ips"):
+            return 7_975, 11_825, 10_750, 8_810
+        elif rep == "educacion":
+            return 6_972, 9_950, 9_317, 6_000
+        return 0, 0, 0, 0
+    elif ent == "quantum":
+        return 9_594, 8_172, 7_343, 6_000
+    return 0, 0, 0, 0
+
+
+def calcular_cuota(monto: float, cuotas: int) -> float:
+    return TABLAS.get(cuotas, {}).get(float(monto), 0)
+
+
+def calcular_total(entidad, monto, valor_cuota,
+                   cuota_social, medico, farmacia, membresia) -> float:
+    ent = entidad.lower()
+    if ent == "aamas":
+        base = valor_cuota + cuota_social + medico + membresia
+        return base + farmacia if monto > 400_000 else base
+    elif ent == "quantum":
+        return valor_cuota + cuota_social + medico + farmacia + membresia
+    return valor_cuota
+
+
+def aplicar_farmacia(entidad: str, monto: float, farmacia: float) -> float:
+    if entidad.lower() == "aamas" and monto <= 400_000:
+        return 0
+    return farmacia
+
+
+def get_contrato_path(entidad: str, reparticion: str) -> str:
+    key = (entidad.lower(), reparticion.lower())
+    return CONTRATOS.get(key, "static/contratos/datero_educacion_aamas.pdf")
+
+
+def get_posiciones_firma(entidad: str, reparticion: str) -> dict:
+    pos = dict(POSICIONES_FIRMA_BASE)
+    ent, rep = entidad.lower(), reparticion.lower()
+    if ent == "aamas" and rep in ("policia", "spb"):
+        pos.update(POSICIONES_POLICIA_SPB)
+    elif ent == "quantum":
+        pos.update(POSICIONES_QUANTUM)
+    return pos
+
+
+# ══════════════════════════════════════════════════════════
+#  HELPERS PDF
+# ══════════════════════════════════════════════════════════
+
+def _estilos_pdf(entidad: str):
+    base = getSampleStyleSheet()
+    color_h = color_entidad(entidad)
+
+    base.add(ParagraphStyle(
+        name="Centro",
+        parent=base["Normal"],
+        alignment=TA_CENTER,
+        fontSize=8,
+    ))
+    base.add(ParagraphStyle(
+        name="SeccionTitulo",
+        parent=base["Normal"],
+        fontSize=9,
+        fontName="Helvetica-Bold",
+        textColor=color_h,
+        spaceAfter=4,
+        spaceBefore=8,
+    ))
+
+    estilo_tabla = TableStyle([
+        ("GRID",           (0, 0), (-1, -1), 0.4, COLOR_BORDER),
+        ("BACKGROUND",     (0, 0), (0, -1),  COLOR_LABEL),
+        ("FONTNAME",       (0, 0), (-1, -1), "Helvetica"),
+        ("FONTNAME",       (0, 0), (0, -1),  "Helvetica-Bold"),
+        ("FONTSIZE",       (0, 0), (-1, -1), 8),
+        ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.white, COLOR_ROW_ALT]),
+        ("TOPPADDING",     (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING",  (0, 0), (-1, -1), 4),
+        ("LEFTPADDING",    (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING",   (0, 0), (-1, -1), 6),
+        ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+    ])
+
+    estilo_refs = TableStyle([
+        ("GRID",          (0, 0), (-1, -1), 0.4, COLOR_BORDER),
+        ("BACKGROUND",    (0, 0), (-1, 0),  COLOR_LABEL),
+        ("FONTNAME",      (0, 0), (-1, 0),  "Helvetica-Bold"),
+        ("FONTNAME",      (0, 1), (-1, -1), "Helvetica"),
+        ("FONTSIZE",      (0, 0), (-1, -1), 8),
+        ("ALIGN",         (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+    ])
+
+    return base, estilo_tabla, estilo_refs
+
+
+def _pdf_header(entidad: str, elements: list, styles):
+    label = "AAMAS" if entidad.lower() == "aamas" else "QUANTUM"
+    header = Table([[f"DATERO ONLINE  ·  {label}"]], colWidths=[535])
+    header.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), color_entidad(entidad)),
+        ("TEXTCOLOR",     (0, 0), (-1, -1), COLOR_HEADER_TEXT),
+        ("ALIGN",         (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME",      (0, 0), (-1, -1), "Helvetica-Bold"),
+        ("FONTSIZE",      (0, 0), (-1, -1), 14),
+        ("TOPPADDING",    (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+    ]))
+    elements.append(header)
+    elements.append(Spacer(1, 12))
+
+
+def _pdf_seccion(titulo: str, elements: list, styles):
+    elements.append(Paragraph(titulo, styles["SeccionTitulo"]))
+    elements.append(Spacer(1, 4))
+
+
+def _pdf_tabla(data, col_widths, estilo, elements):
+    t = Table(data, colWidths=col_widths)
+    t.setStyle(estilo)
+    elements.append(t)
+    elements.append(Spacer(1, 10))
+
+
+def _pdf_firma(firma_buffer: io.BytesIO, nombre: str, elements: list, styles):
+    firma_buffer.seek(0)
+    img = RLImage(firma_buffer, width=130, height=55)
+    img.hAlign = "CENTER"
+    elements.append(img)
+
+    linea = Table([[""]], colWidths=[220])
+    linea.setStyle(TableStyle([
+        ("LINEABOVE", (0, 0), (-1, -1), 0.8, colors.HexColor("#334155")),
+        ("ALIGN",     (0, 0), (-1, -1), "CENTER"),
+    ]))
+    elements.append(linea)
+    elements.append(Spacer(1, 4))
+    elements.append(Paragraph(f"<b>{nombre}</b>", styles["Centro"]))
+    elements.append(Spacer(1, 2))
+    elements.append(Paragraph("FIRMA DEL SOLICITANTE", styles["Centro"]))
+
+
+def _pdf_imagen_doc(ruta, titulo, elements, styles, max_w=260, max_h=155):
+    elements.append(Paragraph(titulo, styles["SeccionTitulo"]))
+    elements.append(Spacer(1, 6))
+    img = RLImage(ruta)
+    img._restrictSize(max_w, max_h)
+    img.hAlign = "CENTER"
+    elements.append(img)
+    elements.append(Spacer(1, 12))
+
+
+# ══════════════════════════════════════════════════════════
+#  GENERACIÓN DEL PDF DATERO
+# ══════════════════════════════════════════════════════════
+
+def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        rightMargin=30, leftMargin=30,
+        topMargin=30,   bottomMargin=20
+    )
+    styles, estilo_tabla, estilo_refs = _estilos_pdf(datos["entidad"])
+    elements = []
+
+    # Hoja 1 — Datos
+    _pdf_header(datos["entidad"], elements, styles)
+
+    _pdf_seccion("DATOS PERSONALES", elements, styles)
+    _pdf_tabla([
+        ["Apellido y Nombre", datos["nombre"]],
+        ["DNI",               datos["dni"]],
+        ["CUIT",              datos["cuit"]],
+        ["Teléfono",          datos["telefono"]],
+        ["Fecha Nacimiento",  datos["fecha"]],
+        ["Nacionalidad",      datos["nacionalidad"]],
+        ["Provincia",         datos["provincia"]],
+        ["Localidad",         datos["localidad"]],
+        ["Domicilio",         datos["domicilio"]],
+        ["Email",             datos["email"]],
+        ["CBU",               datos["cbu"]],
+        ["Repartición",       datos["reparticion"]],
+    ], [185, 310], estilo_tabla, elements)
+
+    _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
+    _pdf_tabla([
+        ["Monto",              fmt(datos["monto"])],
+        ["Cantidad de cuotas", datos["cuotas"]],
+        ["Valor de cuota",     fmt(datos["valor_cuota"])],
+    ], [185, 310], estilo_tabla, elements)
+
+    _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
+    _pdf_tabla([
+        ["Cuota Social",      fmt(datos["cuota_social"])],
+        ["Coseguro Médico",   fmt(datos["medico"])],
+        ["Coseguro Farmacia", fmt(datos["farmacia"])],
+        ["Membresía",         fmt(datos["membresia"])],
+    ], [185, 310], estilo_tabla, elements)
+
+    _pdf_seccion("REFERENCIAS PERSONALES", elements, styles)
+    _pdf_tabla([
+        ["Nombre",             "Teléfono",          "Relación"],
+        [datos["ref1_nombre"], datos["ref1_tel"],    datos["ref1_relacion"]],
+        [datos["ref2_nombre"], datos["ref2_tel"],    datos["ref2_relacion"]],
+    ], [220, 155, 120], estilo_refs, elements)
+
+    elements.append(Spacer(1, 18))
+    _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
+
+    # Hoja 2 — Documentación fotográfica
+    elements.append(PageBreak())
+
+    doc_header = Table([["DOCUMENTACIÓN DEL SOLICITANTE"]], colWidths=[535])
+    doc_header.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), color_entidad(datos["entidad"])),
+        ("TEXTCOLOR",     (0, 0), (-1, -1), COLOR_HEADER_TEXT),
+        ("ALIGN",         (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME",      (0, 0), (-1, -1), "Helvetica-Bold"),
+        ("FONTSIZE",      (0, 0), (-1, -1), 13),
+        ("TOPPADDING",    (0, 0), (-1, -1), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+    ]))
+    elements.append(doc_header)
+    elements.append(Spacer(1, 14))
+
+    _pdf_imagen_doc(datos["ruta_frente"], "DNI — FRENTE",   elements, styles)
+    _pdf_imagen_doc(datos["ruta_dorso"],  "DNI — DORSO",    elements, styles)
+    _pdf_imagen_doc(datos["ruta_selfie"], "SELFIE CON DNI", elements, styles, 220, 170)
+
+    elements.append(Spacer(1, 10))
+    _pdf_seccion("FIRMA DEL SOLICITANTE", elements, styles)
+    elements.append(Spacer(1, 6))
+    _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+# ══════════════════════════════════════════════════════════
+#  FIRMA SOBRE CONTRATO
+# ══════════════════════════════════════════════════════════
+
+def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
+    """Escribe datos del solicitante sobre páginas específicas del contrato."""
+    rep = rep.lower()
+    c.setFont("Helvetica", 10)
+
+    if rep == "educacion" and i in (12, 13):
+        c.drawString(200, 645, datos["nombre"])
+        c.drawString(200, 630, datos["dni"])
+        c.drawString(200, 615, datos["email"])
+        c.drawString(400, 600, datos["telefono"])
+
+        if i == 12:
+            for y_pos, label, valor in [
+                (510, "Cuota Social",      datos["cuota_social"]),
+                (480, "Coseguro Médico",   datos["medico"]),
+                (450, "Coseguro Farmacia", datos["farmacia"]),
+                (420, "Cuota Préstamo",    cuota_prestamo),
+            ]:
+                c.drawString(70,  y_pos, "30150")
+                c.drawString(200, y_pos, label)
+                c.drawString(400, y_pos, str(valor))
+
+    elif rep in ("policia", "spb"):
+        if i == 13:
+            c.drawString(320, 690, datos["nombre"])
+            c.drawString(320, 670, datos["dni"])
+        if i == 12:
+            c.drawString(210, 505, datos["nombre"])
+            c.drawString(160, 485, datos["dni"])
+            c.drawString(290, 470, datos["email"])
+
+
+def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
+                    entidad: str, reparticion: str,
+                    datos: dict, cuota_prestamo: float) -> PdfWriter:
+    contrato = PdfReader(contrato_path)
+    writer   = PdfWriter()
+    pos_map  = get_posiciones_firma(entidad, reparticion)
+
+    for i, page in enumerate(contrato.pages):
+        if i in PAGINAS_SIN_FIRMA:
+            writer.add_page(page)
+            continue
+
+        x, y = pos_map.get(i, (220, 90))
+
+        packet = io.BytesIO()
+        c = rl_canvas.Canvas(packet)
+
+        _texto_contrato(c, i, reparticion, datos, cuota_prestamo)
+
+        firma_buffer.seek(0)
+        firma_img = ImageReader(firma_buffer)
+
+        if i == 7:
+            c.saveState()
+            c.translate(x, y)
+            c.rotate(90)
+            c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
+            c.restoreState()
+        elif i == 11:
+            c.saveState()
+            c.translate(x, y)
+            c.rotate(-90)
+            c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
+            c.restoreState()
+        else:
+            c.drawImage(firma_img, x, y, width=140, height=60, mask="auto")
+
+        c.save()
+        packet.seek(0)
+
+        page.merge_page(PdfReader(packet).pages[0])
+        writer.add_page(page)
+
+    return writer
+
+
+# ══════════════════════════════════════════════════════════
+#  RUTAS FLASK
+# ══════════════════════════════════════════════════════════
 
 @app.route("/")
 def inicio():
-    return render_template("index.html", montos=tabla_12.keys())
+    return render_template("index.html", montos=TABLAS[12].keys())
 
 
 @app.route("/calcular", methods=["POST"])
 def calcular():
-
-    entidad = request.form["entidad"]
+    entidad     = request.form["entidad"]
     reparticion = request.form["reparticion"]
-    monto = float(request.form["monto"])
-    cuotas = int(request.form["cuotas"])
+    monto       = float(request.form["monto"])
+    cuotas      = int(request.form["cuotas"])
 
-    # Calcular valores
-    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, float(monto))
+    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
+    farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
+    cuota_total = calcular_total(entidad, monto, valor_cuota,
+                                 cuota_social, medico, farmacia, membresia)
 
-    # 🔥 FIX VISUAL + LOGICA
-    if entidad == "aamas" and monto <= 400000:
-        farmacia = 0
-
-    cuota_total = calcular_total(
-        entidad, reparticion, monto, valor_cuota,
-        cuota_social, medico, farmacia, membresia
-        
+    link_formulario = (
+        f"{BASE_URL}/formulario"
+        f"?ent={entidad}&rep={reparticion}&monto={int(monto)}&cuotas={cuotas}"
     )
-
-    link = links_datero.get((entidad, reparticion), "#")
-    link_formulario = f"https://sistema-consultas-8hfc.onrender.com/formulario?ent={entidad}&rep={reparticion}&monto={monto}&cuotas={cuotas}"
-
 
     return render_template(
         "resultado.html",
         entidad=entidad,
         reparticion=reparticion,
-        monto=formatear(monto),
+        monto=fmt(monto),
         cuotas=cuotas,
-        valor_cuota=formatear(valor_cuota),
-        cuota_social=formatear(cuota_social),
-        medico=formatear(medico),
-        farmacia=formatear(farmacia),
-        membresia=formatear(membresia),
+        valor_cuota=fmt(valor_cuota),
+        cuota_social=fmt(cuota_social),
+        medico=fmt(medico),
+        farmacia=fmt(farmacia),
+        membresia=fmt(membresia),
         cuota_total=cuota_total,
-        link=link,
-        link_formulario=link_formulario
+        link_formulario=link_formulario,
     )
 
 
 @app.route("/formulario")
 def formulario():
-    entidad = request.args.get("ent")
-    reparticion = request.args.get("rep")
-    monto = request.args.get("monto")
-    cuotas = request.args.get("cuotas")
-
     return render_template(
         "formulario.html",
-        entidad=entidad,
-        reparticion=reparticion,
-        monto=monto,
-        cuotas=cuotas
+        entidad=request.args.get("ent"),
+        reparticion=request.args.get("rep"),
+        monto=request.args.get("monto"),
+        cuotas=request.args.get("cuotas"),
     )
 
-    return render_template("formulario.html", entidad=entidad, reparticion=reparticion)
 
 @app.route("/identidad", methods=["POST"])
 def identidad():
-    datos = request.form.to_dict()
-    return render_template("identidad.html", **datos)
+    return render_template("identidad.html", **request.form.to_dict())
+
 
 @app.route("/guardar_formulario", methods=["POST"])
 def guardar_formulario():
+    entidad     = request.form["entidad"].lower()
+    reparticion = request.form["reparticion"].lower()
+    monto       = float(request.form["monto"])
+    cuotas      = int(request.form["cuotas"])
 
-    # ---------------- DATOS ----------------
-    entidad = request.form["entidad"]
-    reparticion = request.form["reparticion"].upper()
-    
-    monto = float(request.form["monto"])
-    cuotas = int(request.form["cuotas"])
+    valor_cuota                               = calcular_cuota(monto, cuotas)
+    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
+    farmacia                                  = aplicar_farmacia(entidad, monto, farmacia)
 
-    valor_cuota = calcular_cuota(monto, cuotas)
+    # Datos personales — todos en mayúsculas
+    campos = [
+        "nombre", "dni", "cuit", "telefono", "fecha_nacimiento",
+        "nacionalidad", "provincia", "localidad", "domicilio", "email", "cbu",
+        "ref1_nombre", "ref1_tel", "ref1_relacion",
+        "ref2_nombre", "ref2_tel", "ref2_relacion",
+    ]
+    datos = {c: request.form.get(c, "").upper() for c in campos}
 
-    # 🔥 AGREGADO (CLAVE)
-    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion.lower(), monto)
-
-    if entidad == "aamas" and monto <= 400000:
-        farmacia = 0
-
-    nombre = request.form["nombre"].upper()
-    dni = request.form["dni"].upper()
-    cuit = request.form["cuit"].upper()
-    telefono = request.form.get("telefono", "").upper()
-    fecha = request.form["fecha_nacimiento"].upper()
-    nacionalidad = request.form["nacionalidad"].upper()
-    provincia = request.form["provincia"].upper()
-    localidad = request.form["localidad"].upper()
-    domicilio = request.form["domicilio"].upper()
-    email = request.form["email"].upper()
-    cbu = request.form["cbu"].upper()
-    dni_frente = request.files["dni_frente"]
-    dni_dorso = request.files["dni_dorso"]
-    selfie = request.files["selfie"]
-
-    import os
-    import time
-
+    # Guardar fotos
     os.makedirs("static/fotos", exist_ok=True)
+    ts = int(time.time())
+    rutas = {
+        "frente": f"static/fotos/frente_{ts}.jpg",
+        "dorso":  f"static/fotos/dorso_{ts}.jpg",
+        "selfie": f"static/fotos/selfie_{ts}.jpg",
+    }
+    request.files["dni_frente"].save(rutas["frente"])
+    request.files["dni_dorso"].save(rutas["dorso"])
+    request.files["selfie"].save(rutas["selfie"])
 
-    timestamp = int(time.time())
-
-    ruta_frente = f"static/fotos/frente_{timestamp}.jpg"
-    ruta_dorso = f"static/fotos/dorso_{timestamp}.jpg"
-    ruta_selfie = f"static/fotos/selfie_{timestamp}.jpg"
-
-    dni_frente.save(ruta_frente)
-    dni_dorso.save(ruta_dorso)
-    selfie.save(ruta_selfie)
-
-    corregir_orientacion_y_recortar(ruta_frente)
-    corregir_orientacion_y_recortar(ruta_dorso)
-    corregir_orientacion(ruta_selfie)
-
-
-
-    ref1_nombre = request.form["ref1_nombre"].upper()
-    ref1_tel = request.form["ref1_tel"].upper()
-    ref1_relacion = request.form["ref1_relacion"].upper()
-
-    ref2_nombre = request.form["ref2_nombre"].upper()
-    ref2_tel = request.form["ref2_tel"].upper()
-    ref2_relacion = request.form["ref2_relacion"].upper()
-    
-
-    # ---------------- PDF ----------------
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=15)
-
-
-    styles = getSampleStyleSheet()
-    elements = []
-
-    # 🎨 COLOR SEGÚN ENTIDAD
-    if entidad == "aamas":
-        color_header = colors.HexColor("#0A3D91")
-    else:
-        color_header = colors.HexColor("#000000")
-
-    # 🧱 HEADER
-    header = Table([[f"DATERO ONLINE - {entidad.upper()}"]], colWidths=[500])
-    header.setStyle(TableStyle([
-    ("BACKGROUND", (0,0), (-1,-1), color_header),
-    ("TEXTCOLOR", (0,0), (-1,-1), colors.white),
-    ("ALIGN", (0,0), (-1,-1), "CENTER"),
-    ("FONTSIZE", (0,0), (-1,-1), 16),
-    ("BOTTOMPADDING", (0,0), (-1,-1), 12),
-    ("TOPPADDING", (0,0), (-1,-1), 12),
-]))
-    elements.append(header)
-    elements.append(Spacer(1, 10))
-
-    # 🔹 ESTILO TABLAS
-    estilo_tabla = TableStyle([
-    ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-    ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#F2F2F2")),
-    ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
-    ("FONTSIZE", (0,0), (-1,-1), 8),
-    ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#FAFAFA")]),
-])
-
-    # 🔹 TITULOS SECCIONES
-    def titulo_seccion(texto):
-        elements.append(Paragraph(f"<b>{texto}</b>", styles["Heading3"]))
-        elements.append(Spacer(1, 10))
-
-    # ---------------- DATOS PERSONALES ----------------
-    titulo_seccion("DATOS PERSONALES")
-
-    data_personal = [
-        ["Apellido y Nombre", nombre],
-        ["DNI", dni],
-        ["CUIT", cuit],
-        ["Teléfono", telefono],
-        ["Fecha Nacimiento", fecha],
-        ["Nacionalidad", nacionalidad],
-        ["Provincia", provincia],
-        ["Localidad", localidad],
-        ["Domicilio", domicilio],
-        ["Email", email],
-        ["CBU", cbu],
-        ["Repartición", reparticion],
-]
-
-    tabla1 = Table(data_personal, colWidths=[180, 300])
-    tabla1.setStyle(estilo_tabla)
-    elements.append(tabla1)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- DATOS DEL PRÉSTAMO ----------------
-    titulo_seccion("DATOS DEL PRÉSTAMO")
-
-    data_prestamo = [
-        ["Monto", formatear_moneda(monto)],
-        ["Cantidad de cuotas", cuotas],
-        ["Valor de cuota", formatear_moneda(valor_cuota)],
-]
-
-    tabla2 = Table(data_prestamo, colWidths=[180, 300])
-    tabla2.setStyle(estilo_tabla)
-    elements.append(tabla2)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- SERVICIOS ----------------
-    titulo_seccion("SERVICIOS")
-
-    data_servicios = [
-        ["Cuota Social", formatear_moneda(cuota_social)],
-        ["Coseguro Médico", formatear_moneda(medico)],
-        ["Coseguro Farmacia", formatear_moneda(farmacia)],
-        ["Membresía", formatear_moneda(membresia)],
-]
-
-    tabla3 = Table(data_servicios, colWidths=[180, 300])
-    tabla3.setStyle(estilo_tabla)
-    elements.append(tabla3)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- REFERENCIAS ----------------
-    titulo_seccion("REFERENCIAS")
-
-    data_refs = [
-        ["Nombre", "Teléfono", "Relación"],
-        [ref1_nombre, ref1_tel, ref1_relacion],
-        [ref2_nombre, ref2_tel, ref2_relacion],
-]
-
-    tabla4 = Table(
-    data_refs,
-    colWidths=[170, 120, 110],
-    rowHeights=14  # 🔥 ESTO ES CLAVE
-    )
-
-    tabla4.setStyle(TableStyle([
-    ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-    ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#EAEAEA")),
-    ("ALIGN", (0,0), (-1,-1), "CENTER"),
-
-    # 🔥 ACHICAR TEXTO
-    ("FONTSIZE", (0,0), (-1,-1), 7),
-    ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
-
-    # 🔥 ACHICAR ESPACIOS INTERNOS
-    ("TOPPADDING", (0,0), (-1,-1), 2),
-    ("BOTTOMPADDING", (0,0), (-1,-1), 2),
-    ("LEFTPADDING", (0,0), (-1,-1), 4),
-    ("RIGHTPADDING", (0,0), (-1,-1), 4),
-    ]))
-    elements.append(tabla4)
-
+    corregir_orientacion_y_recortar(rutas["frente"])
+    corregir_orientacion_y_recortar(rutas["dorso"])
+    corregir_orientacion(rutas["selfie"])
 
     return render_template(
-    "firma.html",
-    entidad=entidad,
-    reparticion=reparticion,
-    monto=monto,
-    monto_fmt=formatear_moneda(monto),
-    cuotas=cuotas,
-    valor_cuota=valor_cuota,
-    valor_cuota_fmt=formatear_moneda(valor_cuota),
-    cuota_social=cuota_social,
-    cuota_social_fmt=formatear_moneda(cuota_social),
-    medico=medico,
-    medico_fmt=formatear_moneda(medico),
-    farmacia=farmacia,
-    farmacia_fmt=formatear_moneda(farmacia),
-    membresia=membresia,
-    membresia_fmt=formatear_moneda(membresia),
+        "firma.html",
+        entidad=entidad,
+        reparticion=reparticion.upper(),
+        monto=monto,
+        monto_fmt=fmt(monto),
+        cuotas=cuotas,
+        valor_cuota=valor_cuota,
+        valor_cuota_fmt=fmt(valor_cuota),
+        cuota_social=cuota_social,
+        cuota_social_fmt=fmt(cuota_social),
+        medico=medico,
+        medico_fmt=fmt(medico),
+        farmacia=farmacia,
+        farmacia_fmt=fmt(farmacia),
+        membresia=membresia,
+        membresia_fmt=fmt(membresia),
+        nombre=datos["nombre"],
+        dni=datos["dni"],
+        cuit=datos["cuit"],
+        telefono=datos["telefono"],
+        fecha=datos["fecha_nacimiento"],
+        nacionalidad=datos["nacionalidad"],
+        provincia=datos["provincia"],
+        localidad=datos["localidad"],
+        domicilio=datos["domicilio"],
+        email=datos["email"],
+        cbu=datos["cbu"],
+        ruta_frente=rutas["frente"],
+        ruta_dorso=rutas["dorso"],
+        ruta_selfie=rutas["selfie"],
+        ref1_nombre=datos["ref1_nombre"],
+        ref1_tel=datos["ref1_tel"],
+        ref1_relacion=datos["ref1_relacion"],
+        ref2_nombre=datos["ref2_nombre"],
+        ref2_tel=datos["ref2_tel"],
+        ref2_relacion=datos["ref2_relacion"],
+    )
 
-    # 🔥 DATOS PERSONALES
-    nombre=nombre,
-    dni=dni,
-    cuit=cuit,
-    telefono=telefono,
-    fecha=fecha,
-    nacionalidad=nacionalidad,
-    provincia=provincia,
-    localidad=localidad,
-    domicilio=domicilio,
-    email=email,
-    cbu=cbu,
-    ruta_frente=ruta_frente,
-    ruta_dorso=ruta_dorso,
-    ruta_selfie=ruta_selfie,
-
-    # 🔥 REFERENCIAS
-    ref1_nombre=ref1_nombre,
-    ref1_tel=ref1_tel,
-    ref1_relacion=ref1_relacion,
-    ref2_nombre=ref2_nombre,
-    ref2_tel=ref2_tel,
-    ref2_relacion=ref2_relacion,
-)
 
 @app.route("/generar_pdf_final", methods=["POST"])
 def generar_pdf_final():
-
-    entidad = request.form["entidad"]
-    reparticion = request.form["reparticion"]
-
-    # ---------------- CONTRATO SEGUN LOGICA ----------------
-
-    ent = entidad.lower()
-    rep = reparticion.lower()
-
-    if ent == "aamas":
-
-        if rep in ["policia", "spb"]:
-            contrato_path = "static/contratos/datero_policia_spb_aamas.pdf"
-
-        elif rep == "educacion":
-            contrato_path = "static/contratos/datero_educacion_aamas.pdf"
-
-        elif rep == "ips":
-            contrato_path = "static/contratos/datero_ips_aamas.pdf"
-
-        else:
-            contrato_path = "static/contratos/datero_educacion_aamas.pdf"
-
-
-    elif ent == "quantum":
-
-        contrato_path = "static/contratos/datero_educacion_quantum.pdf"
-
-    else:
-        contrato_path = "static/contratos/datero_educacion_aamas.pdf"
-
-
-
-    monto = float(request.form["monto"])
-    cuotas = int(request.form["cuotas"])
-    valor_cuota = float(request.form["valor_cuota"])
-
-    ruta_frente = request.form["ruta_frente"]
-    ruta_dorso = request.form["ruta_dorso"]
-    ruta_selfie = request.form["ruta_selfie"]
-
+    entidad      = request.form["entidad"].lower()
+    reparticion  = request.form["reparticion"].lower()
+    monto        = float(request.form["monto"])
+    cuotas       = int(request.form["cuotas"])
+    valor_cuota  = float(request.form["valor_cuota"])
     cuota_social = float(request.form["cuota_social"])
-    medico = float(request.form["medico"])
-    farmacia = float(request.form["farmacia"])
-    membresia = float(request.form["membresia"])
+    medico       = float(request.form["medico"])
+    farmacia     = float(request.form["farmacia"])
+    membresia    = float(request.form["membresia"])
 
-    nombre = request.form.get("nombre", "")
-    dni = request.form.get("dni", "")
-    cuit = request.form.get("cuit", "")
-    telefono = request.form.get("telefono", "")
-    fecha = request.form.get("fecha_nacimiento", "")
-    nacionalidad = request.form.get("nacionalidad", "")
-    provincia = request.form.get("provincia", "")
-    localidad = request.form.get("localidad", "")
-    domicilio = request.form.get("domicilio", "")
-    email = request.form.get("email", "")
-    cbu = request.form.get("cbu", "")
-
-    ref1_nombre = request.form.get("ref1_nombre", "")
-    ref1_tel = request.form.get("ref1_tel", "")
-    ref1_relacion = request.form.get("ref1_relacion", "")
-
-    ref2_nombre = request.form.get("ref2_nombre", "")
-    ref2_tel = request.form.get("ref2_tel", "")
-    ref2_relacion = request.form.get("ref2_relacion", "")
-
-    firma = request.form["firma"]
-
-    import base64, io
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib.enums import TA_CENTER
-
-    # 🔥 convertir firma
-    firma_data = firma.split(",")[1]
-    firma_bytes = base64.b64decode(firma_data)
+    firma_bytes  = base64.b64decode(request.form["firma"].split(",")[1])
     firma_buffer = io.BytesIO(firma_bytes)
 
-    # ---------------- PDF ----------------
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=20)
-
-    styles = getSampleStyleSheet()
-    elements = []
-
-    # 🎨 COLOR SEGÚN ENTIDAD
-    if entidad == "aamas":
-        color_header = colors.HexColor("#0A3D91")
-    else:
-        color_header = colors.HexColor("#000000")
-
-    # 🧱 HEADER
-    header = Table([[f"DATERO ONLINE - {entidad.upper()}"]], colWidths=[500])
-    header.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,-1), color_header),
-        ("TEXTCOLOR", (0,0), (-1,-1), colors.white),
-        ("ALIGN", (0,0), (-1,-1), "CENTER"),
-        ("FONTSIZE", (0,0), (-1,-1), 16),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 12),
-        ("TOPPADDING", (0,0), (-1,-1), 12),
-    ]))
-    elements.append(header)
-    elements.append(Spacer(1, 10))
-
-    # 🔹 ESTILO TABLAS
-    estilo_tabla = TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#F2F2F2")),
-        ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
-        ("FONTSIZE", (0,0), (-1,-1), 8),
-        ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#FAFAFA")]),
-    ])
-
-    def titulo_seccion(texto):
-        elements.append(Paragraph(f"<b>{texto}</b>", styles["Heading3"]))
-        elements.append(Spacer(1, 10))
-
-    # ---------------- DATOS PERSONALES ----------------
-    titulo_seccion("DATOS PERSONALES")
-
-    data_personal = [
-        ["Apellido y Nombre", nombre],
-        ["DNI", dni],
-        ["CUIT", cuit],
-        ["Teléfono", telefono],
-        ["Fecha Nacimiento", fecha],
-        ["Nacionalidad", nacionalidad],
-        ["Provincia", provincia],
-        ["Localidad", localidad],
-        ["Domicilio", domicilio],
-        ["Email", email],
-        ["CBU", cbu],
-        ["Repartición", reparticion],
-    ]
-
-    tabla1 = Table(data_personal, colWidths=[180, 300])
-    tabla1.setStyle(estilo_tabla)
-    elements.append(tabla1)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- DATOS DEL PRÉSTAMO ----------------
-    titulo_seccion("DATOS DEL PRÉSTAMO")
-
-    data_prestamo = [
-        ["Monto", formatear_moneda(monto)],
-        ["Cantidad de cuotas", cuotas],
-        ["Valor de cuota", formatear_moneda(valor_cuota)],
-    ]
-
-    tabla2 = Table(data_prestamo, colWidths=[180, 300])
-    tabla2.setStyle(estilo_tabla)
-    elements.append(tabla2)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- SERVICIOS ----------------
-    titulo_seccion("SERVICIOS")
-
-    data_servicios = [
-        ["Cuota Social", formatear_moneda(cuota_social)],
-        ["Coseguro Médico", formatear_moneda(medico)],
-        ["Coseguro Farmacia", formatear_moneda(farmacia)],
-        ["Membresía", formatear_moneda(membresia)],
-    ]
-
-    tabla3 = Table(data_servicios, colWidths=[180, 300])
-    tabla3.setStyle(estilo_tabla)
-    elements.append(tabla3)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- REFERENCIAS ----------------
-    titulo_seccion("REFERENCIAS")
-
-    data_refs = [
-        ["Nombre", "Teléfono", "Relación"],
-        [ref1_nombre, ref1_tel, ref1_relacion],
-        [ref2_nombre, ref2_tel, ref2_relacion],
-    ]
-
-    tabla4 = Table(data_refs, colWidths=[180, 140, 130], rowHeights=18)
-    tabla4.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#EAEAEA")),
-        ("ALIGN", (0,0), (-1,-1), "CENTER"),
-        ("FONTSIZE", (0,0), (-1,-1), 8),
-        ("TOPPADDING", (0,0), (-1,-1), 4),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
-    ]))
-
-    elements.append(tabla4)
-    elements.append(Spacer(1, 10))
-
-    # ---------------- FIRMA PRO (CORREGIDA) ----------------
-    elements.append(Spacer(1, 15))
-
-    img = Image(firma_buffer, width=120, height=50)
-    img.hAlign = 'CENTER'
-    elements.append(img)
-
-    elements.append(Spacer(1, 5))
-
-    linea = Table([[""]], colWidths=[200])
-    linea.setStyle(TableStyle([
-        ("LINEABOVE", (0,0), (-1,-1), 1, colors.black),
-        ("ALIGN", (0,0), (-1,-1), "CENTER")
-    ]))
-    elements.append(linea)
-
-    elements.append(Spacer(1, 5))
-
-    style_centro = styles["Normal"]
-    style_centro.alignment = TA_CENTER
-
-    elements.append(Paragraph(f"<b>{nombre}</b>", style_centro))
-    elements.append(Spacer(1, 3))
-    elements.append(Paragraph("FIRMA DEL CLIENTE", style_centro))
-
-    # 🔥 ------------------------------------
-    # 🔥 NUEVA HOJA CON DOCUMENTACIÓN
-    # 🔥 ------------------------------------
-
-    from reportlab.platypus import PageBreak
-
-    elements.append(PageBreak())
-
-    elements.append(Paragraph("DOCUMENTACIÓN DEL CLIENTE", styles["Title"]))
-    elements.append(Spacer(1, 10))
-
-    # DNI FRENTE
-    elements.append(Paragraph("DNI FRENTE", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
-    img = Image(ruta_frente)
-    img._restrictSize(240, 140)
-    elements.append(img)
-    elements.append(Spacer(1, 10))
-
-    # DNI DORSO
-    elements.append(Paragraph("DNI DORSO", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
-    img = Image(ruta_dorso)
-    img._restrictSize(240, 140)
-    elements.append(img)
-    elements.append(Spacer(1, 10))
-
-    # SELFIE
-    elements.append(Paragraph("SELFIE CON DNI", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
-    img = Image(ruta_selfie)
-    img._restrictSize(240, 140)
-    elements.append(img)
-    elements.append(Spacer(1, 15))
-
-    # 🔥 FIRMA FINAL (segunda hoja)
-    elements.append(Paragraph("FIRMA DEL CLIENTE", styles["Heading3"]))
-    elements.append(Spacer(1, 10))
-
-    img = Image(firma_buffer, width=120, height=50)
-    img.hAlign = 'CENTER'
-    elements.append(img)
-
-    elements.append(Spacer(1, 5))
-
-    linea = Table([[""]], colWidths=[200])
-    linea.setStyle(TableStyle([
-    ("LINEABOVE", (0,0), (-1,-1), 1, colors.black),
-    ("ALIGN", (0,0), (-1,-1), "CENTER")
-]))
-    elements.append(linea)
-
-    elements.append(Spacer(1, 5))
-
-    style_centro = styles["Normal"]
-    style_centro.alignment = TA_CENTER
-
-    elements.append(Paragraph(f"<b>{nombre}</b>", style_centro))
-    elements.append(Spacer(1, 3))
-    elements.append(Paragraph("FIRMA DEL CLIENTE", style_centro))
-
-    # 🔹 FINAL
-    doc.build(elements)
-    buffer.seek(0)
-
-     # --------- CREAR OVERLAY DE FIRMA ---------
-    packet = io.BytesIO()
-    c = canvas.Canvas(packet)
-
-    from reportlab.lib.utils import ImageReader
-    # 🔥 CLAVE
-    firma_buffer.seek(0)
-
-     # 📍 POSICIÓN DE FIRMA (AJUSTAR DESPUÉS)
-    firma_img = ImageReader(firma_buffer)
-    c.drawImage(firma_img, 220, 90, width=140, height=60, mask='auto')
-
-    c.save()
-    packet.seek(0)
-
-    contrato_pdf = PdfReader(contrato_path)
-    writer_contrato = PdfWriter()
-
-    # 🔥 ACA
-    cuotas = int(cuotas)
-    monto = int(monto)
-
-    tablas = {
-        6: tabla_6,
-        12: tabla_12,
-        18: tabla_18,
-        24: tabla_24
-}
-
-    cuota_prestamo = tablas.get(cuotas, {}).get(monto, 0)
-
-    posiciones_firma = {
-        0: (30, 80),   # izquierda solicitud de ingreso
-        1: (30, 80),   # izquierda no lleva firma solicitud de servicio 1
-        2: (80, 90),   # no mencionaste → queda igual solicitud de servicio 2 con firma
-        3: (80, 50),   # izquierda autorizacion de descuento
-
-        4: (10, 70),   # izquierda + más abajo solicitud de credito
-        5: (20, 200),   # izquierda solicitud de subsidio economico
-
-        6: (50, 150),  # izquierda + arriba debito directo banco provincia
-        7: (550, 220),  # izquierda + arriba sistema nacional de pagos banco provincia
-
-        8: (10, 230),   # sin cambio autorizacion de descuento general
-        9: (220, 90),   # sin cambio contrato de mutuo no lleva firma
-
-        10: (80, 130),  # abajo mutuo con firma
-        11: (30, 350), #  pagare
-
-        12: (110, 280), # izquierda + arriba afiliacion educacion
-
-        13: (120, 430), # izquierda + arriba ficha prestamo educacion
-
-}
-    # 🔥 SOLO PARA POLICIA (NO TOCAR NADA MÁS)
-    if ent == "aamas" and rep in ["policia", "spb"]:
-        posiciones_firma[13] = (20, 20)
-        posiciones_firma[14] = (40, 480)
-        posiciones_firma[15] = (10, 10)
-
-    if ent == "quantum":
-        posiciones_firma[0] = (50, 100)
-        posiciones_firma[3] = (100, 80)
-        posiciones_firma[5] = (20, 230)
-        
-
-    for i, page in enumerate(contrato_pdf.pages):
-        if i == 1 or i == 9: 
-            writer_contrato.add_page(page)
-            continue
-
-        # 🔥 buscar posición según página
-        x, y = posiciones_firma.get(i, (220, 90))  # default si no está
-
-        # crear overlay nuevo para esta página
-        packet = io.BytesIO()
-        c = canvas.Canvas(packet)
-
-        firma_buffer.seek(0)
-        firma_img = ImageReader(firma_buffer)
-
-        # 🔥 TEXTO SEGÚN REPARTICIÓN Y HOJA
-
-        # EDUCACION
-        if rep == "educacion":
-
-            c.setFont("Helvetica", 10)
-
-            # 🟢 HOJA 12 Y 13 → DATOS PERSONALES (COMPARTIDO)
-            if i in [12, 13]:
-                c.drawString(200, 645, nombre)
-                c.drawString(200, 630, dni)
-                c.drawString(200, 615, email)
-                c.drawString(400, 600, telefono)
-
-            # 🔵 SOLO HOJA 13 → COSEGUROS
-            if i == 12:
-                c.drawString(70, 505, "30150")
-                c.drawString(200, 510, "Cuota Social")
-                c.drawString(400, 510, str(cuota_social))
-
-                c.drawString(70, 480, "30150")
-                c.drawString(200, 480, "Coseguro Médico")
-                c.drawString(400, 480, str(medico))
-
-                c.drawString(70, 450, "30150")
-                c.drawString(200, 450, "Coseguro Farmacia")
-                c.drawString(400, 450, str(farmacia))
-
-                c.drawString(70, 425, "30150")
-                c.drawString(200, 420, "Cuota Prestamo")
-                c.drawString(400, 420, str(cuota_prestamo))
-    
-
-
-        # POLICIA / SPB
-        elif rep in ["policia", "spb"]:
-            if i == 13:
-                c.setFont("Helvetica", 10)
-                c.drawString(320, 690, nombre)
-                c.drawString(320, 670, dni)
-            if i == 12:
-                c.setFont("Helvetica", 10)
-                c.drawString(210, 505, nombre)
-                c.drawString(160, 485, dni)
-                c.drawString(290, 470, email)
-
-                
-
-
-        if i == 7:  # hoja 7
-            c.saveState()
-            c.translate(x, y)
-            c.rotate(90)
-            c.drawImage(firma_img, -100, 20, width=140, height=60, mask='auto')
-            c.restoreState()
-
-        elif i == 11:  # hoja 11
-            c.saveState()
-            c.translate(x, y)
-            c.rotate(-90)
-            c.drawImage(firma_img, -100, 20, width=140, height=60, mask='auto')
-            c.restoreState()
-
-        else:
-            c.drawImage(firma_img, x, y, width=140, height=60, mask='auto')
-
-       
-
-        c.save()
-        packet.seek(0)
-
-        overlay = PdfReader(packet)
-
-        page.merge_page(overlay.pages[0])
-        writer_contrato.add_page(page)
-
-    
-
-    import time
-    import os
-
-    # --------- UNIR TODO ---------
-    datero_pdf = PdfReader(buffer)
-
+    datos = {
+        "entidad":       entidad,
+        "reparticion":   reparticion.upper(),
+        "monto":         monto,
+        "cuotas":        cuotas,
+        "valor_cuota":   valor_cuota,
+        "cuota_social":  cuota_social,
+        "medico":        medico,
+        "farmacia":      farmacia,
+        "membresia":     membresia,
+        "nombre":        request.form.get("nombre", ""),
+        "dni":           request.form.get("dni", ""),
+        "cuit":          request.form.get("cuit", ""),
+        "telefono":      request.form.get("telefono", ""),
+        "fecha":         request.form.get("fecha_nacimiento", ""),
+        "nacionalidad":  request.form.get("nacionalidad", ""),
+        "provincia":     request.form.get("provincia", ""),
+        "localidad":     request.form.get("localidad", ""),
+        "domicilio":     request.form.get("domicilio", ""),
+        "email":         request.form.get("email", ""),
+        "cbu":           request.form.get("cbu", ""),
+        "ref1_nombre":   request.form.get("ref1_nombre", ""),
+        "ref1_tel":      request.form.get("ref1_tel", ""),
+        "ref1_relacion": request.form.get("ref1_relacion", ""),
+        "ref2_nombre":   request.form.get("ref2_nombre", ""),
+        "ref2_tel":      request.form.get("ref2_tel", ""),
+        "ref2_relacion": request.form.get("ref2_relacion", ""),
+        "ruta_frente":   request.form["ruta_frente"],
+        "ruta_dorso":    request.form["ruta_dorso"],
+        "ruta_selfie":   request.form["ruta_selfie"],
+    }
+
+    cuota_prestamo = TABLAS.get(cuotas, {}).get(int(monto), 0)
+
+    # Generar PDF datero (datos + fotos)
+    datero_buffer = generar_pdf_datero(datos, firma_buffer)
+
+    # Firmar contrato
+    writer_contrato = firmar_contrato(
+        get_contrato_path(entidad, reparticion),
+        firma_buffer, entidad, reparticion, datos, cuota_prestamo
+    )
+
+    # Unir datero + contrato firmado
     final_writer = PdfWriter()
 
-    # agregar datero
-    for page in datero_pdf.pages:
+    for page in PdfReader(datero_buffer).pages:
         final_writer.add_page(page)
 
-    # agregar contrato firmado
-    for page in writer_contrato.pages:
+    contrato_output = io.BytesIO()
+    writer_contrato.write(contrato_output)
+    contrato_output.seek(0)
+
+    for page in PdfReader(contrato_output).pages:
         final_writer.add_page(page)
 
-    # generar archivo final
-    output = io.BytesIO()
-    final_writer.write(output)
-    output.seek(0)
-
-    # guardar archivo final
-    filename = f"contrato_final_{int(time.time())}.pdf"
-
+    # Guardar
     os.makedirs("static", exist_ok=True)
-    filepath = f"static/{filename}"
-
-    with open(filepath, "wb") as f:
-        f.write(output.getvalue())
+    filename = f"contrato_{entidad}_{int(time.time())}.pdf"
+    with open(f"static/{filename}", "wb") as f:
+        final_writer.write(f)
 
     return render_template("descargar.html", archivo=filename)
 
-# ---------------- RUN ----------------
+
+# ══════════════════════════════════════════════════════════
+#  ENTRY POINT
+# ══════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
