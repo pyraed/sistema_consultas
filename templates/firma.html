@@ -30,7 +30,6 @@
     flex-direction: column;
   }
 
-  /* ── HEADER ── */
   .header {
     background: var(--primary);
     padding: 0 24px;
@@ -58,7 +57,6 @@
     font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
   }
 
-  /* ── MAIN ── */
   .main {
     flex: 1;
     padding: 32px 16px 48px;
@@ -74,7 +72,6 @@
     gap: 16px;
   }
 
-  /* ── PROGRESS ── */
   .progress { display: flex; align-items: center; margin-bottom: 4px; }
   .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
 
@@ -96,7 +93,6 @@
   .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
   .progress-line.done { background: #86efac; }
 
-  /* ── CARD ── */
   .card {
     background: var(--surface);
     border-radius: 16px;
@@ -123,7 +119,6 @@
 
   .card-body { padding: 22px 24px 26px; }
 
-  /* ── RESUMEN GRID ── */
   .resumen-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -164,12 +159,15 @@
     font-size: 18px;
   }
 
-  /* ── MEMB STRIP ── */
   .memb-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-top: 10px;
+  }
+
+  .memb-strip.dos-col {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .memb-cell {
@@ -189,10 +187,8 @@
 
   .memb-cell-value { font-size: 12px; font-weight: 600; color: var(--text-primary); }
 
-  /* ── DIVIDER ── */
   .divider { height: 1px; background: var(--border); margin: 20px 0; }
 
-  /* ── FIRMA SECTION ── */
   .firma-label-row {
     display: flex;
     align-items: center;
@@ -221,10 +217,8 @@
   }
 
   .btn-limpiar:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
-
   .btn-limpiar svg { width: 12px; height: 12px; stroke: currentColor; flex-shrink: 0; }
 
-  /* Canvas wrapper */
   .canvas-wrap {
     position: relative;
     border-radius: var(--radius);
@@ -276,7 +270,6 @@
     display: none;
   }
 
-  /* ── HINT ── */
   .firma-hint {
     font-size: 11px; color: var(--text-muted);
     font-family: 'DM Mono', monospace;
@@ -284,7 +277,6 @@
     text-align: center;
   }
 
-  /* ── BOTÓN ── */
   .btn-submit {
     width: 100%; padding: 15px;
     border-radius: var(--radius); border: none;
@@ -306,7 +298,6 @@
   .btn-submit:active { transform: translateY(0); }
   .btn-submit svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 480px) {
     .progress-label { display: none; }
     .resumen-grid { grid-template-columns: 1fr; }
@@ -320,7 +311,6 @@
 
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="header-brand">
     <div class="header-logo">{% if entidad == "quantum" %}Q{% else %}A{% endif %}</div>
@@ -332,7 +322,6 @@
 <main class="main">
   <div class="wrapper">
 
-    <!-- PROGRESO -->
     <div class="progress">
       <div class="progress-step">
         <div class="progress-dot done">✓</div>
@@ -386,6 +375,19 @@
           </div>
         </div>
 
+        <!-- MEMBRESÍA: si es alt=1 solo muestra Cuota Social y Médico -->
+        {% if alt == "1" %}
+        <div class="memb-strip dos-col">
+          <div class="memb-cell">
+            <div class="memb-cell-label">Cuota Social</div>
+            <div class="memb-cell-value">{{ cuota_social_fmt }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Médico</div>
+            <div class="memb-cell-value">{{ medico_fmt }}</div>
+          </div>
+        </div>
+        {% else %}
         <div class="memb-strip">
           <div class="memb-cell">
             <div class="memb-cell-label">Cuota Social</div>
@@ -404,6 +406,7 @@
             <div class="memb-cell-value">{{ membresia_fmt }}</div>
           </div>
         </div>
+        {% endif %}
 
       </div>
     </div>
@@ -426,9 +429,7 @@
       <div class="card-body">
 
         <form method="POST" action="/generar_pdf_final" id="firmaForm">
-          <input type="hidden" name="firma" id="firmaInput">
-
-          <!-- Todos los campos ocultos -->
+          <input type="hidden" name="firma"           id="firmaInput">
           <input type="hidden" name="entidad"          value="{{ entidad }}">
           <input type="hidden" name="reparticion"      value="{{ reparticion }}">
           <input type="hidden" name="monto"            value="{{ monto }}">
@@ -458,8 +459,8 @@
           <input type="hidden" name="ruta_frente"      value="{{ ruta_frente }}">
           <input type="hidden" name="ruta_dorso"       value="{{ ruta_dorso }}">
           <input type="hidden" name="ruta_selfie"      value="{{ ruta_selfie }}">
+          <input type="hidden" name="alt"              value="{{ alt }}">
 
-          <!-- FIRMA -->
           <div class="firma-label-row">
             <span class="firma-label">Área de firma</span>
             <button type="button" class="btn-limpiar" onclick="limpiarFirma()">
@@ -504,16 +505,15 @@
 </main>
 
 <script>
-const canvas    = document.getElementById("firmaCanvas");
-const ctx       = canvas.getContext("2d");
-const wrap      = document.getElementById("canvasWrap");
+const canvas      = document.getElementById("firmaCanvas");
+const ctx         = canvas.getContext("2d");
+const wrap        = document.getElementById("canvasWrap");
 const placeholder = document.getElementById("placeholder");
 const signedBadge = document.getElementById("signedBadge");
 
-let dibujando  = false;
-let hasFirma   = false;
+let dibujando = false;
+let hasFirma  = false;
 
-// Ajustar resolución real del canvas al tamaño CSS
 function resizeCanvas() {
   const rect = canvas.getBoundingClientRect();
   const dpr  = window.devicePixelRatio || 1;
@@ -532,15 +532,9 @@ resizeCanvas();
 function getPos(e) {
   const rect = canvas.getBoundingClientRect();
   if (e.touches) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
+    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
   }
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
 function startDraw(e) {
@@ -548,10 +542,7 @@ function startDraw(e) {
   ctx.beginPath();
   const pos = getPos(e);
   ctx.moveTo(pos.x, pos.y);
-  // Ocultar placeholder al primer trazo
-  if (!hasFirma) {
-    placeholder.style.opacity = "0";
-  }
+  if (!hasFirma) placeholder.style.opacity = "0";
 }
 
 function draw(e) {
@@ -572,13 +563,10 @@ function stopDraw() {
   ctx.beginPath();
 }
 
-// Mouse
 canvas.addEventListener("mousedown",  startDraw);
 canvas.addEventListener("mousemove",  draw);
 canvas.addEventListener("mouseup",    stopDraw);
 canvas.addEventListener("mouseleave", stopDraw);
-
-// Touch
 canvas.addEventListener("touchstart", startDraw, { passive: false });
 canvas.addEventListener("touchmove",  draw,       { passive: false });
 canvas.addEventListener("touchend",   stopDraw);
@@ -592,7 +580,6 @@ function limpiarFirma() {
   placeholder.style.opacity = "1";
 }
 
-// Al enviar: captura la firma y valida que no esté vacía
 document.getElementById("firmaForm").addEventListener("submit", function(e) {
   if (!hasFirma) {
     e.preventDefault();

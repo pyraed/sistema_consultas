@@ -569,13 +569,23 @@ function copiarLeyenda(btn) {
 function copiarTodo(btn) {
   const leyenda = document.getElementById("textoLeyenda").innerText;
   const link    = document.getElementById("formInput").value;
-  const texto   = leyenda + "\n\n🧾 DATERO ONLINE:\n" + link;
+
+  // Si existe el link de oferta alternativa, lo agrega también
+  const inputAlt = document.getElementById("formInputAlt");
+  const linkAlt  = inputAlt ? inputAlt.value : null;
+
+  let texto = leyenda + "\n\n🧾 DATERO ONLINE:\n" + link;
+
+  if (linkAlt) {
+    texto += "\n\n🧾 DATERO AYUDA ECONÓMICA:\n" + linkAlt;
+  }
+
   copiarTexto(texto, () => {
     btn.classList.add("copied");
     const orig = btn.innerHTML;
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg> ¡Todo copiado!`;
     setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = orig; }, 2200);
-    showToast("✓ Mensaje completo + link copiados");
+    showToast("✓ Mensaje completo + links copiados");
   });
 }
 </script>
