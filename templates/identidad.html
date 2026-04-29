@@ -30,7 +30,6 @@
     flex-direction: column;
   }
 
-  /* ── HEADER ── */
   .header {
     background: var(--primary);
     padding: 0 24px;
@@ -58,7 +57,6 @@
     font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
   }
 
-  /* ── MAIN ── */
   .main {
     flex: 1;
     padding: 32px 16px 48px;
@@ -74,7 +72,6 @@
     gap: 16px;
   }
 
-  /* ── PROGRESS ── */
   .progress { display: flex; align-items: center; margin-bottom: 4px; }
   .progress-step { display: flex; align-items: center; gap: 8px; flex: 1; }
 
@@ -96,7 +93,6 @@
   .progress-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
   .progress-line.done { background: #86efac; }
 
-  /* ── CARD ── */
   .card {
     background: var(--surface);
     border-radius: 16px;
@@ -118,27 +114,21 @@
 
   .card-icon svg { width: 18px; height: 18px; stroke: var(--primary-text); }
 
-  .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
   .card-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
 
   .card-body { padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 22px; }
 
-  /* ── INTRO BANNER ── */
   .intro-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
     background: var(--primary-light);
     border-radius: var(--radius-sm);
     padding: 14px 16px;
-    font-size: 13px;
-    color: var(--primary-text);
-    line-height: 1.5;
+    font-size: 13px; color: var(--primary-text); line-height: 1.5;
   }
 
   .intro-banner svg { width: 18px; height: 18px; stroke: var(--primary-text); flex-shrink: 0; margin-top: 1px; }
 
-  /* ── UPLOAD SECTION ── */
   .upload-section { display: flex; flex-direction: column; gap: 8px; }
 
   .upload-label {
@@ -154,35 +144,29 @@
     background: var(--primary); opacity: 0.5;
   }
 
-  /* Zona de carga */
-  .upload-zone {
-    position: relative;
+  /* ZONA DE CÁMARA */
+  .camera-zone {
     border: 2px dashed var(--border);
     border-radius: var(--radius);
     background: var(--surface-2);
-    cursor: pointer;
-    overflow: hidden;
-    transition: border-color 0.2s, background 0.2s;
     min-height: 130px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
   }
 
-  .upload-zone:hover {
+  .camera-zone:hover {
     border-color: var(--primary);
     background: var(--primary-light);
   }
 
-  .upload-zone.loaded {
-    border-style: solid;
-    border-color: #22c55e;
-    background: #f0fdf4;
-  }
-
-  .upload-zone-icon {
+  .camera-zone-icon {
     width: 40px; height: 40px;
     border-radius: 10px;
     background: var(--surface);
@@ -190,29 +174,55 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  .upload-zone-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); }
+  .camera-zone-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); }
+  .camera-zone-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-align: center; }
+  .camera-zone-hint { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
 
-  .upload-zone-text {
-    font-size: 13px; font-weight: 500; color: var(--text-secondary);
-    text-align: center; line-height: 1.4;
+  /* VIDEO (visor de cámara) */
+  .video-container {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .upload-zone-hint {
-    font-size: 11px; color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
+  video {
+    width: 100%;
+    border-radius: var(--radius);
+    border: 2px solid var(--primary);
+    background: #000;
+    max-height: 260px;
+    object-fit: cover;
   }
 
-  /* Input file invisible sobre toda la zona */
-  .upload-zone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    opacity: 0;
+  .btn-capturar {
+    width: 100%; padding: 13px;
+    border-radius: var(--radius-sm); border: none;
+    background: var(--primary); color: white;
+    font-weight: 600; font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
     cursor: pointer;
-    font-size: 0;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s;
   }
 
-  /* Preview */
+  .btn-capturar:hover { background: var(--primary-hover); }
+  .btn-capturar svg { width: 16px; height: 16px; stroke: white; flex-shrink: 0; }
+
+  .btn-cancelar {
+    width: 100%; padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 13px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .btn-cancelar:hover { border-color: #ef4444; color: #ef4444; }
+
+  /* PREVIEW */
   .preview-wrap {
     display: none;
     position: relative;
@@ -223,53 +233,31 @@
   }
 
   .preview-wrap img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: contain;
-    display: block;
+    width: 100%; max-height: 220px;
+    object-fit: contain; display: block;
   }
 
   .preview-badge {
-    position: absolute;
-    top: 10px; left: 10px;
-    background: #16a34a;
-    color: white;
+    position: absolute; top: 10px; left: 10px;
+    background: #16a34a; color: white;
     font-size: 11px; font-weight: 600;
     font-family: 'DM Mono', monospace;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
   }
 
   .preview-retake {
-    position: absolute;
-    top: 10px; right: 10px;
-    background: rgba(0,0,0,0.55);
-    color: white;
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,0.55); color: white;
     font-size: 11px; font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    padding: 5px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    border: none;
+    padding: 5px 12px; border-radius: 20px;
+    cursor: pointer; border: none;
     transition: background 0.15s;
   }
 
   .preview-retake:hover { background: rgba(0,0,0,0.75); }
 
-  /* Selfie — cámara frontal, diseño diferente */
-  .upload-zone.selfie { min-height: 160px; }
-
-  .upload-zone.selfie .upload-zone-icon {
-    width: 52px; height: 52px; border-radius: 50%;
-  }
-
-  .upload-zone.selfie .upload-zone-icon svg { width: 24px; height: 24px; }
-
-  /* ── DIVIDER ── */
   .divider { height: 1px; background: var(--border); }
 
-  /* ── BOTÓN ── */
   .btn-submit {
     width: 100%; padding: 15px;
     border-radius: var(--radius); border: none;
@@ -287,11 +275,11 @@
     box-shadow: 0 8px 24px rgba(30,58,138,0.18);
   }
 
-  .btn-submit:active { transform: translateY(0); }
-
   .btn-submit svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-  /* ── RESPONSIVE ── */
+  /* Canvas oculto para captura */
+  canvas { display: none; }
+
   @media (max-width: 480px) {
     .progress-label { display: none; }
     .card-body { padding: 18px 16px 22px; }
@@ -302,15 +290,10 @@
 
 <body>
 
-<!-- HEADER -->
-<header class="header">
+<header class="header" id="headerEl">
   <div class="header-brand">
-    <div class="header-logo">
-      {% if entidad == "quantum" %}Q{% else %}A{% endif %}
-    </div>
-    <span class="header-title">
-      {% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}
-    </span>
+    <div class="header-logo" id="headerLogo">A</div>
+    <span class="header-title" id="headerTitle">AAMAS</span>
   </div>
   <span class="header-badge">VALIDACIÓN DE IDENTIDAD</span>
 </header>
@@ -318,7 +301,6 @@
 <main class="main">
   <div class="wrapper">
 
-    <!-- PROGRESO -->
     <div class="progress">
       <div class="progress-step">
         <div class="progress-dot done">✓</div>
@@ -358,110 +340,145 @@
 
       <div class="card-body">
 
-        <!-- BANNER INTRO -->
         <div class="intro-banner">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <span>Tomá fotos claras y bien iluminadas. Asegurate de que el texto del DNI sea legible y que en la selfie se vea tu rostro junto al documento.</span>
+          <span>Tocá cada recuadro para abrir la cámara y sacar la foto. Asegurate de tener buena luz y que el texto sea legible.</span>
         </div>
 
         <form method="POST" action="/guardar_formulario" enctype="multipart/form-data" id="formIdentidad">
 
-          <!-- Reenvío de datos -->
           {% for key, value in request.form.items() %}
           <input type="hidden" name="{{ key }}" value="{{ value }}">
           {% endfor %}
 
-          <!-- DNI FRENTE -->
+          <!-- Inputs hidden que reciben los blobs -->
+          <input type="file" name="dni_frente" id="inputFrente" accept="image/*" style="display:none">
+          <input type="file" name="dni_dorso"  id="inputDorso"  accept="image/*" style="display:none">
+          <input type="file" name="selfie"     id="inputSelfie" accept="image/*" style="display:none">
+
+          <!-- Canvas oculto para captura -->
+          <canvas id="canvasCaptura"></canvas>
+
+          <!-- ── DNI FRENTE ── -->
           <div class="upload-section">
             <div class="upload-label">
               <div class="upload-label-dot"></div>
               DNI Frente
             </div>
 
-            <div class="upload-zone" id="zoneFrente">
-              <div class="upload-zone-icon">
+            <div class="camera-zone" id="zoneFrente" onclick="abrirCamara('frente')">
+              <div class="camera-zone-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <line x1="8" y1="10" x2="16" y2="10"/>
-                  <line x1="8" y1="14" x2="12" y2="14"/>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
                 </svg>
               </div>
-              <div class="upload-zone-text">Tocá para fotografiar el frente</div>
-              <div class="upload-zone-hint">orientación horizontal · buena luz</div>
-              <input type="file" name="dni_frente" id="inputFrente" capture="environment" required>
+              <div class="camera-zone-text">Tocá para fotografiar el frente</div>
+              <div class="camera-zone-hint">orientación horizontal · buena luz</div>
+            </div>
+
+            <div class="video-container" id="videoFrente">
+              <video id="videoElFrente" autoplay playsinline></video>
+              <button type="button" class="btn-capturar" onclick="capturar('frente')">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Sacar foto
+              </button>
+              <button type="button" class="btn-cancelar" onclick="cancelarCamara('frente')">Cancelar</button>
             </div>
 
             <div class="preview-wrap" id="previewWrapFrente">
               <img id="previewFrente" src="" alt="DNI Frente">
               <div class="preview-badge">✓ Frente cargado</div>
-              <button type="button" class="preview-retake" onclick="retake('Frente')">Volver a tomar</button>
+              <button type="button" class="preview-retake" onclick="retake('frente')">Volver a tomar</button>
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <!-- DNI DORSO -->
+          <!-- ── DNI DORSO ── -->
           <div class="upload-section">
             <div class="upload-label">
               <div class="upload-label-dot"></div>
               DNI Dorso
             </div>
 
-            <div class="upload-zone" id="zoneDorso">
-              <div class="upload-zone-icon">
+            <div class="camera-zone" id="zoneDorso" onclick="abrirCamara('dorso')">
+              <div class="camera-zone-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <line x1="8" y1="10" x2="16" y2="10"/>
-                  <line x1="8" y1="14" x2="14" y2="14"/>
-                  <circle cx="17" cy="14" r="1"/>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
                 </svg>
               </div>
-              <div class="upload-zone-text">Tocá para fotografiar el dorso</div>
-              <div class="upload-zone-hint">orientación horizontal · buena luz</div>
-              <input type="file" name="dni_dorso" id="inputDorso" capture="environment" required>
+              <div class="camera-zone-text">Tocá para fotografiar el dorso</div>
+              <div class="camera-zone-hint">orientación horizontal · buena luz</div>
+            </div>
+
+            <div class="video-container" id="videoDorso">
+              <video id="videoElDorso" autoplay playsinline></video>
+              <button type="button" class="btn-capturar" onclick="capturar('dorso')">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Sacar foto
+              </button>
+              <button type="button" class="btn-cancelar" onclick="cancelarCamara('dorso')">Cancelar</button>
             </div>
 
             <div class="preview-wrap" id="previewWrapDorso">
               <img id="previewDorso" src="" alt="DNI Dorso">
               <div class="preview-badge">✓ Dorso cargado</div>
-              <button type="button" class="preview-retake" onclick="retake('Dorso')">Volver a tomar</button>
+              <button type="button" class="preview-retake" onclick="retake('dorso')">Volver a tomar</button>
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <!-- SELFIE -->
+          <!-- ── SELFIE ── -->
           <div class="upload-section">
             <div class="upload-label">
               <div class="upload-label-dot"></div>
               Selfie con DNI en mano
             </div>
 
-            <div class="upload-zone selfie" id="zoneSelfie">
-              <div class="upload-zone-icon">
+            <div class="camera-zone" id="zoneSelfie" onclick="abrirCamara('selfie')">
+              <div class="camera-zone-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                   <circle cx="12" cy="13" r="4"/>
                 </svg>
               </div>
-              <div class="upload-zone-text">Tocá para tomar la selfie</div>
-              <div class="upload-zone-hint">cámara frontal · sostenés el DNI visible</div>
-              <input type="file" name="selfie" id="inputSelfie" capture="environment" required>
+              <div class="camera-zone-text">Tocá para tomar la selfie</div>
+              <div class="camera-zone-hint">cámara frontal · sostenés el DNI visible</div>
+            </div>
+
+            <div class="video-container" id="videoSelfie">
+              <video id="videoElSelfie" autoplay playsinline></video>
+              <button type="button" class="btn-capturar" onclick="capturar('selfie')">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Sacar foto
+              </button>
+              <button type="button" class="btn-cancelar" onclick="cancelarCamara('selfie')">Cancelar</button>
             </div>
 
             <div class="preview-wrap" id="previewWrapSelfie">
               <img id="previewSelfie" src="" alt="Selfie">
               <div class="preview-badge">✓ Selfie cargada</div>
-              <button type="button" class="preview-retake" onclick="retake('Selfie')">Volver a tomar</button>
+              <button type="button" class="preview-retake" onclick="retake('selfie')">Volver a tomar</button>
             </div>
           </div>
 
-          <!-- BOTÓN -->
-          <button type="submit" class="btn-submit">
+          <button type="submit" class="btn-submit" id="btnEnviar">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 8h10M9 4l4 4-4 4"/>
             </svg>
@@ -476,54 +493,173 @@
 </main>
 
 <script>
-// Tema por entidad
+// ── TEMA ──
 const entidad = "{{ entidad }}";
+const headerEl    = document.getElementById("headerEl");
+const headerLogo  = document.getElementById("headerLogo");
+const headerTitle = document.getElementById("headerTitle");
+
 if (entidad === "quantum") {
-  document.querySelector(".header").style.background = "#18181b";
-  document.documentElement.style.setProperty("--primary", "#18181b");
-  document.documentElement.style.setProperty("--primary-hover", "#27272a");
-  document.documentElement.style.setProperty("--primary-light", "#f4f4f5");
-  document.documentElement.style.setProperty("--primary-text", "#18181b");
-  document.documentElement.style.setProperty("--border-focus", "#71717a");
+  headerEl.style.background = "#18181b";
+  headerLogo.textContent    = "Q";
+  headerTitle.textContent   = "QUANTUM";
+} else {
+  headerEl.style.background = "#1E3A8A";
+  headerLogo.textContent    = "A";
+  headerTitle.textContent   = "AAMAS";
 }
 
-// Preview genérico
-function setupPreview(inputId, zoneId, previewWrapId, previewImgId) {
-  const input      = document.getElementById(inputId);
-  const zone       = document.getElementById(zoneId);
-  const previewW   = document.getElementById(previewWrapId);
-  const previewImg = document.getElementById(previewImgId);
+// ── ESTADO ──
+const streams = {};  // guarda el stream activo por nombre
+const fotos   = {};  // guarda si ya se sacó la foto: { frente, dorso, selfie }
 
-  input.addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
+const CONFIG = {
+  frente: {
+    facingMode: "environment",
+    zone:       "zoneFrente",
+    videoWrap:  "videoFrente",
+    videoEl:    "videoElFrente",
+    previewWrap:"previewWrapFrente",
+    previewImg: "previewFrente",
+    input:      "inputFrente",
+    badge:      "✓ Frente cargado",
+  },
+  dorso: {
+    facingMode: "environment",
+    zone:       "zoneDorso",
+    videoWrap:  "videoDorso",
+    videoEl:    "videoElDorso",
+    previewWrap:"previewWrapDorso",
+    previewImg: "previewDorso",
+    input:      "inputDorso",
+    badge:      "✓ Dorso cargado",
+  },
+  selfie: {
+    facingMode: "user",
+    zone:       "zoneSelfie",
+    videoWrap:  "videoSelfie",
+    videoEl:    "videoElSelfie",
+    previewWrap:"previewWrapSelfie",
+    previewImg: "previewSelfie",
+    input:      "inputSelfie",
+    badge:      "✓ Selfie cargada",
+  },
+};
 
-    const reader = new FileReader();
-    reader.onload = function (ev) {
-      previewImg.src     = ev.target.result;
-      zone.style.display = "none";
-      previewW.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-  });
+// ── ABRIR CÁMARA ──
+async function abrirCamara(nombre) {
+  const cfg = CONFIG[nombre];
+
+  // Detener stream previo si existe
+  if (streams[nombre]) {
+    streams[nombre].getTracks().forEach(t => t.stop());
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cfg.facingMode },
+      audio: false,
+    });
+
+    streams[nombre] = stream;
+
+    const videoEl = document.getElementById(cfg.videoEl);
+    videoEl.srcObject = stream;
+
+    // Ocultar zona, mostrar video
+    document.getElementById(cfg.zone).style.display      = "none";
+    document.getElementById(cfg.videoWrap).style.display = "flex";
+
+  } catch (err) {
+    // Si falla la cámara frontal, intentar con la trasera
+    if (nombre === "selfie" && err.name !== "NotAllowedError") {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false,
+        });
+        streams[nombre] = stream;
+        document.getElementById(cfg.videoEl).srcObject = stream;
+        document.getElementById(cfg.zone).style.display      = "none";
+        document.getElementById(cfg.videoWrap).style.display = "flex";
+        return;
+      } catch {}
+    }
+
+    if (err.name === "NotAllowedError") {
+      alert("Permiso de cámara denegado. Por favor habilitá el acceso a la cámara en la configuración del navegador.");
+    } else {
+      alert("No se pudo acceder a la cámara. Intentá recargar la página.");
+    }
+  }
 }
 
-setupPreview("inputFrente", "zoneFrente", "previewWrapFrente", "previewFrente");
-setupPreview("inputDorso",  "zoneDorso",  "previewWrapDorso",  "previewDorso");
-setupPreview("inputSelfie", "zoneSelfie", "previewWrapSelfie", "previewSelfie");
+// ── CAPTURAR FOTO ──
+function capturar(nombre) {
+  const cfg    = CONFIG[nombre];
+  const videoEl = document.getElementById(cfg.videoEl);
+  const canvas  = document.getElementById("canvasCaptura");
+  const ctx     = canvas.getContext("2d");
 
-// Botón "Volver a tomar" — limpia el input y muestra la zona de carga
-function retake(which) {
-  const map = {
-    Frente: { zone: "zoneFrente",  wrap: "previewWrapFrente", input: "inputFrente" },
-    Dorso:  { zone: "zoneDorso",   wrap: "previewWrapDorso",  input: "inputDorso"  },
-    Selfie: { zone: "zoneSelfie",  wrap: "previewWrapSelfie", input: "inputSelfie" },
-  };
-  const { zone, wrap, input } = map[which];
-  document.getElementById(zone).style.display  = "";
-  document.getElementById(wrap).style.display  = "none";
-  document.getElementById(input).value         = "";
+  canvas.width  = videoEl.videoWidth;
+  canvas.height = videoEl.videoHeight;
+  ctx.drawImage(videoEl, 0, 0);
+
+  // Detener stream
+  if (streams[nombre]) {
+    streams[nombre].getTracks().forEach(t => t.stop());
+    streams[nombre] = null;
+  }
+
+  // Convertir a Blob y asignarlo al input file
+  canvas.toBlob(function(blob) {
+    const file     = new File([blob], `${nombre}.jpg`, { type: "image/jpeg" });
+    const dt       = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById(cfg.input).files = dt.files;
+
+    // Mostrar preview
+    const url = URL.createObjectURL(blob);
+    document.getElementById(cfg.previewImg).src = url;
+
+    document.getElementById(cfg.videoWrap).style.display  = "none";
+    document.getElementById(cfg.previewWrap).style.display = "block";
+
+    fotos[nombre] = true;
+  }, "image/jpeg", 0.92);
 }
+
+// ── CANCELAR CÁMARA ──
+function cancelarCamara(nombre) {
+  const cfg = CONFIG[nombre];
+  if (streams[nombre]) {
+    streams[nombre].getTracks().forEach(t => t.stop());
+    streams[nombre] = null;
+  }
+  document.getElementById(cfg.videoWrap).style.display = "none";
+  document.getElementById(cfg.zone).style.display      = "";
+}
+
+// ── RETAKE ──
+function retake(nombre) {
+  const cfg = CONFIG[nombre];
+  document.getElementById(cfg.previewWrap).style.display = "none";
+  document.getElementById(cfg.zone).style.display        = "";
+  document.getElementById(cfg.input).value               = "";
+  fotos[nombre] = false;
+}
+
+// ── VALIDAR AL ENVIAR ──
+document.getElementById("formIdentidad").addEventListener("submit", function(e) {
+  const faltantes = ["frente", "dorso", "selfie"].filter(n => !fotos[n]);
+  if (faltantes.length > 0) {
+    e.preventDefault();
+    alert("Por favor sacá todas las fotos antes de continuar.");
+    // Scroll al primero que falta
+    const cfg = CONFIG[faltantes[0]];
+    document.getElementById(cfg.zone).scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+});
 </script>
 
 </body>
