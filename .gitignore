@@ -2,3 +2,5 @@ static/*.pdf
 static/fotos/
 *.log
 *.tmp
+!static/contratos/
+!static/contratos/*.pdf
