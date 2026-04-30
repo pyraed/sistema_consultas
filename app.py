@@ -484,7 +484,7 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         c.drawString(150, 565, datos["domicilio"])
         c.drawString(400, 540, datos["telefono"])
         c.drawString(400, 585, datos["fecha"])
-        c.drawString(380, 575, datos["nacionalidad"])
+        c.drawString(120, 585, datos["nacionalidad"])
         
 
 
