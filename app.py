@@ -444,15 +444,15 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
 
     if i == 0:
         c.setFont("Helvetica", 10)
-        c.drawString(279.22, 710.26, datos["nombre"])
-        c.drawString(35,54, 186.65, datos["fecha"])
-        c.drawString(200.95, 255.31, datos["dni"])
-        c.drawString(35.54, 232.27, datos["domicilio"])
-        c.drawString(320.52, 255.31, datos["localidad"])
-        c.drawString(327.68, 186.65, datos["cuit"])
-        c.drawString(105.38, 255.38, datos["email"])
-        c.drawString(96.87, 246.87, datos["reparticion"])
-        c.drawString(35.54, 324.46, datos["telefono"])
+        c.drawString(279, 710, datos["nombre"])
+        c.drawString(35, 186, datos["fecha"])
+        c.drawString(200, 255, datos["dni"])
+        c.drawString(35, 232, datos["domicilio"])
+        c.drawString(320, 255, datos["localidad"])
+        c.drawString(327, 186, datos["cuit"])
+        c.drawString(105, 255, datos["email"])
+        c.drawString(96, 246, datos["reparticion"])
+        c.drawString(35, 324, datos["telefono"])
         c.drawString(445, 595, datos["dni"])        
 
 
