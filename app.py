@@ -442,6 +442,19 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
             c.drawString(160, 485, datos["dni"])
             c.drawString(290, 470, datos["email"])
 
+    if i == 0:
+        c.setFont("Helvetica", 10)
+        c.drawString(241.52, 391.52, datos["nombre"])
+        c.drawString(144.96, 301.55, datos["fecha"])
+        c.drawString(224.04, 320.52, datos["dni"])
+        c.drawString(106, 256.03, datos["domicilio"])
+        c.drawString(374.07, 529.08, datos["localidad"])
+        c.drawString(351.48, 582.12, datos["cuit"])
+        c.drawString(105.38, 255.38, datos["email"])
+        c.drawString(96.87, 246.87, datos["reparticion"])
+        c.drawString(92.29, 242.29, datos["telefono"])
+        c.drawString(445, 595, datos["dni"])        
+
 
 def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
                     entidad: str, reparticion: str,
