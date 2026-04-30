@@ -481,9 +481,11 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         c.drawString(210, 65, datos["nombre"]) #Este va en la aclaracion     
         c.drawString(140, 630, datos["nombre"])  
         c.drawString(100, 540, datos["localidad"])  
-        c.drawString(150, 560, datos["domicilio"])
+        c.drawString(150, 565, datos["domicilio"])
         c.drawString(400, 540, datos["telefono"])
         c.drawString(400, 585, datos["fecha"])
+        c.drawString(380, 575, datos["nacionalidad"])
+        
 
 
 
@@ -501,37 +503,33 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
     pos_map  = get_posiciones_firma(entidad, reparticion)
 
     for i, page in enumerate(contrato.pages):
-        if i in PAGINAS_SIN_FIRMA:
-            writer.add_page(page)
-            continue
-
-        x, y = pos_map.get(i, (220, 90))
 
         packet = io.BytesIO()
         c = rl_canvas.Canvas(packet)
 
+        # Siempre escribir texto en todas las páginas
         _texto_contrato(c, i, reparticion, datos, cuota_prestamo)
 
+        # Solo dibujar firma si la página la lleva
         if i not in PAGINAS_SIN_FIRMA:
             x, y = pos_map.get(i, (220, 90))
+            firma_buffer.seek(0)
+            firma_img = ImageReader(firma_buffer)
 
-        firma_buffer.seek(0)
-        firma_img = ImageReader(firma_buffer)
-
-        if i == 7:
-            c.saveState()
-            c.translate(x, y)
-            c.rotate(90)
-            c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
-            c.restoreState()
-        elif i == 11:
-            c.saveState()
-            c.translate(x, y)
-            c.rotate(-90)
-            c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
-            c.restoreState()
-        else:
-            c.drawImage(firma_img, x, y, width=140, height=60, mask="auto")
+            if i == 7:
+                c.saveState()
+                c.translate(x, y)
+                c.rotate(90)
+                c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
+                c.restoreState()
+            elif i == 11:
+                c.saveState()
+                c.translate(x, y)
+                c.rotate(-90)
+                c.drawImage(firma_img, -100, 20, width=140, height=60, mask="auto")
+                c.restoreState()
+            else:
+                c.drawImage(firma_img, x, y, width=140, height=60, mask="auto")
 
         c.save()
         packet.seek(0)
