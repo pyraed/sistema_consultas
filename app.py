@@ -484,7 +484,7 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         c.drawString(150, 560, datos["domicilio"])
         c.drawString(400, 540, datos["telefono"])
         c.drawString(400, 585, datos["fecha"])
-        
+
 
 
 
@@ -511,6 +511,9 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
         c = rl_canvas.Canvas(packet)
 
         _texto_contrato(c, i, reparticion, datos, cuota_prestamo)
+
+        if i not in PAGINAS_SIN_FIRMA:
+            x, y = pos_map.get(i, (220, 90))
 
         firma_buffer.seek(0)
         firma_img = ImageReader(firma_buffer)
