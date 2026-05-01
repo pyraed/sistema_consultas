@@ -421,6 +421,13 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         c.drawString(200, 630, datos["dni"])
         c.drawString(200, 615, datos["email"])
         c.drawString(400, 600, datos["telefono"])
+        c.drawString(120, 255, datos["nombre"])
+        c.drawString(150, 480, "Asociación de Apoyo a las Mujeres Argentinas Solas")
+        c.drawString(90, 243, datos["dni"])
+        c.drawString(350, 255, "Presidente")
+        c.drawString(320, 243, "20202020")
+
+
 
         if i == 12:
             for y_pos, label, valor in [
@@ -485,6 +492,28 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         c.drawString(400, 540, datos["telefono"])
         c.drawString(400, 585, datos["fecha"])
         c.drawString(120, 585, datos["nacionalidad"])
+    
+    if i == 5:
+        c.setFont("Helvetica", 10)
+        c.drawString(230, 220, datos["nombre"])
+        c.drawString(450, 220, datos["dni"])
+
+    if i == 8:
+        c.setFont("Helvetica", 10)
+        c.drawString(20, 190, datos["nombre"])
+        c.drawString(30, 140, datos["cuit"])
+        c.drawString(20, 90, datos["email"])
+
+    if i == 10:
+        c.setFont("Helvetica", 10)
+        c.drawString(100, 90, datos["nombre"])
+        c.drawString(140, 40, datos["dni"])
+
+
+
+
+
+
         
 
 
