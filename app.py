@@ -505,7 +505,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             if i == 13:
                 c.drawString(320, 690, datos["nombre"])
                 c.drawString(320, 670, datos["dni"])
-                c.drawString(300, 650, datos["monto"])
+                c.drawString(300, 650, fmt(datos["monto"]))
                 c.drawString(320, 595, "% 100")
 
             if i == 14:
