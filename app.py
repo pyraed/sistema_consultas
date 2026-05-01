@@ -98,7 +98,7 @@ POSICIONES_FIRMA_BASE = {
 POSICIONES_POLICIA_SPB = {13: (20, 20), 14: (40, 480), 15: (10, 10)}
 POSICIONES_QUANTUM     = {0: (50, 100), 3: (100, 80),  5: (20, 230)}
 
-PAGINAS_SIN_FIRMA = {1, 9}
+PAGINAS_SIN_FIRMA = {9}
 
 
 # ══════════════════════════════════════════════════════════
@@ -324,7 +324,6 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     styles, estilo_tabla, estilo_refs = _estilos_pdf(datos["entidad"])
     elements = []
 
-    # ── Hoja 1 ──
     _pdf_header(datos["entidad"], elements, styles)
 
     _pdf_seccion("DATOS PERSONALES", elements, styles)
@@ -343,15 +342,12 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         ["Repartición",       datos["reparticion"]],
     ], [185, 310], estilo_tabla, elements)
 
-    # ── OFERTA ALTERNATIVA: solo Cuota Social + Coseguro Médico, sin préstamo ──
     if datos.get("alt") == "1":
         _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
         _pdf_tabla([
             ["Cuota Social",    fmt(datos["cuota_social"])],
             ["Coseguro Médico", fmt(datos["medico"])],
         ], [185, 310], estilo_tabla, elements)
-
-    # ── FLUJO NORMAL: servicios completos + datos del préstamo ──
     else:
         _pdf_seccion("SERVICIOS", elements, styles)
         _pdf_tabla([
@@ -378,7 +374,6 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     elements.append(Spacer(1, 18))
     _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
 
-    # ── Hoja 2: fotos + firma ──
     elements.append(PageBreak())
 
     doc_header = Table([["DOCUMENTACIÓN DEL SOLICITANTE"]], colWidths=[535])
@@ -409,132 +404,203 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
 
 
 # ══════════════════════════════════════════════════════════
-#  FIRMA SOBRE CONTRATO
+#  TEXTO SOBRE CONTRATO — separado por entidad
 # ══════════════════════════════════════════════════════════
 
-def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
+def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_prestamo: float):
     rep = rep.lower()
+    ent = entidad.lower()
     c.setFont("Helvetica", 10)
 
-    if rep == "educacion" and i in (12, 13):
-        c.drawString(200, 645, datos["nombre"])
-        c.drawString(200, 630, datos["dni"])
-        c.drawString(200, 615, datos["email"])
-        c.drawString(400, 600, datos["telefono"])
+    # ══════════════════════════════════════════════════════
+    #  AAMAS
+    # ══════════════════════════════════════════════════════
+    if ent == "aamas":
+
+        # ── Educación ──
+        if rep == "educacion" and i in (12, 13):
+            c.drawString(200, 645, datos["nombre"])
+            c.drawString(200, 630, datos["dni"])
+            c.drawString(200, 615, datos["email"])
+            c.drawString(400, 600, datos["telefono"])
+
+            if i == 12:
+                c.drawString(120, 255, datos["nombre"])
+                c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
+                c.drawString(90, 243, datos["dni"])
+                c.drawString(350, 255, "Presidente")
+                c.drawString(320, 243, "20202020")
+
+                for y_pos, label, valor in [
+                    (510, "31150", "Cuota Social",      datos["cuota_social"]),
+                    (480, "31151", "Coseguro Médico",   datos["medico"]),
+                    (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
+                    (420, "31153", "Cuota Préstamo",    cuota_prestamo),
+                ]:
+                    c.drawString(70,  y_pos, codigo)
+                    c.drawString(200, y_pos, label)
+                    c.drawString(400, y_pos, str(valor))
+
+            if i == 13:
+                c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
+                c.drawString(90, 390, datos["dni"])
+                c.drawString(120, 405, datos["nombre"])
+                c.drawString(350, 405, "Presidente")
+                c.drawString(320, 390, "20202020")
+
+        # ── Policía / SPB ──
+        elif rep in ("policia", "spb"):
+            if i == 12:
+                c.drawString(210, 505, datos["nombre"])
+                c.drawString(160, 485, datos["dni"])
+                c.drawString(290, 470, datos["email"])
+            if i == 13:
+                c.drawString(320, 690, datos["nombre"])
+                c.drawString(320, 670, datos["dni"])
+
+        # ── Hojas comunes a todas las reparticiones AAMAS ──
+        if i == 0:
+            c.drawString(120, 620, datos["nombre"])
+            c.drawString(259, 95,  datos["nombre"])
+            c.drawString(120, 265, datos["nombre"])
+            c.drawString(160, 595, datos["fecha"])
+            c.drawString(150, 550, datos["domicilio"])
+            c.drawString(380, 525, datos["localidad"])
+            c.drawString(380, 595, datos["cuit"])
+            c.drawString(80,  575, datos["email"])
+            c.drawString(100, 505, datos["reparticion"])
+            c.drawString(130, 460, datos["telefono"])
+            c.drawString(250, 525, datos["dni"])
+            c.drawString(495, 95,  datos["dni"])
+            c.drawString(270, 265, datos["dni"])
+
+        if i == 1:
+            c.drawString(200, 495, datos["nombre"])
+            c.drawString(400, 495, datos["cuit"])
+            c.drawString(380, 475, datos["telefono"])
+
+        if i == 2:
+            c.drawString(420, 100, datos["dni"])
+            c.drawString(200, 100, datos["nombre"])
+
+        if i == 3:
+            c.drawString(420, 50, datos["dni"])
+            c.drawString(200, 50, datos["nombre"])
+
+        if i == 4:
+            c.drawString(400, 65,  datos["dni"])
+            c.drawString(360, 610, datos["dni"])
+            c.drawString(210, 65,  datos["nombre"])
+            c.drawString(140, 630, datos["nombre"])
+            c.drawString(100, 540, datos["localidad"])
+            c.drawString(150, 565, datos["domicilio"])
+            c.drawString(400, 540, datos["telefono"])
+            c.drawString(400, 585, datos["fecha"])
+            c.drawString(120, 585, datos["nacionalidad"])
+
+        if i == 5:
+            c.drawString(230, 220, datos["nombre"])
+            c.drawString(450, 220, datos["dni"])
+
+        if i == 8:
+            c.drawString(20, 190, datos["nombre"])
+            c.drawString(30, 140, datos["cuit"])
+            c.drawString(20, 90,  datos["email"])
+
+        if i == 10:
+            c.drawString(100, 90, datos["nombre"])
+            c.drawString(140, 40, datos["dni"])
+
+    # ══════════════════════════════════════════════════════
+    #  QUANTUM
+    # ══════════════════════════════════════════════════════
+    elif ent == "quantum":
+
+        # ── Educación ──
+        if rep == "educacion" and i in (12, 13):
+            c.drawString(200, 645, datos["nombre"])
+            c.drawString(200, 630, datos["dni"])
+            c.drawString(200, 615, datos["email"])
+            c.drawString(400, 600, datos["telefono"])
+
+        # ── Hojas comunes QUANTUM ──
+            if i == 12:
+                c.drawString(120, 255, datos["nombre"])
+                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")  # ← cambiar nombre entidad
+                c.drawString(90, 243, datos["dni"])
+                c.drawString(350, 255, "Presidente")
+                c.drawString(320, 243, "20202020")  # ← cambiar CUIT entidad
+
+                for y_pos, label, valor in [
+                    (510, "31150", "Cuota Social",      datos["cuota_social"]),
+                    (480, "31151", "Coseguro Médico",   datos["medico"]),
+                    (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
+                    (420, "31153", "Cuota Préstamo",    cuota_prestamo),
+                ]:
+                    c.drawString(70,  y_pos, codigo)
+                    c.drawString(200, y_pos, label)
+                    c.drawString(400, y_pos, str(valor))
+
+            if i == 13:
+                c.drawString(200, 687, "Quantum")  # ← cambiar nombre entidad
+                c.drawString(90, 390, datos["dni"])
+                c.drawString(120, 405, datos["nombre"])
+                c.drawString(350, 405, "Presidente")
+                c.drawString(320, 390, "20202020")  # ← cambiar CUIT entidad 
 
 
-        if i == 12:
-            c.setFont("Helvetica", 10)
-            c.drawString(120, 255, datos["nombre"])
-            c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
-            c.drawString(90, 243, datos["dni"])
-            c.drawString(350, 255, "Presidente")
-            c.drawString(320, 243, "20202020")
-
-        if i == 13:
-            c.setFont("Helvetica", 10)
-            c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
-            c.drawString(90, 390, datos["dni"])
-            c.drawString(120, 405, datos["nombre"])
-            c.drawString(350, 405, "Presidente")
-            c.drawString(320, 390, "20202020")
-
+        if i == 0:
+            c.drawString(120, 620, datos["nombre"])
+            c.drawString(259, 95,  datos["nombre"])
+            c.drawString(120, 265, datos["nombre"])
+            c.drawString(160, 595, datos["fecha"])
+            c.drawString(150, 550, datos["domicilio"])
+            c.drawString(380, 525, datos["localidad"])
+            c.drawString(380, 595, datos["cuit"])
+            c.drawString(80,  575, datos["email"])
+            c.drawString(100, 505, datos["reparticion"])
+            c.drawString(130, 460, datos["telefono"])
+            c.drawString(250, 525, datos["dni"])
+            c.drawString(495, 95,  datos["dni"])
+            c.drawString(270, 265, datos["dni"])
 
 
+        if i == 1:
+            c.drawString(200, 495, datos["nombre"])
+            c.drawString(400, 495, datos["cuit"])
+            c.drawString(380, 475, datos["telefono"])  
 
+        if i == 2:
+            c.drawString(420, 100, datos["dni"])
+            c.drawString(200, 100, datos["nombre"]) 
 
+        if i == 3:
+            c.drawString(420, 50, datos["dni"])
+            c.drawString(200, 50, datos["nombre"])   
 
-        if i == 12:
-            for y_pos, label, valor in [
-                (510, "Cuota Social",      datos["cuota_social"]),
-                (480, "Coseguro Médico",   datos["medico"]),
-                (450, "Coseguro Farmacia", datos["farmacia"]),
-                (420, "Cuota Préstamo",    cuota_prestamo),
-            ]:
-                c.drawString(70,  y_pos, "30150")
-                c.drawString(200, y_pos, label)
-                c.drawString(400, y_pos, str(valor))
+        if i == 4:
+            c.drawString(400, 65,  datos["dni"])
+            c.drawString(360, 610, datos["dni"])
+            c.drawString(210, 65,  datos["nombre"])
+            c.drawString(140, 630, datos["nombre"])
+            c.drawString(100, 540, datos["localidad"])
+            c.drawString(150, 565, datos["domicilio"])
+            c.drawString(400, 540, datos["telefono"])
+            c.drawString(400, 585, datos["fecha"])
+            c.drawString(120, 585, datos["nacionalidad"])       
 
-    elif rep in ("policia", "spb"):
-        if i == 13:
-            c.drawString(320, 690, datos["nombre"])
-            c.drawString(320, 670, datos["dni"])
-        if i == 12:
-            c.drawString(210, 505, datos["nombre"])
-            c.drawString(160, 485, datos["dni"])
-            c.drawString(290, 470, datos["email"])
+        if i == 5:
+            c.drawString(230, 220, datos["nombre"])
+            c.drawString(450, 220, datos["dni"])   
 
-    if i == 0:
-        c.setFont("Helvetica", 10)
-        c.drawString(120, 620, datos["nombre"]) # ficha de afiliacion
-        c.drawString(259, 95, datos["nombre"]) # Esta es la aclaracion
-        c.drawString(120, 265, datos["nombre"]) # En el texto
-        c.drawString(160, 595, datos["fecha"])
-        c.drawString(150, 550, datos["domicilio"])
-        c.drawString(380, 525, datos["localidad"])
-        c.drawString(380, 595, datos["cuit"])
-        c.drawString(80, 575, datos["email"])
-        c.drawString(100, 505, datos["reparticion"])
-        c.drawString(130, 460, datos["telefono"])
-        c.drawString(250, 525, datos["dni"]) # ficha de afiliacion
-        c.drawString(495, 95, datos["dni"])  # Esta es la aclaracion
-        c.drawString(270, 265, datos["dni"])  # En el texto
+        if i == 8:
+            c.drawString(20, 190, datos["nombre"])
+            c.drawString(30, 140, datos["cuit"])
+            c.drawString(20, 90,  datos["email"])     
 
-    if i == 1:
-        c.setFont("Helvetica", 10)
-        c.drawString(200, 495, datos["nombre"])
-        c.drawString(400, 495, datos["cuit"])
-        c.drawString(380, 475, datos["telefono"])
-
-    if i == 2:
-        c.setFont("Helvetica", 10)
-        c.drawString(420, 100, datos["dni"])
-        c.drawString(200, 100, datos["nombre"])
-
-    if i == 3:
-        c.setFont("Helvetica", 10)
-        c.drawString(420, 50, datos["dni"])
-        c.drawString(200, 50, datos["nombre"])
-
-    if i == 4:
-        c.setFont("Helvetica", 10)
-        c.drawString(400, 65, datos["dni"]) #Este va en la aclaracion
-        c.drawString(360, 610, datos["dni"])
-        c.drawString(210, 65, datos["nombre"]) #Este va en la aclaracion     
-        c.drawString(140, 630, datos["nombre"])  
-        c.drawString(100, 540, datos["localidad"])  
-        c.drawString(150, 565, datos["domicilio"])
-        c.drawString(400, 540, datos["telefono"])
-        c.drawString(400, 585, datos["fecha"])
-        c.drawString(120, 585, datos["nacionalidad"])
-    
-    if i == 5:
-        c.setFont("Helvetica", 10)
-        c.drawString(230, 220, datos["nombre"])
-        c.drawString(450, 220, datos["dni"])
-
-    if i == 8:
-        c.setFont("Helvetica", 10)
-        c.drawString(20, 190, datos["nombre"])
-        c.drawString(30, 140, datos["cuit"])
-        c.drawString(20, 90, datos["email"])
-
-    if i == 10:
-        c.setFont("Helvetica", 10)
-        c.drawString(100, 90, datos["nombre"])
-        c.drawString(140, 40, datos["dni"])
-
-
-
-
-
-
-        
-
-
-
-
-
+        if i == 10:
+            c.drawString(100, 90, datos["nombre"])
+            c.drawString(140, 40, datos["dni"])             
 
 
 
@@ -552,7 +618,7 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
         c = rl_canvas.Canvas(packet)
 
         # Siempre escribir texto en todas las páginas
-        _texto_contrato(c, i, reparticion, datos, cuota_prestamo)
+        _texto_contrato(c, i, reparticion, entidad, datos, cuota_prestamo)
 
         # Solo dibujar firma si la página la lleva
         if i not in PAGINAS_SIN_FIRMA:
@@ -603,7 +669,6 @@ def calcular():
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
-    # Oferta alternativa: valor de cuota fijo
     if request.form.get("alt", "0") == "1":
         valor_cuota = 19800
     cuota_total = calcular_total(entidad, monto, valor_cuota,
@@ -654,11 +719,11 @@ def guardar_formulario():
     monto       = float(request.form["monto"])
     cuotas      = int(request.form["cuotas"])
 
-    valor_cuota                               = calcular_cuota(monto, cuotas)
+    valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
         valor_cuota = 19800
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
-    farmacia                                  = aplicar_farmacia(entidad, monto, farmacia)
+    farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
     campos = [
         "nombre", "dni", "cuit", "telefono", "fecha_nacimiento",
@@ -731,7 +796,6 @@ def generar_pdf_final():
     monto        = float(request.form["monto"])
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
-    # Oferta alternativa: valor de cuota fijo
     if request.form.get("alt", "0") == "1":
         valor_cuota = 19800
     cuota_social = float(request.form["cuota_social"])
