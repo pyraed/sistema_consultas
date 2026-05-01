@@ -7,8 +7,9 @@ import os
 import io
 import time
 import base64
+from functools import wraps
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 
 import pandas as pd
 from PIL import Image, ExifTags
@@ -31,6 +32,7 @@ from reportlab.lib.utils import ImageReader
 # ══════════════════════════════════════════════════════════
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "clave-secreta-cambiar-en-produccion")
 
 COLOR_AAMAS       = colors.HexColor("#1E3A8A")
 COLOR_QUANTUM     = colors.HexColor("#18181b")
@@ -38,6 +40,30 @@ COLOR_HEADER_TEXT = colors.white
 COLOR_ROW_ALT     = colors.HexColor("#F8FAFC")
 COLOR_LABEL       = colors.HexColor("#F1F5F9")
 COLOR_BORDER      = colors.HexColor("#CBD5E1")
+
+
+# ══════════════════════════════════════════════════════════
+#  USUARIOS — modificar acá las credenciales
+# ══════════════════════════════════════════════════════════
+
+USUARIOS = {
+    "aamas":   "mutualaamas2026",    # ← cambiar
+    "quantum": "mutualquantum2026",  # ← cambiar
+    "admin":   "mutuales2026",    # ← cambiar (acceso a ambas)
+}
+
+
+# ══════════════════════════════════════════════════════════
+#  LOGIN REQUIRED — decorador
+# ══════════════════════════════════════════════════════════
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "usuario" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
 
 # ══════════════════════════════════════════════════════════
@@ -412,12 +438,8 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
     ent = entidad.lower()
     c.setFont("Helvetica", 10)
 
-    # ══════════════════════════════════════════════════════
-    #  AAMAS
-    # ══════════════════════════════════════════════════════
     if ent == "aamas":
 
-        # ── Educación ──
         if rep == "educacion" and i in (12, 13):
             c.drawString(200, 645, datos["nombre"])
             c.drawString(200, 630, datos["dni"])
@@ -448,7 +470,6 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(350, 405, "Presidente")
                 c.drawString(320, 390, "20202020")
 
-        # ── Policía / SPB ──
         elif rep in ("policia", "spb"):
             if i == 12:
                 c.drawString(210, 505, datos["nombre"])
@@ -458,7 +479,6 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(320, 690, datos["nombre"])
                 c.drawString(320, 670, datos["dni"])
 
-        # ── Hojas comunes a todas las reparticiones AAMAS ──
         if i == 0:
             c.drawString(120, 620, datos["nombre"])
             c.drawString(259, 95,  datos["nombre"])
@@ -511,25 +531,20 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(100, 90, datos["nombre"])
             c.drawString(140, 40, datos["dni"])
 
-    # ══════════════════════════════════════════════════════
-    #  QUANTUM
-    # ══════════════════════════════════════════════════════
     elif ent == "quantum":
 
-        # ── Educación ──
         if rep == "educacion" and i in (12, 13):
             c.drawString(200, 645, datos["nombre"])
             c.drawString(200, 630, datos["dni"])
             c.drawString(200, 615, datos["email"])
             c.drawString(400, 600, datos["telefono"])
 
-        # ── Hojas comunes QUANTUM ──
             if i == 12:
                 c.drawString(120, 255, datos["nombre"])
-                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")  # ← cambiar nombre entidad
+                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")
                 c.drawString(90, 243, datos["dni"])
                 c.drawString(350, 255, "Presidente")
-                c.drawString(320, 243, "20202020")  # ← cambiar CUIT entidad
+                c.drawString(320, 243, "20202020")
 
                 for y_pos, codigo, label, valor in [
                     (510, "31150", "Cuota Social",      datos["cuota_social"]),
@@ -542,16 +557,15 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                     c.drawString(400, y_pos, str(valor))
 
             if i == 13:
-                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")  # ← cambiar nombre entidad
+                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")
                 c.drawString(90, 390, datos["dni"])
                 c.drawString(120, 405, datos["nombre"])
                 c.drawString(350, 405, "Presidente")
-                c.drawString(320, 390, "20202020")  # ← cambiar CUIT entidad 
-
+                c.drawString(320, 390, "20202020")
 
         if i == 0:
             c.drawString(120, 635, datos["nombre"])
-            c.drawString(259, 105,  datos["nombre"])
+            c.drawString(259, 105, datos["nombre"])
             c.drawString(130, 277, datos["nombre"])
             c.drawString(160, 613, datos["fecha"])
             c.drawString(150, 565, datos["domicilio"])
@@ -561,22 +575,21 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(100, 520, datos["reparticion"])
             c.drawString(130, 475, datos["telefono"])
             c.drawString(250, 542, datos["dni"])
-            c.drawString(495, 105,  datos["dni"])
+            c.drawString(495, 105, datos["dni"])
             c.drawString(270, 277, datos["dni"])
-
 
         if i == 1:
             c.drawString(200, 535, datos["nombre"])
             c.drawString(400, 535, datos["cuit"])
-            c.drawString(380, 515, datos["telefono"])  
+            c.drawString(380, 515, datos["telefono"])
 
         if i == 2:
             c.drawString(420, 100, datos["dni"])
-            c.drawString(200, 100, datos["nombre"]) 
+            c.drawString(200, 100, datos["nombre"])
 
         if i == 3:
             c.drawString(420, 95, datos["dni"])
-            c.drawString(200, 95, datos["nombre"])   
+            c.drawString(200, 95, datos["nombre"])
 
         if i == 4:
             c.drawString(400, 65,  datos["dni"])
@@ -587,22 +600,20 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(150, 565, datos["domicilio"])
             c.drawString(400, 540, datos["telefono"])
             c.drawString(400, 585, datos["fecha"])
-            c.drawString(120, 585, datos["nacionalidad"])       
+            c.drawString(120, 585, datos["nacionalidad"])
 
         if i == 5:
             c.drawString(230, 220, datos["nombre"])
-            c.drawString(450, 220, datos["dni"])   
+            c.drawString(450, 220, datos["dni"])
 
         if i == 8:
             c.drawString(20, 190, datos["nombre"])
             c.drawString(30, 140, datos["cuit"])
-            c.drawString(20, 90,  datos["email"])     
+            c.drawString(20, 90,  datos["email"])
 
         if i == 10:
             c.drawString(100, 90, datos["nombre"])
-            c.drawString(140, 40, datos["dni"])             
-
-
+            c.drawString(140, 40, datos["dni"])
 
 
 def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
@@ -617,10 +628,8 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
         packet = io.BytesIO()
         c = rl_canvas.Canvas(packet)
 
-        # Siempre escribir texto en todas las páginas
         _texto_contrato(c, i, reparticion, entidad, datos, cuota_prestamo)
 
-        # Solo dibujar firma si la página la lleva
         if i not in PAGINAS_SIN_FIRMA:
             x, y = pos_map.get(i, (220, 90))
             firma_buffer.seek(0)
@@ -651,15 +660,43 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
 
 
 # ══════════════════════════════════════════════════════════
-#  RUTAS FLASK
+#  RUTAS — LOGIN / LOGOUT
+# ══════════════════════════════════════════════════════════
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        usuario = request.form.get("usuario", "").strip().lower()
+        password = request.form.get("password", "").strip()
+
+        if usuario in USUARIOS and USUARIOS[usuario] == password:
+            session["usuario"] = usuario
+            return redirect(url_for("inicio"))
+        else:
+            error = "Usuario o contraseña incorrectos."
+
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+# ══════════════════════════════════════════════════════════
+#  RUTAS FLASK — protegidas
 # ══════════════════════════════════════════════════════════
 
 @app.route("/")
+@login_required
 def inicio():
     return render_template("index.html", montos=TABLAS[12].keys())
 
 
 @app.route("/calcular", methods=["POST"])
+@login_required
 def calcular():
     entidad     = request.form["entidad"]
     reparticion = request.form["reparticion"]

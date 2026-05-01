@@ -86,12 +86,46 @@
     letter-spacing: 0.3px;
   }
 
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .header-badge {
     font-size: 11px;
     font-weight: 500;
     color: rgba(255,255,255,0.5);
     font-family: 'DM Mono', monospace;
     letter-spacing: 0.5px;
+  }
+
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-logout:hover {
+    color: white;
+    border-color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.08);
+  }
+
+  .btn-logout svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    flex-shrink: 0;
   }
 
   .main {
@@ -137,9 +171,7 @@
     padding: 28px 32px 32px;
   }
 
-  .field {
-    margin-bottom: 20px;
-  }
+  .field { margin-bottom: 20px; }
 
   .field-label {
     display: block;
@@ -152,9 +184,7 @@
     font-family: 'DM Mono', monospace;
   }
 
-  .field-control {
-    position: relative;
-  }
+  .field-control { position: relative; }
 
   .field-control::after {
     content: '';
@@ -296,7 +326,17 @@
     <div class="header-logo" id="headerLogo">A</div>
     <span class="header-title" id="headerText">AAMAS</span>
   </div>
-  <span class="header-badge">SISTEMA INTERNO</span>
+  <div class="header-right">
+    <span class="header-badge">SISTEMA INTERNO</span>
+    <a href="/logout" class="btn-logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Salir
+    </a>
+  </div>
 </header>
 
 <main class="main">
@@ -313,7 +353,7 @@
 
         <div class="entity-indicator">
           <div class="entity-dot" id="entityDot"></div>
-          <span class="entity-name" id="entityName">AAMAS — activo</span>
+          <span class="entity-name" id="entityName">AAMAS — ACTIVO</span>
         </div>
 
         <div class="field">
