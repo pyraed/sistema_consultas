@@ -462,7 +462,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
         if i == 0:
             c.drawString(120, 620, datos["nombre"])
             c.drawString(259, 95,  datos["nombre"])
-            c.drawString(120, 265, datos["nombre"])
+            c.drawString(130, 265, datos["nombre"])
             c.drawString(160, 595, datos["fecha"])
             c.drawString(150, 550, datos["domicilio"])
             c.drawString(380, 525, datos["localidad"])
@@ -542,7 +542,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                     c.drawString(400, y_pos, str(valor))
 
             if i == 13:
-                c.drawString(200, 687, "Quantum")  # ← cambiar nombre entidad
+                c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")  # ← cambiar nombre entidad
                 c.drawString(90, 390, datos["dni"])
                 c.drawString(120, 405, datos["nombre"])
                 c.drawString(350, 405, "Presidente")
@@ -550,33 +550,33 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
 
 
         if i == 0:
-            c.drawString(120, 620, datos["nombre"])
-            c.drawString(259, 95,  datos["nombre"])
-            c.drawString(120, 265, datos["nombre"])
-            c.drawString(160, 595, datos["fecha"])
-            c.drawString(150, 550, datos["domicilio"])
-            c.drawString(380, 525, datos["localidad"])
-            c.drawString(380, 595, datos["cuit"])
-            c.drawString(80,  575, datos["email"])
-            c.drawString(100, 505, datos["reparticion"])
-            c.drawString(130, 460, datos["telefono"])
-            c.drawString(250, 525, datos["dni"])
-            c.drawString(495, 95,  datos["dni"])
-            c.drawString(270, 265, datos["dni"])
+            c.drawString(120, 645, datos["nombre"])
+            c.drawString(259, 115,  datos["nombre"])
+            c.drawString(120, 285, datos["nombre"])
+            c.drawString(160, 615, datos["fecha"])
+            c.drawString(150, 575, datos["domicilio"])
+            c.drawString(380, 545, datos["localidad"])
+            c.drawString(380, 615, datos["cuit"])
+            c.drawString(80,  595, datos["email"])
+            c.drawString(100, 525, datos["reparticion"])
+            c.drawString(130, 475, datos["telefono"])
+            c.drawString(250, 545, datos["dni"])
+            c.drawString(495, 115,  datos["dni"])
+            c.drawString(270, 285, datos["dni"])
 
 
         if i == 1:
-            c.drawString(200, 495, datos["nombre"])
-            c.drawString(400, 495, datos["cuit"])
-            c.drawString(380, 475, datos["telefono"])  
+            c.drawString(200, 515, datos["nombre"])
+            c.drawString(400, 515, datos["cuit"])
+            c.drawString(380, 500, datos["telefono"])  
 
         if i == 2:
             c.drawString(420, 100, datos["dni"])
             c.drawString(200, 100, datos["nombre"]) 
 
         if i == 3:
-            c.drawString(420, 50, datos["dni"])
-            c.drawString(200, 50, datos["nombre"])   
+            c.drawString(420, 80, datos["dni"])
+            c.drawString(200, 80, datos["nombre"])   
 
         if i == 4:
             c.drawString(400, 65,  datos["dni"])
