@@ -474,10 +474,11 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(320, 243, "20202020")
 
                 for y_pos, codigo, label, valor in [
-                    (510, "31150", "Cuota Social",      datos["cuota_social"]),
-                    (480, "31151", "Coseguro Médico",   datos["medico"]),
-                    (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
-                    (420, "31153", "Cuota Préstamo",    cuota_prestamo),
+                    (510, "30018", "Cuota Social",      datos["cuota_social"]),
+                    (480, "32018", "Coseguro Médico",   datos["medico"]),
+                    (450, "33018", "Coseguro Farmacia", datos["farmacia"]),
+                    (420, "60018", "Cuota Préstamo",    cuota_prestamo),
+                    (390, "31018", "Membresia",    datos["membresia"]),
                 ]:
                     c.drawString(70,  y_pos, codigo)
                     c.drawString(200, y_pos, label)
@@ -582,10 +583,12 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(320, 243, "20202020")
 
                 for y_pos, codigo, label, valor in [
-                    (510, "31150", "Cuota Social",      datos["cuota_social"]),
-                    (480, "31151", "Coseguro Médico",   datos["medico"]),
-                    (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
-                    (420, "31153", "Cuota Préstamo",    cuota_prestamo),
+                    (510, "30142", "Cuota Social",      datos["cuota_social"]),
+                    (480, "32142", "Coseguro Médico",   datos["medico"]),
+                    (450, "33142", "Coseguro Farmacia", datos["farmacia"]),
+                    (420, "60142", "Cuota Préstamo",    cuota_prestamo),
+                    (390, "31142", "Membresia",    datos["membresia"]),
+
                 ]:
                     c.drawString(70,  y_pos, codigo)
                     c.drawString(200, y_pos, label)
