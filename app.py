@@ -426,14 +426,14 @@ def _texto_contrato(c, i: int, rep: str, datos: dict, cuota_prestamo: float):
         if i == 12:
             c.setFont("Helvetica", 10)
             c.drawString(120, 255, datos["nombre"])
-            c.drawString(200, 720, "Asociación de Apoyo a las Mujeres Argentinas Solas")
+            c.drawString(200, 680, "Asociación de Apoyo a las Mujeres Argentinas Solas")
             c.drawString(90, 243, datos["dni"])
             c.drawString(350, 255, "Presidente")
             c.drawString(320, 243, "20202020")
 
         if i == 13:
             c.setFont("Helvetica", 10)
-            c.drawString(200, 720, "Asociación de Apoyo a las Mujeres Argentinas Solas")
+            c.drawString(200, 680, "Asociación de Apoyo a las Mujeres Argentinas Solas")
             c.drawString(90, 390, datos["dni"])
             c.drawString(120, 405, datos["nombre"])
             c.drawString(350, 405, "Presidente")
