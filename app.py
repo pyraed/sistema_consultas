@@ -98,7 +98,7 @@ POSICIONES_FIRMA_BASE = {
 POSICIONES_POLICIA_SPB = {13: (20, 20), 14: (40, 480), 15: (10, 10)}
 POSICIONES_QUANTUM     = {0: (50, 100), 3: (100, 80),  5: (20, 230)}
 
-PAGINAS_SIN_FIRMA = {9}
+PAGINAS_SIN_FIRMA = {1, 9}
 
 
 # ══════════════════════════════════════════════════════════
@@ -553,14 +553,14 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(120, 635, datos["nombre"])
             c.drawString(259, 105,  datos["nombre"])
             c.drawString(120, 275, datos["nombre"])
-            c.drawString(160, 605, datos["fecha"])
+            c.drawString(160, 615, datos["fecha"])
             c.drawString(150, 565, datos["domicilio"])
-            c.drawString(380, 535, datos["localidad"])
-            c.drawString(380, 605, datos["cuit"])
+            c.drawString(380, 545, datos["localidad"])
+            c.drawString(380, 615, datos["cuit"])
             c.drawString(80,  585, datos["email"])
-            c.drawString(100, 515, datos["reparticion"])
-            c.drawString(130, 465, datos["telefono"])
-            c.drawString(250, 535, datos["dni"])
+            c.drawString(100, 520, datos["reparticion"])
+            c.drawString(130, 480, datos["telefono"])
+            c.drawString(250, 545, datos["dni"])
             c.drawString(495, 105,  datos["dni"])
             c.drawString(270, 275, datos["dni"])
 
