@@ -474,10 +474,10 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(320, 243, "20202020")
 
                 for y_pos, codigo, label, valor in [
-                    (510, "30018", "Cuota Social",      datos["cuota_social"]),
+                    (506, "30018", "Cuota Social",      datos["cuota_social"]),
                     (480, "32018", "Coseguro Médico",   datos["medico"]),
                     (450, "33018", "Coseguro Farmacia", datos["farmacia"]),
-                    (420, "31018", "Membresia",    datos["membresia"]),
+                    (423, "31018", "Membresia",    datos["membresia"]),
                     (395, "60018", "Cuota Préstamo",    cuota_prestamo),
                     
                 ]:
