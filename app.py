@@ -552,7 +552,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
         if i == 0:
             c.drawString(120, 635, datos["nombre"])
             c.drawString(259, 105,  datos["nombre"])
-            c.drawString(120, 275, datos["nombre"])
+            c.drawString(130, 277, datos["nombre"])
             c.drawString(160, 613, datos["fecha"])
             c.drawString(150, 565, datos["domicilio"])
             c.drawString(380, 542, datos["localidad"])
@@ -562,7 +562,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(130, 480, datos["telefono"])
             c.drawString(250, 542, datos["dni"])
             c.drawString(495, 105,  datos["dni"])
-            c.drawString(270, 275, datos["dni"])
+            c.drawString(270, 277, datos["dni"])
 
 
         if i == 1:
