@@ -559,7 +559,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(380, 613, datos["cuit"])
             c.drawString(80,  590, datos["email"])
             c.drawString(100, 520, datos["reparticion"])
-            c.drawString(130, 480, datos["telefono"])
+            c.drawString(130, 475, datos["telefono"])
             c.drawString(250, 542, datos["dni"])
             c.drawString(495, 105,  datos["dni"])
             c.drawString(270, 277, datos["dni"])
