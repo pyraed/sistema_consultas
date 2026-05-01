@@ -483,7 +483,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 ]:
                     c.drawString(70,  y_pos, codigo)
                     c.drawString(200, y_pos, label)
-                    c.drawString(400, y_pos, str(valor))
+                    c.drawString(400, y_pos, fmt(float(valor)))
 
             if i == 13:
                 c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
@@ -594,7 +594,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 ]:
                     c.drawString(70,  y_pos, codigo)
                     c.drawString(200, y_pos, label)
-                    c.drawString(400, y_pos, str(valor))
+                    c.drawString(400, y_pos, fmt(float(valor)))
 
             if i == 13:
                 c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")
