@@ -861,8 +861,8 @@ def generar_pdf_final():
     firma_bytes  = base64.b64decode(request.form["firma"].split(",")[1])
     firma_buffer = io.BytesIO(firma_bytes)
 
-    # ── Fecha y hora de firma — se toma en este momento ──
-    ahora       = datetime.now()
+    from datetime import datetime, timedelta
+    ahora       = datetime.now() - timedelta(hours=3)  # UTC-3 Argentina
     fecha_firma = ahora.strftime("%d/%m/%Y")
     hora_firma  = ahora.strftime("%H:%M")
 
