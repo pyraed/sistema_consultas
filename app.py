@@ -477,8 +477,9 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                     (510, "30018", "Cuota Social",      datos["cuota_social"]),
                     (480, "32018", "Coseguro Médico",   datos["medico"]),
                     (450, "33018", "Coseguro Farmacia", datos["farmacia"]),
-                    (420, "60018", "Cuota Préstamo",    cuota_prestamo),
-                    (390, "31018", "Membresia",    datos["membresia"]),
+                    (420, "31018", "Membresia",    datos["membresia"]),
+                    (395, "60018", "Cuota Préstamo",    cuota_prestamo),
+                    
                 ]:
                     c.drawString(70,  y_pos, codigo)
                     c.drawString(200, y_pos, label)
@@ -586,8 +587,9 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                     (510, "30142", "Cuota Social",      datos["cuota_social"]),
                     (480, "32142", "Coseguro Médico",   datos["medico"]),
                     (450, "33142", "Coseguro Farmacia", datos["farmacia"]),
-                    (420, "60142", "Cuota Préstamo",    cuota_prestamo),
-                    (390, "31142", "Membresia",    datos["membresia"]),
+                    (420, "31142", "Membresia",    datos["membresia"]),
+                    (395, "60142", "Cuota Préstamo",    cuota_prestamo),
+                    
 
                 ]:
                     c.drawString(70,  y_pos, codigo)
