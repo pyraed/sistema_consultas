@@ -431,7 +431,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(350, 255, "Presidente")
                 c.drawString(320, 243, "20202020")
 
-                for y_pos, label, valor in [
+                for y_pos, codigo, label, valor in [
                     (510, "31150", "Cuota Social",      datos["cuota_social"]),
                     (480, "31151", "Coseguro Médico",   datos["medico"]),
                     (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
@@ -531,7 +531,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(350, 255, "Presidente")
                 c.drawString(320, 243, "20202020")  # ← cambiar CUIT entidad
 
-                for y_pos, label, valor in [
+                for y_pos, codigo, label, valor in [
                     (510, "31150", "Cuota Social",      datos["cuota_social"]),
                     (480, "31151", "Coseguro Médico",   datos["medico"]),
                     (450, "31152", "Coseguro Farmacia", datos["farmacia"]),
