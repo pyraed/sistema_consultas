@@ -7,6 +7,7 @@ import os
 import io
 import time
 import base64
+from datetime import datetime
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, url_for, session
@@ -43,18 +44,18 @@ COLOR_BORDER      = colors.HexColor("#CBD5E1")
 
 
 # ══════════════════════════════════════════════════════════
-#  USUARIOS — modificar acá las credenciales
+#  USUARIOS
 # ══════════════════════════════════════════════════════════
 
 USUARIOS = {
-    "aamas":   "mutualaamas2026",    # ← cambiar
-    "quantum": "mutualquantum2026",  # ← cambiar
-    "admin":   "mutuales2026",    # ← cambiar (acceso a ambas)
+    "aamas":   "mutualaamas2026",
+    "quantum": "mutualquantum2026",
+    "admin":   "mutuales2026",
 }
 
 
 # ══════════════════════════════════════════════════════════
-#  LOGIN REQUIRED — decorador
+#  LOGIN REQUIRED
 # ══════════════════════════════════════════════════════════
 
 def login_required(f):
@@ -133,6 +134,14 @@ PAGINAS_SIN_FIRMA = {1, 9}
 
 def fmt(valor) -> str:
     return "$ {:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def fmt_fecha(fecha_str: str) -> str:
+    """Convierte fecha de YYYY-MM-DD a DD/MM/YYYY. Si ya está en otro formato la devuelve igual."""
+    try:
+        return datetime.strptime(fecha_str, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except Exception:
+        return fecha_str
 
 
 def color_entidad(entidad: str) -> colors.Color:
@@ -308,7 +317,9 @@ def _pdf_tabla(data, col_widths, estilo, elements):
     elements.append(Spacer(1, 10))
 
 
-def _pdf_firma(firma_buffer: io.BytesIO, nombre: str, elements: list, styles):
+def _pdf_firma(firma_buffer: io.BytesIO, nombre: str, fecha_firma: str,
+               hora_firma: str, elements: list, styles):
+    """Bloque de firma con fecha y hora."""
     firma_buffer.seek(0)
     img = RLImage(firma_buffer, width=130, height=55)
     img.hAlign = "CENTER"
@@ -324,6 +335,11 @@ def _pdf_firma(firma_buffer: io.BytesIO, nombre: str, elements: list, styles):
     elements.append(Paragraph(f"<b>{nombre}</b>", styles["Centro"]))
     elements.append(Spacer(1, 2))
     elements.append(Paragraph("FIRMA DEL SOLICITANTE", styles["Centro"]))
+    elements.append(Spacer(1, 2))
+    elements.append(Paragraph(
+        f"Fecha de firma: {fecha_firma}  —  {hora_firma} hs",
+        styles["Centro"]
+    ))
 
 
 def _pdf_imagen_doc(ruta, titulo, elements, styles, max_w=260, max_h=155):
@@ -358,7 +374,7 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         ["DNI",               datos["dni"]],
         ["CUIT",              datos["cuit"]],
         ["Teléfono",          datos["telefono"]],
-        ["Fecha Nacimiento",  datos["fecha"]],
+        ["Fecha Nacimiento",  datos["fecha"]],   # ← ya viene formateada DD/MM/YYYY
         ["Nacionalidad",      datos["nacionalidad"]],
         ["Provincia",         datos["provincia"]],
         ["Localidad",         datos["localidad"]],
@@ -398,7 +414,9 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     ], [220, 155, 120], estilo_refs, elements)
 
     elements.append(Spacer(1, 18))
-    _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
+    _pdf_firma(firma_buffer, datos["nombre"],
+               datos["fecha_firma"], datos["hora_firma"],
+               elements, styles)
 
     elements.append(PageBreak())
 
@@ -422,7 +440,9 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     elements.append(Spacer(1, 8))
     _pdf_seccion("FIRMA DEL SOLICITANTE", elements, styles)
     elements.append(Spacer(1, 6))
-    _pdf_firma(firma_buffer, datos["nombre"], elements, styles)
+    _pdf_firma(firma_buffer, datos["nombre"],
+               datos["fecha_firma"], datos["hora_firma"],
+               elements, styles)
 
     doc.build(elements)
     buffer.seek(0)
@@ -667,15 +687,13 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
 def login():
     error = None
     if request.method == "POST":
-        usuario = request.form.get("usuario", "").strip().lower()
+        usuario  = request.form.get("usuario", "").strip().lower()
         password = request.form.get("password", "").strip()
-
         if usuario in USUARIOS and USUARIOS[usuario] == password:
             session["usuario"] = usuario
             return redirect(url_for("inicio"))
         else:
             error = "Usuario o contraseña incorrectos."
-
     return render_template("login.html", error=error)
 
 
@@ -806,7 +824,7 @@ def guardar_formulario():
         dni=datos["dni"],
         cuit=datos["cuit"],
         telefono=datos["telefono"],
-        fecha=datos["fecha_nacimiento"],
+        fecha=fmt_fecha(datos["fecha_nacimiento"]),
         nacionalidad=datos["nacionalidad"],
         provincia=datos["provincia"],
         localidad=datos["localidad"],
@@ -843,6 +861,11 @@ def generar_pdf_final():
     firma_bytes  = base64.b64decode(request.form["firma"].split(",")[1])
     firma_buffer = io.BytesIO(firma_bytes)
 
+    # ── Fecha y hora de firma — se toma en este momento ──
+    ahora       = datetime.now()
+    fecha_firma = ahora.strftime("%d/%m/%Y")
+    hora_firma  = ahora.strftime("%H:%M")
+
     datos = {
         "entidad":       entidad,
         "reparticion":   reparticion.upper(),
@@ -857,7 +880,7 @@ def generar_pdf_final():
         "dni":           request.form.get("dni", ""),
         "cuit":          request.form.get("cuit", ""),
         "telefono":      request.form.get("telefono", ""),
-        "fecha":         request.form.get("fecha_nacimiento", ""),
+        "fecha":         fmt_fecha(request.form.get("fecha_nacimiento", "")),
         "nacionalidad":  request.form.get("nacionalidad", ""),
         "provincia":     request.form.get("provincia", ""),
         "localidad":     request.form.get("localidad", ""),
@@ -874,6 +897,8 @@ def generar_pdf_final():
         "ruta_dorso":    request.form["ruta_dorso"],
         "ruta_selfie":   request.form["ruta_selfie"],
         "alt":           request.form.get("alt", "0"),
+        "fecha_firma":   fecha_firma,
+        "hora_firma":    hora_firma,
     }
 
     cuota_prestamo = TABLAS.get(cuotas, {}).get(int(monto), 0)
