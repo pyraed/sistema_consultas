@@ -106,7 +106,7 @@ CONTRATOS = {
     ("quantum", "educacion"): "static/contratos/datero_educacion_quantum.pdf",
 }
 
-BASE_URL = "https://sistema-consultas-8hfc.onrender.com"
+BASE_URL = "https://www.sistemagestionaamas.com.ar"
 
 
 # ══════════════════════════════════════════════════════════
