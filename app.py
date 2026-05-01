@@ -550,33 +550,33 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
 
 
         if i == 0:
-            c.drawString(120, 645, datos["nombre"])
-            c.drawString(259, 115,  datos["nombre"])
-            c.drawString(120, 285, datos["nombre"])
-            c.drawString(160, 615, datos["fecha"])
-            c.drawString(150, 575, datos["domicilio"])
-            c.drawString(380, 545, datos["localidad"])
-            c.drawString(380, 615, datos["cuit"])
-            c.drawString(80,  595, datos["email"])
-            c.drawString(100, 525, datos["reparticion"])
-            c.drawString(130, 475, datos["telefono"])
-            c.drawString(250, 545, datos["dni"])
-            c.drawString(495, 115,  datos["dni"])
-            c.drawString(270, 285, datos["dni"])
+            c.drawString(120, 635, datos["nombre"])
+            c.drawString(259, 105,  datos["nombre"])
+            c.drawString(120, 275, datos["nombre"])
+            c.drawString(160, 605, datos["fecha"])
+            c.drawString(150, 565, datos["domicilio"])
+            c.drawString(380, 535, datos["localidad"])
+            c.drawString(380, 605, datos["cuit"])
+            c.drawString(80,  585, datos["email"])
+            c.drawString(100, 515, datos["reparticion"])
+            c.drawString(130, 465, datos["telefono"])
+            c.drawString(250, 535, datos["dni"])
+            c.drawString(495, 105,  datos["dni"])
+            c.drawString(270, 275, datos["dni"])
 
 
         if i == 1:
-            c.drawString(200, 515, datos["nombre"])
-            c.drawString(400, 515, datos["cuit"])
-            c.drawString(380, 500, datos["telefono"])  
+            c.drawString(200, 535, datos["nombre"])
+            c.drawString(400, 535, datos["cuit"])
+            c.drawString(380, 515, datos["telefono"])  
 
         if i == 2:
             c.drawString(420, 100, datos["dni"])
             c.drawString(200, 100, datos["nombre"]) 
 
         if i == 3:
-            c.drawString(420, 80, datos["dni"])
-            c.drawString(200, 80, datos["nombre"])   
+            c.drawString(420, 95, datos["dni"])
+            c.drawString(200, 95, datos["nombre"])   
 
         if i == 4:
             c.drawString(400, 65,  datos["dni"])
