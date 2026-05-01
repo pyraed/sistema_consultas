@@ -493,11 +493,26 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
         elif rep in ("policia", "spb"):
             if i == 12:
                 c.drawString(210, 505, datos["nombre"])
+                c.drawString(460, 410, datos["nombre"]) #ACLARACION
                 c.drawString(160, 485, datos["dni"])
                 c.drawString(290, 470, datos["email"])
+                c.drawString(400, 600, "Presidente")
+                c.drawString(85, 585, "AAMAS")
+                c.drawString(80, 547, "Co seguro medico, Co seguro Farmacia, Cuota social, Membresia, Cuota prestamo")
+
+
+
             if i == 13:
                 c.drawString(320, 690, datos["nombre"])
                 c.drawString(320, 670, datos["dni"])
+                c.drawString(300, 650, datos["monto"])
+                c.drawString(320, 595, "% 100")
+
+            if i == 14:
+                c.drawString(330, 460, datos["nombre"])  
+                c.drawString(210, 410, datos["dni"])  
+
+
 
         if i == 0:
             c.drawString(120, 620, datos["nombre"])
