@@ -633,7 +633,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(250, 542, datos["dni"])
             c.drawString(495, 105, datos["dni"])
             c.drawString(270, 277, datos["dni"])
-            c.drawString(470, 670, f"La Plata, {datos['fecha_firma']}")
+            c.drawString(470, 665, f"La Plata, {datos['fecha_firma']}")
 
         if i == 1:
             c.drawString(200, 535, datos["nombre"])
