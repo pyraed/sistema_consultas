@@ -524,7 +524,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
 
 
         if i == 0:
-            c.drawString(210, 620, datos["nombre"])
+            c.drawString(200, 620, datos["nombre"])
             c.drawString(259, 95,  datos["nombre"])
             c.drawString(130, 265, datos["nombre"])
             c.drawString(160, 595, datos["fecha"])
@@ -620,7 +620,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(365, 376, f"La Plata, {datos['fecha_firma']}") #Presidente
 
         if i == 0:
-            c.drawString(210, 635, datos["nombre"])
+            c.drawString(200, 635, datos["nombre"])
             c.drawString(259, 105, datos["nombre"])
             c.drawString(130, 277, datos["nombre"])
             c.drawString(160, 613, datos["fecha"])
@@ -633,7 +633,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
             c.drawString(250, 542, datos["dni"])
             c.drawString(495, 105, datos["dni"])
             c.drawString(270, 277, datos["dni"])
-            c.drawString(470, 680, f"La Plata, {datos['fecha_firma']}")
+            c.drawString(470, 670, f"La Plata, {datos['fecha_firma']}")
 
         if i == 1:
             c.drawString(200, 535, datos["nombre"])
