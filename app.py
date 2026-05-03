@@ -125,7 +125,7 @@ POSICIONES_FIRMA_BASE = {
 POSICIONES_POLICIA_SPB = {12: (370, 410), 14: (110, 460), 15: (20, 10)}
 POSICIONES_QUANTUM     = {0: (50, 100), 3: (100, 80),  5: (20, 230)}
 
-PAGINAS_SIN_FIRMA = {1, 9, 13}
+PAGINAS_SIN_FIRMA = {1, 9}
 
 
 # ══════════════════════════════════════════════════════════
@@ -689,7 +689,7 @@ def firmar_contrato(contrato_path: str, firma_buffer: io.BytesIO,
 
         _texto_contrato(c, i, reparticion, entidad, datos, cuota_prestamo)
 
-        if i not in PAGINAS_SIN_FIRMA:
+        if i not in PAGINAS_SIN_FIRMA and not (i == 13 and reparticion.lower() in ("policia", "spb")):
             x, y = pos_map.get(i, (220, 90))
             firma_buffer.seek(0)
             firma_img = ImageReader(firma_buffer)
