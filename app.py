@@ -507,7 +507,18 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(290, 470, datos["email"])
                 c.drawString(400, 600, "Presidente")
                 c.drawString(85, 585, "AAMAS")
-                c.drawString(80, 547, "Co seguro medico, Co seguro Farmacia, Cuota social, Membresia, Cuota prestamo")
+                
+
+                # ── Servicios dinámicos según oferta ──
+                if datos.get("alt") == "1":
+                    texto_servicios = "Cuota Social, Coseguro Medico"
+                elif datos["farmacia"] == 0:
+                    texto_servicios = "Cuota Social, Coseguro Medico, Membresia, Cuota Prestamo"
+                else:
+                    texto_servicios = "Cuota Social, Coseguro Medico, Coseguro Farmacia, Membresia, Cuota Prestamo"
+
+                c.drawString(80, 547, texto_servicios)
+            
 
 
 
