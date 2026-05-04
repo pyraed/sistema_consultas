@@ -474,7 +474,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(200, 687, "Asociación de Apoyo a las Mujeres Argentinas Solas")
                 c.drawString(90, 243, datos["dni"])
                 c.drawString(350, 255, "Presidente")
-                c.drawString(320, 243, "20202020")
+                
 
                 for y_pos, codigo, label, valor in [
                     (506, "30018", "Cuota Social",      datos["cuota_social"]),
@@ -493,7 +493,6 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(90, 390, datos["dni"])
                 c.drawString(120, 405, datos["nombre"])
                 c.drawString(350, 405, "Presidente")
-                c.drawString(320, 390, "20202020")
                 c.drawString(200, 670, f"La Plata, {datos['fecha_firma']}") #Arriba
                 c.drawString(135, 376, f"La Plata, {datos['fecha_firma']}") #Cliente
                 c.drawString(365, 376, f"La Plata, {datos['fecha_firma']}") #Presidente
@@ -602,7 +601,6 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(200, 687, "Asociación Mutual Quantum de Profesionales y Técnicos")
                 c.drawString(90, 243, datos["dni"])
                 c.drawString(350, 255, "Presidente")
-                c.drawString(320, 243, "20202020")
                 c.drawString(200, 670, f"La Plata, {datos['fecha_firma']}") #Arriba
                 c.drawString(138, 228, f"La Plata, {datos['fecha_firma']}") #Cliente
                 c.drawString(365, 228, f"La Plata, {datos['fecha_firma']}") #Presidente
@@ -625,7 +623,6 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
                 c.drawString(90, 390, datos["dni"])
                 c.drawString(120, 405, datos["nombre"])
                 c.drawString(350, 405, "Presidente")
-                c.drawString(320, 390, "20202020")
                 c.drawString(200, 670, f"La Plata, {datos['fecha_firma']}") #Arriba
                 c.drawString(135, 376, f"La Plata, {datos['fecha_firma']}") #Cliente
                 c.drawString(365, 376, f"La Plata, {datos['fecha_firma']}") #Presidente
