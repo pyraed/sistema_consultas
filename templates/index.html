@@ -14,6 +14,10 @@
     --quantum-secondary: #27272a;
     --quantum-accent: #a1a1aa;
     --quantum-light: #f4f4f5;
+    --conjunta-primary: #7c3aed;
+    --conjunta-secondary: #6d28d9;
+    --conjunta-accent: #a78bfa;
+    --conjunta-light: #ede9fe;
     --surface: #ffffff;
     --surface-2: #f8fafc;
     --border: #e2e8f0;
@@ -49,171 +53,100 @@
   .header::before {
     content: '';
     position: absolute;
-    right: -60px;
-    top: -40px;
-    width: 200px;
-    height: 200px;
+    right: -60px; top: -40px;
+    width: 200px; height: 200px;
     border-radius: 50%;
     background: rgba(255,255,255,0.04);
     pointer-events: none;
   }
 
-  .header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-logo {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     border-radius: 8px;
     background: rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    color: white;
+    font-size: 13px; font-weight: 500; color: white;
     letter-spacing: -0.5px;
   }
 
-  .header-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: white;
-    letter-spacing: 0.3px;
-  }
+  .header-title { font-size: 15px; font-weight: 600; color: white; letter-spacing: 0.3px; }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
 
   .header-badge {
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 11px; font-weight: 500;
     color: rgba(255,255,255,0.5);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace; letter-spacing: 0.5px;
   }
 
   .btn-logout {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    color: rgba(255,255,255,0.6);
-    text-decoration: none;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.6); text-decoration: none;
     border: 1px solid rgba(255,255,255,0.2);
-    padding: 5px 12px;
-    border-radius: 20px;
+    padding: 5px 12px; border-radius: 20px;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
     letter-spacing: 0.3px;
   }
 
   .btn-logout:hover {
-    color: white;
-    border-color: rgba(255,255,255,0.5);
+    color: white; border-color: rgba(255,255,255,0.5);
     background: rgba(255,255,255,0.08);
   }
 
-  .btn-logout svg {
-    width: 12px;
-    height: 12px;
-    stroke: currentColor;
-    flex-shrink: 0;
-  }
+  .btn-logout svg { width: 12px; height: 12px; stroke: currentColor; flex-shrink: 0; }
 
   .main {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; padding: 40px 20px;
   }
 
   .card {
     background: var(--surface);
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    width: 100%;
-    max-width: 440px;
-    overflow: hidden;
+    border-radius: 20px; border: 1px solid var(--border);
+    width: 100%; max-width: 440px; overflow: hidden;
   }
 
-  .card-header {
-    padding: 28px 32px 24px;
-    border-bottom: 1px solid var(--border);
-  }
+  .card-header { padding: 28px 32px 24px; border-bottom: 1px solid var(--border); }
 
   .card-eyebrow {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
-    margin-bottom: 6px;
+    font-size: 11px; font-weight: 500; color: var(--text-muted);
+    letter-spacing: 1px; text-transform: uppercase;
+    font-family: 'DM Mono', monospace; margin-bottom: 6px;
   }
 
-  .card-title {
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: -0.4px;
-  }
+  .card-title { font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.4px; }
 
-  .card-body {
-    padding: 28px 32px 32px;
-  }
+  .card-body { padding: 28px 32px 32px; }
 
   .field { margin-bottom: 20px; }
 
   .field-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+    display: block; font-size: 11px; font-weight: 500;
+    color: var(--text-secondary); letter-spacing: 0.6px;
+    text-transform: uppercase; margin-bottom: 8px;
     font-family: 'DM Mono', monospace;
   }
 
   .field-control { position: relative; }
 
   .field-control::after {
-    content: '';
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 6px solid var(--text-muted);
-    pointer-events: none;
+    content: ''; position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%); width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 6px solid var(--text-muted); pointer-events: none;
   }
 
   select {
-    width: 100%;
-    padding: 13px 40px 13px 16px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    font-size: 15px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 400;
-    color: var(--text-primary);
-    background: var(--surface);
-    appearance: none;
-    -webkit-appearance: none;
-    outline: none;
-    cursor: pointer;
+    width: 100%; padding: 13px 40px 13px 16px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    font-size: 15px; font-family: 'DM Sans', sans-serif;
+    font-weight: 400; color: var(--text-primary);
+    background: var(--surface); appearance: none; -webkit-appearance: none;
+    outline: none; cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
@@ -229,60 +162,48 @@
     box-shadow: 0 0 0 3px rgba(161,161,170,0.15);
   }
 
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 24px 0;
+  body.conjunta select:focus {
+    border-color: var(--conjunta-accent);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
   }
 
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
   .entity-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    padding: 10px 14px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 24px; padding: 10px 14px;
     border-radius: var(--radius-sm);
     background: var(--aamas-light);
     transition: background 0.3s ease;
   }
 
   .entity-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--aamas-accent);
-    flex-shrink: 0;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--aamas-accent); flex-shrink: 0;
     transition: background 0.3s ease;
   }
 
   .entity-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--aamas-primary);
-    font-family: 'DM Mono', monospace;
-    transition: color 0.3s ease;
+    font-size: 13px; font-weight: 500; color: var(--aamas-primary);
+    font-family: 'DM Mono', monospace; transition: color 0.3s ease;
   }
 
   body.quantum .entity-indicator { background: var(--quantum-light); }
   body.quantum .entity-dot { background: var(--quantum-secondary); }
   body.quantum .entity-name { color: var(--quantum-primary); }
 
+  body.conjunta .entity-indicator { background: var(--conjunta-light); }
+  body.conjunta .entity-dot { background: var(--conjunta-primary); }
+  body.conjunta .entity-name { color: var(--conjunta-primary); }
+
   .btn-submit {
-    width: 100%;
-    padding: 15px;
-    border-radius: var(--radius-sm);
-    border: none;
-    background: var(--aamas-primary);
-    color: white;
-    font-weight: 600;
-    font-size: 15px;
-    font-family: 'DM Sans', sans-serif;
-    letter-spacing: 0.2px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    width: 100%; padding: 15px;
+    border-radius: var(--radius-sm); border: none;
+    background: var(--aamas-primary); color: white;
+    font-weight: 600; font-size: 15px;
+    font-family: 'DM Sans', sans-serif; letter-spacing: 0.2px;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 8px;
     transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.15s ease;
     margin-top: 28px;
   }
@@ -295,25 +216,23 @@
 
   .btn-submit:active { transform: translateY(0); }
 
-  .btn-submit svg {
-    width: 16px;
-    height: 16px;
-    opacity: 0.85;
-    flex-shrink: 0;
-  }
+  .btn-submit svg { width: 16px; height: 16px; opacity: 0.85; flex-shrink: 0; }
 
   body.quantum .btn-submit { background: var(--quantum-primary); }
-
   body.quantum .btn-submit:hover {
     background: var(--quantum-secondary);
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
   }
 
+  body.conjunta .btn-submit { background: var(--conjunta-primary); }
+  body.conjunta .btn-submit:hover {
+    background: var(--conjunta-secondary);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+  }
+
   .footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
-    color: var(--text-muted);
+    text-align: center; padding: 20px;
+    font-size: 12px; color: var(--text-muted);
     font-family: 'DM Mono', monospace;
   }
 </style>
@@ -362,6 +281,7 @@
             <select name="entidad" id="entidad">
               <option value="aamas">AAMAS</option>
               <option value="quantum">QUANTUM</option>
+              <option value="conjunta">OFERTA CONJUNTA</option>
             </select>
           </div>
         </div>
@@ -429,6 +349,7 @@ const headerLogo        = document.getElementById("headerLogo");
 const headerText        = document.getElementById("headerText");
 const reparticionSelect = document.getElementById("reparticion");
 const entityName        = document.getElementById("entityName");
+const montoSelect       = document.getElementById("monto");
 
 const opcionesAAMAS = `
   <option value="policia">Policía</option>
@@ -441,25 +362,51 @@ const opcionesQuantum = `
   <option value="educacion">Educación</option>
 `;
 
-entidadSelect.addEventListener("change", function () {
-  const esQuantum = this.value === "quantum";
+const opcionesConjunta = `
+  <option value="educacion">Educación</option>
+`;
 
-  if (esQuantum) {
+const montosConjunta = `
+  <option value="500000">$ 500.000</option>
+  <option value="550000">$ 550.000</option>
+  <option value="600000">$ 600.000</option>
+  <option value="650000">$ 650.000</option>
+`;
+
+// Guardar opciones originales del monto
+const montosOriginales = montoSelect.innerHTML;
+
+entidadSelect.addEventListener("change", function () {
+  const val = this.value;
+
+  document.body.classList.remove("aamas", "quantum", "conjunta");
+
+  if (val === "quantum") {
     header.style.background     = "#18181b";
     headerLogo.textContent      = "Q";
     headerText.textContent      = "QUANTUM";
     entityName.textContent      = "QUANTUM — ACTIVO";
     document.body.classList.add("quantum");
-    document.body.classList.remove("aamas");
     reparticionSelect.innerHTML = opcionesQuantum;
+    montoSelect.innerHTML       = montosOriginales;
+
+  } else if (val === "conjunta") {
+    header.style.background     = "#7c3aed";
+    headerLogo.textContent      = "A+Q";
+    headerText.textContent      = "OFERTA CONJUNTA";
+    entityName.textContent      = "AAMAS + QUANTUM — ACTIVO";
+    document.body.classList.add("conjunta");
+    reparticionSelect.innerHTML = opcionesConjunta;
+    montoSelect.innerHTML       = montosConjunta;
+
   } else {
     header.style.background     = "#1E3A8A";
     headerLogo.textContent      = "A";
     headerText.textContent      = "AAMAS";
     entityName.textContent      = "AAMAS — ACTIVO";
     document.body.classList.add("aamas");
-    document.body.classList.remove("quantum");
     reparticionSelect.innerHTML = opcionesAAMAS;
+    montoSelect.innerHTML       = montosOriginales;
   }
 });
 

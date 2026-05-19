@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<title>Oferta Conjunta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:       #7c3aed;
+    --primary-hover: #6d28d9;
+    --primary-light: #ede9fe;
+    --primary-text:  #7c3aed;
+    --aamas-color:   #1E3A8A;
+    --aamas-light:   #dbeafe;
+    --quantum-color: #18181b;
+    --quantum-light: #f4f4f5;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-2);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  .header {
+    background: var(--primary);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-logo {
+    width: 40px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; font-weight: 500; color: white;
+  }
+
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
+  .header-badge { font-size: 11px; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; }
+
+  .main { flex: 1; padding: 32px 16px 48px; display: flex; justify-content: center; }
+
+  .wrapper { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* CARD */
+  .card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+
+  .card-header {
+    padding: 18px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .card-icon svg { width: 17px; height: 17px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .card-subtitle { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+  .card-body { padding: 20px 24px 22px; }
+
+  /* OFERTA GRID */
+  .oferta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+  .oferta-item {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+  }
+
+  .oferta-item-label {
+    font-size: 10px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'DM Mono', monospace; margin-bottom: 4px;
+  }
+
+  .oferta-item-value { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+
+  .oferta-item.highlight-aamas {
+    background: var(--aamas-light); border-color: transparent; grid-column: 1 / -1;
+  }
+  .oferta-item.highlight-aamas .oferta-item-label { color: var(--aamas-color); }
+  .oferta-item.highlight-aamas .oferta-item-value { font-size: 20px; color: var(--aamas-color); }
+
+  .oferta-item.highlight-quantum {
+    background: var(--quantum-light); border-color: transparent; grid-column: 1 / -1;
+  }
+  .oferta-item.highlight-quantum .oferta-item-label { color: var(--quantum-color); }
+  .oferta-item.highlight-quantum .oferta-item-value { font-size: 20px; color: var(--quantum-color); }
+
+  /* BANDA DE COLOR POR ENTIDAD */
+  .card.aamas-card { border-top: 3px solid var(--aamas-color); }
+  .card.quantum-card { border-top: 3px solid var(--quantum-color); }
+
+  .card-icon.aamas-icon { background: var(--aamas-light); }
+  .card-icon.aamas-icon svg { stroke: var(--aamas-color); }
+  .card-icon.quantum-icon { background: var(--quantum-light); }
+  .card-icon.quantum-icon svg { stroke: var(--quantum-color); }
+
+  /* MEMBRESIA */
+  .memb-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+  .memb-cell {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 10px;
+  }
+  .memb-cell-label {
+    font-size: 9px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 3px;
+  }
+  .memb-cell-value { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  /* LINK */
+  .link-row { display: flex; gap: 8px; align-items: stretch; }
+  .link-input {
+    flex: 1; padding: 10px 14px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    font-size: 13px; font-family: 'DM Mono', monospace;
+    color: var(--text-secondary); background: var(--surface-2); outline: none;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .btn-copy-link {
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-primary); font-size: 13px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    transition: border-color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .btn-copy-link:hover { border-color: #94a3b8; background: var(--surface-2); }
+  .btn-copy-link svg { width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0; }
+
+  /* LEYENDA */
+  .leyenda-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+  .leyenda-header {
+    padding: 16px 24px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .leyenda-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--primary-light); color: var(--primary-text);
+    font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
+    letter-spacing: 0.4px; padding: 4px 10px; border-radius: 20px;
+  }
+  .leyenda-badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary-text); opacity: 0.5;
+  }
+  .btn-copiar-leyenda {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary); cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s; white-space: nowrap;
+  }
+  .btn-copiar-leyenda:hover { border-color: #94a3b8; background: var(--surface-2); }
+  .btn-copiar-leyenda.copied { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
+  .btn-copiar-leyenda svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .leyenda-body { padding: 22px 24px 24px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
+  .leyenda-body p { margin-bottom: 12px; }
+  .leyenda-body b { font-weight: 600; }
+  .leyenda-monto-a { font-size: 15px; font-weight: 700; color: var(--aamas-color); }
+  .leyenda-monto-q { font-size: 15px; font-weight: 700; color: var(--quantum-color); }
+
+  .leyenda-docs {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 16px;
+  }
+  .leyenda-docs-title {
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    font-family: 'DM Mono', monospace; margin-bottom: 10px;
+  }
+  .doc-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .doc-list li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); }
+  .doc-list li::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary); opacity: 0.4; flex-shrink: 0;
+  }
+
+  /* BOTÓN COPIAR TODO */
+  .btn-copiar-todo {
+    width: 100%; padding: 15px; border-radius: var(--radius); border: none;
+    background: var(--primary); color: white;
+    font-weight: 600; font-size: 15px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-copiar-todo:hover {
+    background: var(--primary-hover); transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+  }
+  .btn-copiar-todo:active { transform: translateY(0); }
+  .btn-copiar-todo svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .btn-copiar-todo.copied { background: #16a34a; box-shadow: none; transform: none; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #0f172a; color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none; white-space: nowrap; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .oferta-grid { grid-template-columns: 1fr; }
+    .oferta-item.highlight-aamas,
+    .oferta-item.highlight-quantum { grid-column: auto; }
+    .memb-strip { grid-template-columns: 1fr 1fr; }
+    .card-body { padding: 16px 16px 18px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">A+Q</div>
+    <span class="header-title">OFERTA CONJUNTA</span>
+  </div>
+  <span class="header-badge">AAMAS + QUANTUM</span>
+</header>
+
+<main class="main">
+  <div class="wrapper">
+
+    <!-- CARD AAMAS -->
+    <div class="card aamas-card">
+      <div class="card-header">
+        <div class="card-icon aamas-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Oferta AAMAS</p>
+          <p class="card-subtitle">educación · {{ cuotas }} cuotas</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="oferta-grid">
+          <div class="oferta-item highlight-aamas">
+            <div class="oferta-item-label">Monto AAMAS</div>
+            <div class="oferta-item-value">{{ monto }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Cuotas</div>
+            <div class="oferta-item-value">{{ cuotas }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Valor por cuota</div>
+            <div class="oferta-item-value">{{ vc_aamas }}</div>
+          </div>
+        </div>
+        <div class="memb-strip">
+          <div class="memb-cell">
+            <div class="memb-cell-label">Cuota Social</div>
+            <div class="memb-cell-value">{{ cs_a }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Médico</div>
+            <div class="memb-cell-value">{{ med_a }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Farmacia</div>
+            <div class="memb-cell-value">{{ farm_a }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Membresía</div>
+            <div class="memb-cell-value">{{ memb_a }}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="link-row">
+          <input class="link-input" id="linkAamas" value="{{ link_aamas }}" readonly>
+          <button class="btn-copy-link" onclick="copiarLink('linkAamas', this, '✓ Link AAMAS copiado')">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD QUANTUM -->
+    <div class="card quantum-card">
+      <div class="card-header">
+        <div class="card-icon quantum-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">Oferta QUANTUM</p>
+          <p class="card-subtitle">educación · {{ cuotas }} cuotas</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="oferta-grid">
+          <div class="oferta-item highlight-quantum">
+            <div class="oferta-item-label">Monto QUANTUM</div>
+            <div class="oferta-item-value">{{ monto }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Cuotas</div>
+            <div class="oferta-item-value">{{ cuotas }}</div>
+          </div>
+          <div class="oferta-item">
+            <div class="oferta-item-label">Valor por cuota</div>
+            <div class="oferta-item-value">{{ vc_quantum }}</div>
+          </div>
+        </div>
+        <div class="memb-strip">
+          <div class="memb-cell">
+            <div class="memb-cell-label">Cuota Social</div>
+            <div class="memb-cell-value">{{ cs_q }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Médico</div>
+            <div class="memb-cell-value">{{ med_q }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Farmacia</div>
+            <div class="memb-cell-value">{{ farm_q }}</div>
+          </div>
+          <div class="memb-cell">
+            <div class="memb-cell-label">Membresía</div>
+            <div class="memb-cell-value">{{ memb_q }}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="link-row">
+          <input class="link-input" id="linkQuantum" value="{{ link_quantum }}" readonly>
+          <button class="btn-copy-link" onclick="copiarLink('linkQuantum', this, '✓ Link QUANTUM copiado')">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEYENDA -->
+    <div class="leyenda-card">
+      <div class="leyenda-header">
+        <span class="leyenda-badge">MENSAJE PARA ENVIAR</span>
+        <button class="btn-copiar-leyenda" onclick="copiarLeyenda(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copiar mensaje
+        </button>
+      </div>
+      <div class="leyenda-body" id="textoLeyenda">
+
+        <p><b>OFERTA CONJUNTA POR DESCUENTO HABERES</b></p>
+
+        <p>
+          Tiene <b>dos ofertas pre-aprobadas</b> por un monto de
+          <span class="leyenda-monto-a">{{ monto }}</span> cada una:
+        </p>
+
+        <p>
+          ▸ <b>AAMAS</b> — <span class="leyenda-monto-a">{{ monto }}</span>
+          en {{ cuotas }} cuotas de <b>$ {{ "{:,.2f}".format(total_aamas).replace(",", "X").replace(".", ",").replace("X", ".") }}</b>
+        </p>
+
+        <p>
+          ▸ <b>QUANTUM</b> — <span class="leyenda-monto-q">{{ monto }}</span>
+          en {{ cuotas }} cuotas de <b>$ {{ "{:,.2f}".format(total_quantum).replace(",", "X").replace(".", ",").replace("X", ".") }}</b>
+        </p>
+
+        <p>(Quedan sujetas al disponible de cada certificado.)</p>
+
+        <p>+ $7.500 por CBU en cada mutual</p>
+
+        <p>
+          Para continuar, deberá solicitar <b>dos certificados de afectación</b>,
+          uno a nombre de <b>AAMAS</b> y otro a nombre de <b>QUANTUM</b>.
+        </p>
+
+        <p>
+          Si lo desea, cada entidad puede gestionar el certificado de afectación
+          en su nombre para agilizar el proceso.
+        </p>
+
+        <div class="leyenda-docs">
+          <p class="leyenda-docs-title">Documentación requerida</p>
+          <ul class="doc-list">
+            <li>DNI frente y dorso</li>
+            <li>Certificado de Afectación AAMAS</li>
+            <li>Certificado de Afectación QUANTUM</li>
+            <li>Comprobante de Servicio</li>
+            <li>Último Recibo de Sueldo</li>
+            <li>Selfie con DNI en mano</li>
+            <li>Constancia de CBU</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COPIAR TODO -->
+    <button class="btn-copiar-todo" onclick="copiarTodo(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+        <rect x="10" y="10" width="12" height="12" rx="2"/>
+      </svg>
+      Copiar mensaje completo + ambos links
+    </button>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function copiarTexto(texto, callback) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(callback);
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = texto;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    callback();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function copiarLink(inputId, btn, toastMsg) {
+  const link = document.getElementById(inputId).value;
+  copiarTexto(link, () => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
+    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor=""; btn.style.color=""; btn.style.background=""; }, 2000);
+    showToast(toastMsg);
+  });
+}
+
+function copiarLeyenda(btn) {
+  const leyenda = document.getElementById("textoLeyenda").innerText;
+  copiarTexto(leyenda, () => {
+    btn.classList.add("copied");
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke:currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar mensaje`;
+    }, 2000);
+    showToast("✓ Mensaje copiado");
+  });
+}
+
+function copiarTodo(btn) {
+  const leyenda     = document.getElementById("textoLeyenda").innerText;
+  const linkAamas   = document.getElementById("linkAamas").value;
+  const linkQuantum = document.getElementById("linkQuantum").value;
+  const texto = leyenda + "\n\n🧾 DATERO AAMAS:\n" + linkAamas + "\n\n🧾 DATERO QUANTUM:\n" + linkQuantum;
+
+  copiarTexto(texto, () => {
+    btn.classList.add("copied");
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg> ¡Todo copiado!`;
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = orig; }, 2200);
+    showToast("✓ Mensaje + ambos links copiados");
+  });
+}
+</script>
+
+</body>
+</html>

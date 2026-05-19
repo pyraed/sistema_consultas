@@ -768,6 +768,41 @@ def calcular():
     monto       = float(request.form["monto"])
     cuotas      = int(request.form["cuotas"])
 
+    # ── OFERTA CONJUNTA ──
+    if entidad == "conjunta":
+        # Calcular AAMAS
+        cs_a, med_a, farm_a, memb_a = calcular_membresia("aamas", "educacion", monto)
+        farm_a      = aplicar_farmacia("aamas", monto, farm_a)
+        vc_aamas    = calcular_cuota(monto, cuotas)
+        total_aamas = calcular_total("aamas", monto, vc_aamas, cs_a, med_a, farm_a, memb_a)
+
+        # Calcular QUANTUM
+        cs_q, med_q, farm_q, memb_q = calcular_membresia("quantum", "educacion", monto)
+        vc_quantum    = calcular_cuota(monto, cuotas)
+        total_quantum = calcular_total("quantum", monto, vc_quantum, cs_q, med_q, farm_q, memb_q)
+
+        link_aamas   = f"{BASE_URL}/formulario?ent=aamas&rep=educacion&monto={int(monto)}&cuotas={cuotas}"
+        link_quantum = f"{BASE_URL}/formulario?ent=quantum&rep=educacion&monto={int(monto)}&cuotas={cuotas}"
+
+        return render_template(
+            "resultado_conjunto.html",
+            monto=fmt(monto),
+            cuotas=cuotas,
+            # AAMAS
+            vc_aamas=fmt(vc_aamas),
+            cs_a=fmt(cs_a), med_a=fmt(med_a),
+            farm_a=fmt(farm_a), memb_a=fmt(memb_a),
+            total_aamas=total_aamas,
+            link_aamas=link_aamas,
+            # QUANTUM
+            vc_quantum=fmt(vc_quantum),
+            cs_q=fmt(cs_q), med_q=fmt(med_q),
+            farm_q=fmt(farm_q), memb_q=fmt(memb_q),
+            total_quantum=total_quantum,
+            link_quantum=link_quantum,
+        )
+
+    # ── FLUJO NORMAL ──
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
