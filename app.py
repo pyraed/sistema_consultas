@@ -808,7 +808,7 @@ def calcular():
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 19800
+        valor_cuota = 30550
     cuota_total = calcular_total(entidad, monto, valor_cuota,
                                  cuota_social, medico, farmacia, membresia)
 
@@ -859,7 +859,7 @@ def guardar_formulario():
 
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 19800
+        valor_cuota = 30550
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
@@ -935,7 +935,7 @@ def generar_pdf_final():
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 19800
+        valor_cuota = 30550
     cuota_social = float(request.form["cuota_social"])
     medico       = float(request.form["medico"])
     farmacia     = float(request.form["farmacia"])
