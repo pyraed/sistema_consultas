@@ -387,9 +387,9 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     if datos.get("alt") == "1":
         _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
         _pdf_tabla([
-            ["Cuota Social",      fmt(datos["cuota_social"])],
-            ["Coseguro Médico",   fmt(datos["medico"])],
-            ["Coseguro Farmacia", fmt(datos["farmacia"])],
+            ["Cuota Social",    fmt(datos["cuota_social"])],
+            ["Coseguro Médico", fmt(datos["medico"])],
+            ["Membresía",       fmt(datos["membresia"])],
         ], [185, 310], estilo_tabla, elements)
     else:
         _pdf_seccion("SERVICIOS", elements, styles)
@@ -511,7 +511,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
 
                 # ── Servicios dinámicos según oferta ──
                 if datos.get("alt") == "1":
-                    texto_servicios = "Cuota Social, Coseguro Medico, Coseguro Farmacia"
+                    texto_servicios = "Cuota Social, Coseguro Medico, Membresia"
                 elif datos["farmacia"] == 0:
                     texto_servicios = "Cuota Social, Coseguro Medico, Membresia, Cuota Prestamo"
                 else:
@@ -808,7 +808,7 @@ def calcular():
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 30550
+        valor_cuota = 28610
     cuota_total = calcular_total(entidad, monto, valor_cuota,
                                  cuota_social, medico, farmacia, membresia)
 
@@ -859,7 +859,7 @@ def guardar_formulario():
 
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 30550
+        valor_cuota = 28610
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
@@ -935,7 +935,7 @@ def generar_pdf_final():
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 30550
+        valor_cuota = 28610
     cuota_social = float(request.form["cuota_social"])
     medico       = float(request.form["medico"])
     farmacia     = float(request.form["farmacia"])
