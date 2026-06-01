@@ -209,14 +209,14 @@ def calcular_total(entidad, monto, valor_cuota,
     ent = entidad.lower()
     if ent == "aamas":
         base = valor_cuota + cuota_social + medico + membresia
-        return base + farmacia if monto > 400_000 else base
+        return base + farmacia if monto >= 350_000 else base
     elif ent == "quantum":
         return valor_cuota + cuota_social + medico + farmacia + membresia
     return valor_cuota
 
 
 def aplicar_farmacia(entidad: str, monto: float, farmacia: float) -> float:
-    if entidad.lower() == "aamas" and monto <= 400_000:
+    if entidad.lower() == "aamas" and monto < 350_000:
         return 0
     return farmacia
 
@@ -387,8 +387,9 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     if datos.get("alt") == "1":
         _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
         _pdf_tabla([
-            ["Cuota Social",    fmt(datos["cuota_social"])],
-            ["Coseguro Médico", fmt(datos["medico"])],
+            ["Cuota Social",      fmt(datos["cuota_social"])],
+            ["Coseguro Médico",   fmt(datos["medico"])],
+            ["Coseguro Farmacia", fmt(datos["farmacia"])],
         ], [185, 310], estilo_tabla, elements)
     else:
         _pdf_seccion("SERVICIOS", elements, styles)
@@ -510,7 +511,7 @@ def _texto_contrato(c, i: int, rep: str, entidad: str, datos: dict, cuota_presta
 
                 # ── Servicios dinámicos según oferta ──
                 if datos.get("alt") == "1":
-                    texto_servicios = "Cuota Social, Coseguro Medico"
+                    texto_servicios = "Cuota Social, Coseguro Medico, Coseguro Farmacia"
                 elif datos["farmacia"] == 0:
                     texto_servicios = "Cuota Social, Coseguro Medico, Membresia, Cuota Prestamo"
                 else:
