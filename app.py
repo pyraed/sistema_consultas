@@ -79,6 +79,7 @@ df = df[
 ]
 
 TABLAS = {
+    3:  dict(zip(df["Monto"], df["Cuotas3"])),
     6:  dict(zip(df["Monto"], df["Cuotas6"])),
     9:  dict(zip(df["Monto"], df["Cuotas9"])),
     12: dict(zip(df["Monto"], df["Cuotas12"])),
