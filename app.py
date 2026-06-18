@@ -191,10 +191,12 @@ def corregir_orientacion_y_recortar(ruta: str, recorte_w=0.9, recorte_h=0.7):
 def calcular_membresia(entidad: str, reparticion: str, monto: float) -> tuple:
     ent, rep = entidad.lower(), reparticion.lower()
     if ent == "aamas":
-        if rep in ("policia", "spb", "ips"):
-            return 7_975, 11_825, 10_750, 8_810
+        if rep == "policia":
+            return 8_829, 13_244, 12_040, 9_754
+        elif rep in ("spb", "ips"):
+            return 8_932, 13_244, 12_040, 9_867
         elif rep == "educacion":
-            return 6_972, 9_950, 9_317, 6_000
+            return 8_932, 9_998, 9_998, 6_000
         return 0, 0, 0, 0
     elif ent == "quantum":
         return 9_594, 8_172, 7_343, 6_000
@@ -809,7 +811,7 @@ def calcular():
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 28610
+        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
     cuota_total = calcular_total(entidad, monto, valor_cuota,
                                  cuota_social, medico, farmacia, membresia)
 
@@ -817,6 +819,9 @@ def calcular():
         f"{BASE_URL}/formulario"
         f"?ent={entidad}&rep={reparticion}&monto={int(monto)}&cuotas={cuotas}"
     )
+
+    # Valor cuota oferta alternativa según repartición
+    valor_cuota_alt = 31_827 if reparticion.lower() == "policia" else 32_043
 
     return render_template(
         "resultado.html",
@@ -831,6 +836,7 @@ def calcular():
         membresia=fmt(membresia),
         cuota_total=cuota_total,
         link_formulario=link_formulario,
+        valor_cuota_alt=fmt(valor_cuota_alt),
     )
 
 
@@ -860,7 +866,7 @@ def guardar_formulario():
 
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 28610
+        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
@@ -936,7 +942,7 @@ def generar_pdf_final():
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 28610
+        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
     cuota_social = float(request.form["cuota_social"])
     medico       = float(request.form["medico"])
     farmacia     = float(request.form["farmacia"])
