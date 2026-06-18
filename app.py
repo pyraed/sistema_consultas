@@ -199,7 +199,7 @@ def calcular_membresia(entidad: str, reparticion: str, monto: float) -> tuple:
             return 8_932, 9_998, 9_998, 6_000
         return 0, 0, 0, 0
     elif ent == "quantum":
-        return 9_594, 8_172, 7_343, 6_000
+        return 9_594, 9_850, 9_700, 6_000
     return 0, 0, 0, 0
 
 
@@ -811,7 +811,7 @@ def calcular():
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 28610
     cuota_total = calcular_total(entidad, monto, valor_cuota,
                                  cuota_social, medico, farmacia, membresia)
 
@@ -819,9 +819,6 @@ def calcular():
         f"{BASE_URL}/formulario"
         f"?ent={entidad}&rep={reparticion}&monto={int(monto)}&cuotas={cuotas}"
     )
-
-    # Valor cuota oferta alternativa según repartición
-    valor_cuota_alt = 31_827 if reparticion.lower() == "policia" else 32_043
 
     return render_template(
         "resultado.html",
@@ -836,7 +833,6 @@ def calcular():
         membresia=fmt(membresia),
         cuota_total=cuota_total,
         link_formulario=link_formulario,
-        valor_cuota_alt=fmt(valor_cuota_alt),
     )
 
 
@@ -866,7 +862,7 @@ def guardar_formulario():
 
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 28610
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
@@ -942,7 +938,7 @@ def generar_pdf_final():
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 28610
     cuota_social = float(request.form["cuota_social"])
     medico       = float(request.form["medico"])
     farmacia     = float(request.form["farmacia"])
