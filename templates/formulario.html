@@ -470,7 +470,7 @@
             <div class="field">
               <label class="field-label">Email <span class="field-required">*</span></label>
               <div class="input-wrap">
-                <input type="email" name="email" id="email" required class="with-icon"
+                <input type="text" name="email" id="email" class="with-icon"
                   placeholder="ejemplo@mail.com" oninput="validateEmail(this)">
                 <span class="status-icon"></span>
               </div>
@@ -659,7 +659,7 @@ function validateCBU(el) {
 }
 
 function validateEmail(el) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const re = /^.+$/;  // acepta cualquier texto no vacío
   if (el.value === "")        clearState(el);
   else if (re.test(el.value)) setValid(el);
   else                        setInvalid(el);
@@ -700,7 +700,7 @@ document.getElementById("formPrincipal").addEventListener("submit", function(e) 
   if (cuit  && cuit.value.length !== 11)                        { setInvalid(cuit);  ok = false; }
   if (cbu   && cbu.value.length !== 22)                         { setInvalid(cbu);   ok = false; }
   if (dni   && (dni.value.length < 7 || dni.value.length > 8))  { setInvalid(dni);   ok = false; }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { setInvalid(email); ok = false; }
+  if (email && email.value.trim() === "") { setInvalid(email); ok = false; }
 
   if (!ok) {
     e.preventDefault();
