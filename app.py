@@ -74,7 +74,7 @@ def login_required(f):
 df = pd.read_excel("grilla.xlsx")
 df = df[
     (df["Monto"] >= 100_000) &
-    (df["Monto"] <= 600_000) &
+    (df["Monto"] <= 650_000) &
     (df["Monto"] % 50_000 == 0)
 ]
 
