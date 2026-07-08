@@ -811,7 +811,7 @@ def calcular():
     farmacia    = aplicar_farmacia(entidad, monto, farmacia)
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 22_073 if reparticion.lower() == "policia" else 22_176
     cuota_total = calcular_total(entidad, monto, valor_cuota,
                                  cuota_social, medico, farmacia, membresia)
 
@@ -821,7 +821,7 @@ def calcular():
     )
 
     # Valor cuota oferta alternativa según repartición
-    valor_cuota_alt = 31_827 if reparticion.lower() == "policia" else 32_043
+    valor_cuota_alt = 22_073 if reparticion.lower() == "policia" else 22_176
 
     return render_template(
         "resultado.html",
@@ -866,7 +866,7 @@ def guardar_formulario():
 
     valor_cuota = calcular_cuota(monto, cuotas)
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 22_073 if reparticion.lower() == "policia" else 22_176
     cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
     farmacia = aplicar_farmacia(entidad, monto, farmacia)
 
@@ -942,7 +942,7 @@ def generar_pdf_final():
     cuotas       = int(request.form["cuotas"])
     valor_cuota  = float(request.form["valor_cuota"])
     if request.form.get("alt", "0") == "1":
-        valor_cuota = 31_827 if reparticion.lower() == "policia" else 32_043
+        valor_cuota = 22_073 if reparticion.lower() == "policia" else 22_176
     cuota_social = float(request.form["cuota_social"])
     medico       = float(request.form["medico"])
     farmacia     = float(request.form["farmacia"])
