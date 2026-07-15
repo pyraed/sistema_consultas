@@ -367,12 +367,12 @@ const opcionesConjunta = `
   <option value="educacion">Educación</option>
 `;
 
-const montosConjunta = `
-  <option value="500000">$ 500.000</option>
-  <option value="550000">$ 550.000</option>
-  <option value="600000">$ 600.000</option>
-  <option value="650000">$ 650.000</option>
-`;
+// Generar montos conjunta de 450k a 800k de a 10k
+let montosConjuntaHTML = '';
+for (let m = 450000; m <= 800000; m += 10000) {
+  montosConjuntaHTML += `<option value="${m}">$ ${m.toLocaleString('es-AR')}</option>\n`;
+}
+const montosConjunta = montosConjuntaHTML;
 
 // Guardar opciones originales del monto
 const montosOriginales = montoSelect.innerHTML;
