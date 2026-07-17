@@ -458,7 +458,9 @@
           — esta oferta es <b>final.</b>
         </p>
 
+        {% if reparticion != "ips" %}
         <p>(Queda sujeta al disponible del certificado.)</p>
+        {% endif %}
 
         {% if reparticion in ["policia", "spb"] %}
         <div class="oferta-alt-info">
@@ -470,10 +472,14 @@
 
         <p>+ $7.500 por CBU</p>
 
+        {% if reparticion == "ips" %}
+        <p>Recordar que el cliente debe confirmar desde su portal la prestación otorgada.</p>
+        {% else %}
         <p>
           Para continuar, deberá solicitar el certificado de afectación a nombre de
           <b>{% if entidad == "quantum" %}QUANTUM{% else %}AAMAS{% endif %}</b>.
         </p>
+        {% endif %}
 
         <div class="leyenda-docs">
           <p class="leyenda-docs-title">Documentación requerida</p>
