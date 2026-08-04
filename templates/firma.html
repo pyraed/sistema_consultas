@@ -591,6 +591,26 @@ document.getElementById("firmaForm").addEventListener("submit", function(e) {
     placeholder.querySelector(".canvas-placeholder-text").style.color = "#ef4444";
     return;
   }
+
+  // Verificar que el canvas tenga píxeles reales (no esté vacío)
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  let pixelesConTinta = 0;
+  for (let i = 3; i < imgData.length; i += 4) {
+    if (imgData[i] > 10) pixelesConTinta++;
+  }
+
+  if (pixelesConTinta < 50) {
+    e.preventDefault();
+    wrap.style.borderColor = "#ef4444";
+    wrap.style.borderStyle = "solid";
+    wrap.style.background  = "#fef2f2";
+    placeholder.style.opacity = "1";
+    placeholder.querySelector(".canvas-placeholder-text").textContent = "La firma no es válida";
+    placeholder.querySelector(".canvas-placeholder-text").style.color = "#ef4444";
+    hasFirma = false;
+    return;
+  }
+
   document.getElementById("firmaInput").value = canvas.toDataURL("image/png");
 });
 </script>

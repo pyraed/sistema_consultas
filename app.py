@@ -951,6 +951,13 @@ def generar_pdf_final():
     firma_bytes  = base64.b64decode(request.form["firma"].split(",")[1])
     firma_buffer = io.BytesIO(firma_bytes)
 
+    # Validar que la firma no esté vacía
+    firma_img_check = Image.open(io.BytesIO(firma_bytes)).convert("RGBA")
+    pixeles = list(firma_img_check.getdata())
+    pixeles_con_tinta = sum(1 for p in pixeles if p[3] > 10)
+    if pixeles_con_tinta < 50:
+        return "Firma inválida. Por favor volvé atrás y firmá correctamente.", 400
+
     from datetime import datetime, timedelta
     ahora       = datetime.now() - timedelta(hours=3)  # UTC-3 Argentina
     fecha_firma = ahora.strftime("%d/%m/%Y")
