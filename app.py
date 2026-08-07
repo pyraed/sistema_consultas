@@ -876,7 +876,7 @@ def guardar_formulario():
         "ref1_nombre", "ref1_tel", "ref1_relacion",
         "ref2_nombre", "ref2_tel", "ref2_relacion",
     ]
-    datos = {c: request.form.get(c, "").upper() for c in campos}
+    datos = {c: " ".join(request.form.get(c, "").upper().split()) for c in campos}
 
     os.makedirs("static/fotos", exist_ok=True)
     ts = int(time.time())
@@ -963,6 +963,9 @@ def generar_pdf_final():
     fecha_firma = ahora.strftime("%d/%m/%Y")
     hora_firma  = ahora.strftime("%H:%M")
 
+    def limpio(campo):
+        return " ".join(request.form.get(campo, "").upper().split())
+
     datos = {
         "entidad":       entidad,
         "reparticion":   reparticion.upper(),
@@ -973,21 +976,21 @@ def generar_pdf_final():
         "medico":        medico,
         "farmacia":      farmacia,
         "membresia":     membresia,
-        "nombre":        request.form.get("nombre", ""),
-        "dni":           request.form.get("dni", ""),
-        "cuit":          request.form.get("cuit", ""),
-        "telefono":      request.form.get("telefono", ""),
+        "nombre":        limpio("nombre"),
+        "dni":           limpio("dni"),
+        "cuit":          limpio("cuit"),
+        "telefono":      limpio("telefono"),
         "fecha":         fmt_fecha(request.form.get("fecha_nacimiento", "")),
-        "nacionalidad":  request.form.get("nacionalidad", ""),
-        "provincia":     request.form.get("provincia", ""),
-        "localidad":     request.form.get("localidad", ""),
-        "domicilio":     request.form.get("domicilio", ""),
-        "email":         request.form.get("email", ""),
-        "cbu":           request.form.get("cbu", ""),
-        "ref1_nombre":   request.form.get("ref1_nombre", ""),
-        "ref1_tel":      request.form.get("ref1_tel", ""),
-        "ref1_relacion": request.form.get("ref1_relacion", ""),
-        "ref2_nombre":   request.form.get("ref2_nombre", ""),
+        "nacionalidad":  limpio("nacionalidad"),
+        "provincia":     limpio("provincia"),
+        "localidad":     limpio("localidad"),
+        "domicilio":     limpio("domicilio"),
+        "email":         limpio("email"),
+        "cbu":           limpio("cbu"),
+        "ref1_nombre":   limpio("ref1_nombre"),
+        "ref1_tel":      limpio("ref1_tel"),
+        "ref1_relacion": limpio("ref1_relacion"),
+        "ref2_nombre":   limpio("ref2_nombre"),
         "ref2_tel":      request.form.get("ref2_tel", ""),
         "ref2_relacion": request.form.get("ref2_relacion", ""),
         "ruta_frente":   request.form["ruta_frente"],
