@@ -392,7 +392,6 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
         _pdf_tabla([
             ["Cuota Social",    fmt(datos["cuota_social"])],
             ["Coseguro Médico", fmt(datos["medico"])],
-            ["Membresía",       fmt(datos["membresia"])],
         ], [185, 310], estilo_tabla, elements)
     else:
         _pdf_seccion("SERVICIOS", elements, styles)
