@@ -142,7 +142,7 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
             "dni": dni,
             "phone": telefono,
             "position_x": 200,
-            "position_y": 60,
+            "position_y": 35,
             "page": 1,
         }],
     }
