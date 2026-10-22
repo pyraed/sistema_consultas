@@ -135,6 +135,7 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
         "document": pdf_base64,
         "document_name": "Datero AAMAS",
         "firma_en_todas_las_hojas": True,
+        "validate_photos": True,
         "wpp": True,
         "datos_firmantes": [{
             "name": nombre,
