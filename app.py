@@ -142,7 +142,7 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
             "dni": dni,
             "phone": telefono,
             "position_x": 200,
-            "position_y": 35,
+            "position_y": 45,
             "page": 1,
         }],
     }
@@ -305,8 +305,8 @@ def _estilos_pdf(entidad: str):
         fontSize=9,
         fontName="Helvetica-Bold",
         textColor=color_h,
-        spaceAfter=4,
-        spaceBefore=8,
+        spaceAfter=3,
+        spaceBefore=4,
     ))
 
     estilo_tabla = TableStyle([
@@ -339,19 +339,45 @@ def _estilos_pdf(entidad: str):
 
 
 def _pdf_header(entidad: str, elements: list, styles):
-    label = "AAMAS" if entidad.lower() == "aamas" else "QUANTUM"
-    header = Table([[f"DATERO ONLINE  ·  {label}"]], colWidths=[535])
+    ent = entidad.lower()
+    label = "AAMAS" if ent == "aamas" else "QUANTUM"
+    logo_path = os.path.join(os.path.dirname(__file__), "static",
+                             "logo_aamas.jpg" if ent == "aamas" else "logo_aamas.jpg")
+    nombre_mutual = ("ASOCIACION DE APOYO A LAS\nMUJERES ARGENTINAS SOLAS"
+                     if ent == "aamas" else "MUTUAL QUANTUM")
+    try:
+        logo = RLImage(logo_path, width=40, height=40)
+    except Exception:
+        logo = ""
+    nombre_p = Paragraph(
+        nombre_mutual.replace("\n", "<br/>"),
+        ParagraphStyle("MutualNombre", parent=styles["Normal"],
+                       fontSize=7, fontName="Helvetica-Bold",
+                       leading=9, textColor=colors.HexColor("#333333")),
+    )
+    titulo_p = Paragraph(
+        f"DATERO LEGAJO {label}",
+        ParagraphStyle("DateroTitulo", parent=styles["Normal"],
+                       fontSize=13, fontName="Helvetica-Bold",
+                       alignment=TA_CENTER, textColor=colors.HexColor("#1a1a1a")),
+    )
+    header = Table(
+        [[logo, nombre_p, titulo_p]],
+        colWidths=[48, 180, 307],
+    )
     header.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, -1), color_entidad(entidad)),
-        ("TEXTCOLOR",     (0, 0), (-1, -1), COLOR_HEADER_TEXT),
-        ("ALIGN",         (0, 0), (-1, -1), "CENTER"),
-        ("FONTNAME",      (0, 0), (-1, -1), "Helvetica-Bold"),
-        ("FONTSIZE",      (0, 0), (-1, -1), 14),
-        ("TOPPADDING",    (0, 0), (-1, -1), 10),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 2),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 2),
     ]))
     elements.append(header)
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 4))
+    linea = Table([[""]], colWidths=[535], rowHeights=[2])
+    linea.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), color_entidad(entidad)),
+    ]))
+    elements.append(linea)
+    elements.append(Spacer(1, 4))
 
 
 def _pdf_seccion(titulo: str, elements: list, styles):
@@ -363,7 +389,7 @@ def _pdf_tabla(data, col_widths, estilo, elements):
     t = Table(data, colWidths=col_widths)
     t.setStyle(estilo)
     elements.append(t)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 6))
 
 
 def _pdf_firma(firma_buffer: io.BytesIO, nombre: str, fecha_firma: str,
@@ -567,8 +593,7 @@ def generar_pdf_datero_wapi(datos: dict) -> io.BytesIO:
         "de cuota y descuento de haberes y CBU Resolución 1481 - INAES - ANEXO. "
         "Ley Nº 25.246 y ANEXOS correspondientes al organismo donde desempeño mi relación laboral. "
         "Importe a transferir sujeto a grilla del fondeador (en base al Decreto 988/21). "
-        "El crédito puede ser pasible del cobro del impuesto al sello (1,2%), según línea crediticia. "
-        "Registro de firma para legajo y aceptación de plan aprobado."
+        "El crédito puede ser pasible del cobro del impuesto al sello (1,2%), según línea crediticia."
     )
     leyenda_style = ParagraphStyle(
         name="LeyendaWapi",
@@ -577,22 +602,30 @@ def generar_pdf_datero_wapi(datos: dict) -> io.BytesIO:
         leading=8,
         textColor=colors.HexColor("#475569"),
     )
-    elements.append(Spacer(1, 4))
+    elements.append(Spacer(1, 2))
     elements.append(Paragraph(leyenda_texto, leyenda_style))
 
-    elements.append(Spacer(1, 8))
+    firma_titulo_style = ParagraphStyle(
+        name="FirmaTitulo",
+        parent=styles["Normal"],
+        fontSize=7,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#1a1a1a"),
+    )
+    elements.append(Spacer(1, 2))
+    elements.append(Paragraph(
+        "Registro de firma para legajo y aceptación de plan aprobado",
+        firma_titulo_style,
+    ))
+    elements.append(Spacer(1, 2))
     firma_box = Table(
-        [["FIRMA DEL SOLICITANTE"], [""]],
+        [[""]],
         colWidths=[535],
-        rowHeights=[18, 60],
+        rowHeights=[85],
     )
     firma_box.setStyle(TableStyle([
-        ("GRID",       (0, 0), (-1, -1), 1, colors.black),
-        ("BACKGROUND", (0, 0), (-1, 0),  COLOR_LABEL),
-        ("FONTNAME",   (0, 0), (-1, 0),  "Helvetica-Bold"),
-        ("FONTSIZE",   (0, 0), (-1, 0),  8),
-        ("ALIGN",      (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN",     (0, 1), (-1, -1), "MIDDLE"),
+        ("BOX",    (0, 0), (-1, -1), 1.5, color_entidad(entidad)),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     ]))
     elements.append(firma_box)
 
@@ -605,7 +638,11 @@ def generar_pdf_datero_wapi(datos: dict) -> io.BytesIO:
         textColor=colors.HexColor("#64748b"),
     )
     elements.append(Paragraph(
-        f"Constancia generada el {datos['fecha_firma']} a las {datos['hora_firma']} hs "
+        "Dejo constancia que poseo una copia de la documentación firmada.",
+        pie_style,
+    ))
+    elements.append(Paragraph(
+        f"Fecha: {datos['fecha_firma']} - {datos['hora_firma']} hs "
         f"— Sistema de Gestión {nombre_mutual}",
         pie_style,
     ))
