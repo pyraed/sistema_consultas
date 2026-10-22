@@ -319,6 +319,9 @@
     flex-shrink: 0;
   }
 
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  .spin { animation: spin 1s linear infinite; }
+
   @media (max-width: 560px) {
     .grid-2 { grid-template-columns: 1fr; }
     .progress-label { display: none; }
@@ -348,22 +351,12 @@
       </div>
       <div class="progress-line"></div>
       <div class="progress-step">
-        <div class="progress-dot">2</div>
-        <span class="progress-label">Identidad</span>
-      </div>
-      <div class="progress-line"></div>
-      <div class="progress-step">
-        <div class="progress-dot">3</div>
-        <span class="progress-label">Firma</span>
-      </div>
-      <div class="progress-line"></div>
-      <div class="progress-step">
-        <div class="progress-dot">4</div>
-        <span class="progress-label">Resultado</span>
+        <div class="progress-dot" id="dotFirma">2</div>
+        <span class="progress-label" id="lblFirma">Firma</span>
       </div>
     </div>
 
-    <form method="POST" action="/identidad" id="formPrincipal" novalidate>
+    <form id="formPrincipal" novalidate>
 
       <input type="hidden" name="entidad"     value="{{ entidad }}">
       <input type="hidden" name="reparticion" value="{{ reparticion }}">
@@ -597,10 +590,28 @@
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 8h10M9 4l4 4-4 4"/>
         </svg>
-        Continuar a Identidad
+        Enviar a firma
       </button>
 
     </form>
+
+    <div id="successMsg" style="display:none;">
+      <div class="card">
+        <div class="card-body" style="text-align:center; padding:48px 24px;">
+          <div style="width:56px; height:56px; border-radius:50%; background:#f0fdf4; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px; height:28px;">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+          <p style="font-size:18px; font-weight:600; color:var(--text-primary); margin-bottom:8px;">Documento enviado</p>
+          <p style="font-size:14px; color:var(--text-secondary); line-height:1.6;">
+            Revisá tu WhatsApp para firmar el datero.<br>
+            La firma se realiza desde el celular.
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -687,6 +698,8 @@ function validateReq(el) {
 }
 
 document.getElementById("formPrincipal").addEventListener("submit", function(e) {
+  e.preventDefault();
+
   let ok = true;
   this.querySelectorAll("[required]").forEach(function(el) {
     if (!el.value.trim()) { setInvalid(el); ok = false; }
@@ -700,13 +713,43 @@ document.getElementById("formPrincipal").addEventListener("submit", function(e) 
   if (cuit  && cuit.value.length !== 11)                        { setInvalid(cuit);  ok = false; }
   if (cbu   && cbu.value.length !== 22)                         { setInvalid(cbu);   ok = false; }
   if (dni   && (dni.value.length < 7 || dni.value.length > 8))  { setInvalid(dni);   ok = false; }
-  if (email && email.value.trim() === "") { setInvalid(email); ok = false; }
+  if (email && email.value.trim() === "")                       { setInvalid(email); ok = false; }
 
   if (!ok) {
-    e.preventDefault();
     const first = document.querySelector("input.invalid");
     if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
   }
+
+  var btn = document.getElementById("btnEnviar");
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="8"/></svg> Enviando...';
+
+  var formData = new FormData(this);
+
+  fetch("/enviar_firma", {
+    method: "POST",
+    body: formData,
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.error) {
+      alert("Error: " + data.error);
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg> Enviar a firma';
+      return;
+    }
+    document.getElementById("formPrincipal").style.display = "none";
+    document.getElementById("successMsg").style.display = "block";
+    document.getElementById("dotFirma").classList.add("active");
+    document.getElementById("lblFirma").classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  })
+  .catch(function(err) {
+    alert("Error al enviar el documento. Intentá de nuevo.");
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg> Enviar a firma';
+  });
 });
 </script>
 

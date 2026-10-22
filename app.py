@@ -7,10 +7,11 @@ import os
 import io
 import time
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import requests as http_requests
 
 import pandas as pd
 from PIL import Image, ExifTags
@@ -109,6 +110,50 @@ CONTRATOS = {
 }
 
 BASE_URL = "https://www.sistemagestionaamas.com.ar"
+
+
+# ══════════════════════════════════════════════════════════
+#  WAPIFIRMA
+# ══════════════════════════════════════════════════════════
+
+API_WAPI_URL = "https://api.wapifirma.com/api/documentSet"
+API_KEY_WAPI = os.environ.get("WAPI_API_KEY", "SwJFY5EkkotqQel0nkqSgIPeo6TiRlD2")
+
+
+def formatear_telefono(tel: str) -> str:
+    tel = ''.join(filter(str.isdigit, tel))
+    if tel.startswith("0"):
+        tel = tel[1:]
+    if not tel.startswith("549"):
+        tel = "549" + tel
+    return tel
+
+
+def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> str:
+    pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    payload = {
+        "document": pdf_base64,
+        "document_name": "Datero AAMAS",
+        "firma_en_todas_las_hojas": True,
+        "wpp": True,
+        "datos_firmantes": [{
+            "name": nombre,
+            "dni": dni,
+            "phone": telefono,
+            "position_x": 200,
+            "position_y": 60,
+            "page": 1,
+        }],
+    }
+    headers = {
+        "x-api-key": API_KEY_WAPI,
+        "Content-Type": "application/json",
+    }
+    resp = http_requests.post(API_WAPI_URL, json=payload, headers=headers, timeout=30)
+    data = resp.json()
+    if "urls" not in data:
+        raise Exception(f"Error WapiFirma: {data}")
+    return data["urls"][0]["link"]
 
 
 # ══════════════════════════════════════════════════════════
@@ -446,6 +491,123 @@ def generar_pdf_datero(datos: dict, firma_buffer: io.BytesIO) -> io.BytesIO:
     _pdf_firma(firma_buffer, datos["nombre"],
                datos["fecha_firma"], datos["hora_firma"],
                elements, styles)
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+# ══════════════════════════════════════════════════════════
+#  GENERACIÓN DEL PDF DATERO — WAPIFIRMA (1 sola página)
+# ══════════════════════════════════════════════════════════
+
+def generar_pdf_datero_wapi(datos: dict) -> io.BytesIO:
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        rightMargin=30, leftMargin=30,
+        topMargin=25, bottomMargin=15,
+    )
+    entidad = datos["entidad"]
+    styles, estilo_tabla, estilo_refs = _estilos_pdf(entidad)
+    elements = []
+
+    _pdf_header(entidad, elements, styles)
+
+    _pdf_seccion("DATOS PERSONALES", elements, styles)
+    _pdf_tabla([
+        ["Apellido y Nombre", datos["nombre"]],
+        ["DNI",               datos["dni"]],
+        ["CUIT",              datos["cuit"]],
+        ["Teléfono",          datos["telefono"]],
+        ["Fecha Nacimiento",  datos["fecha"]],
+        ["Nacionalidad",      datos["nacionalidad"]],
+        ["Provincia",         datos["provincia"]],
+        ["Localidad",         datos["localidad"]],
+        ["Domicilio",         datos["domicilio"]],
+        ["Email",             datos["email"]],
+        ["CBU",               datos["cbu"]],
+        ["Repartición",       datos["reparticion"]],
+    ], [185, 310], estilo_tabla, elements)
+
+    if datos.get("alt") == "1":
+        _pdf_seccion("SERVICIOS / MEMBRESÍA", elements, styles)
+        _pdf_tabla([
+            ["Cuota Social",    fmt(datos["cuota_social"])],
+            ["Coseguro Médico", fmt(datos["medico"])],
+        ], [185, 310], estilo_tabla, elements)
+    else:
+        _pdf_seccion("SERVICIOS", elements, styles)
+        _pdf_tabla([
+            ["Cuota Social",      fmt(datos["cuota_social"])],
+            ["Coseguro Médico",   fmt(datos["medico"])],
+            ["Coseguro Farmacia", fmt(datos["farmacia"])],
+            ["Membresía",         fmt(datos["membresia"])],
+        ], [185, 310], estilo_tabla, elements)
+
+        _pdf_seccion("DATOS DEL PRÉSTAMO", elements, styles)
+        _pdf_tabla([
+            ["Monto",              fmt(datos["monto"])],
+            ["Cantidad de cuotas", str(datos["cuotas"])],
+            ["Valor de cuota",     fmt(datos["valor_cuota"])],
+        ], [185, 310], estilo_tabla, elements)
+
+    _pdf_seccion("REFERENCIAS PERSONALES", elements, styles)
+    _pdf_tabla([
+        ["Nombre",             "Teléfono",          "Relación"],
+        [datos["ref1_nombre"], datos["ref1_tel"],    datos["ref1_relacion"]],
+        [datos["ref2_nombre"], datos["ref2_tel"],    datos["ref2_relacion"]],
+    ], [220, 155, 120], estilo_refs, elements)
+
+    nombre_mutual = "AAMAS" if entidad.lower() == "aamas" else "QUANTUM"
+    leyenda_texto = (
+        f"Declaro conocer los derechos y obligaciones de los socios de {nombre_mutual}, "
+        "las condiciones generales de la prestación recibida, la autorización para retención "
+        "de cuota y descuento de haberes y CBU Resolución 1481 - INAES - ANEXO. "
+        "Ley Nº 25.246 y ANEXOS correspondientes al organismo donde desempeño mi relación laboral. "
+        "Importe a transferir sujeto a grilla del fondeador (en base al Decreto 988/21). "
+        "El crédito puede ser pasible del cobro del impuesto al sello (1,2%), según línea crediticia. "
+        "Registro de firma para legajo y aceptación de plan aprobado."
+    )
+    leyenda_style = ParagraphStyle(
+        name="LeyendaWapi",
+        parent=styles["Normal"],
+        fontSize=6.5,
+        leading=8,
+        textColor=colors.HexColor("#475569"),
+    )
+    elements.append(Spacer(1, 4))
+    elements.append(Paragraph(leyenda_texto, leyenda_style))
+
+    elements.append(Spacer(1, 8))
+    firma_box = Table(
+        [["FIRMA DEL SOLICITANTE"], [""]],
+        colWidths=[535],
+        rowHeights=[18, 60],
+    )
+    firma_box.setStyle(TableStyle([
+        ("GRID",       (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0),  COLOR_LABEL),
+        ("FONTNAME",   (0, 0), (-1, 0),  "Helvetica-Bold"),
+        ("FONTSIZE",   (0, 0), (-1, 0),  8),
+        ("ALIGN",      (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN",     (0, 1), (-1, -1), "MIDDLE"),
+    ]))
+    elements.append(firma_box)
+
+    elements.append(Spacer(1, 6))
+    pie_style = ParagraphStyle(
+        name="PieWapi",
+        parent=styles["Normal"],
+        fontSize=7,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#64748b"),
+    )
+    elements.append(Paragraph(
+        f"Constancia generada el {datos['fecha_firma']} a las {datos['hora_firma']} hs "
+        f"— Sistema de Gestión {nombre_mutual}",
+        pie_style,
+    ))
 
     doc.build(elements)
     buffer.seek(0)
@@ -931,6 +1093,80 @@ def guardar_formulario():
         ref2_relacion=datos["ref2_relacion"],
         alt=request.form.get("alt", "0"),
     )
+
+
+# ══════════════════════════════════════════════════════════
+#  RUTA — ENVIAR A WAPIFIRMA
+# ══════════════════════════════════════════════════════════
+
+@app.route("/enviar_firma", methods=["POST"])
+def enviar_firma():
+    entidad     = request.form["entidad"].lower()
+    reparticion = request.form["reparticion"].lower()
+    monto       = float(request.form["monto"])
+    cuotas      = int(request.form["cuotas"])
+    alt         = request.form.get("alt", "0")
+
+    valor_cuota = calcular_cuota(monto, cuotas)
+    if alt == "1":
+        valor_cuota = 22_073 if reparticion == "policia" else 22_176
+    cuota_social, medico, farmacia, membresia = calcular_membresia(entidad, reparticion, monto)
+    farmacia = aplicar_farmacia(entidad, monto, farmacia)
+
+    campos = [
+        "nombre", "dni", "cuit", "telefono", "fecha_nacimiento",
+        "nacionalidad", "provincia", "localidad", "domicilio", "email", "cbu",
+        "ref1_nombre", "ref1_tel", "ref1_relacion",
+        "ref2_nombre", "ref2_tel", "ref2_relacion",
+    ]
+    datos = {c: " ".join(request.form.get(c, "").upper().split()) for c in campos}
+
+    ahora       = datetime.now() - timedelta(hours=3)
+    fecha_firma = ahora.strftime("%d/%m/%Y")
+    hora_firma  = ahora.strftime("%H:%M")
+
+    datos_pdf = {
+        "entidad":       entidad,
+        "reparticion":   reparticion.upper(),
+        "monto":         monto,
+        "cuotas":        cuotas,
+        "valor_cuota":   valor_cuota,
+        "cuota_social":  cuota_social,
+        "medico":        medico,
+        "farmacia":      farmacia,
+        "membresia":     membresia,
+        "alt":           alt,
+        "fecha_firma":   fecha_firma,
+        "hora_firma":    hora_firma,
+        "nombre":        datos["nombre"],
+        "dni":           datos["dni"],
+        "cuit":          datos["cuit"],
+        "telefono":      datos["telefono"],
+        "fecha":         fmt_fecha(datos["fecha_nacimiento"]),
+        "nacionalidad":  datos["nacionalidad"],
+        "provincia":     datos["provincia"],
+        "localidad":     datos["localidad"],
+        "domicilio":     datos["domicilio"],
+        "email":         datos["email"],
+        "cbu":           datos["cbu"],
+        "ref1_nombre":   datos["ref1_nombre"],
+        "ref1_tel":      datos["ref1_tel"],
+        "ref1_relacion": datos["ref1_relacion"],
+        "ref2_nombre":   datos["ref2_nombre"],
+        "ref2_tel":      datos["ref2_tel"],
+        "ref2_relacion": datos["ref2_relacion"],
+    }
+
+    pdf_buffer = generar_pdf_datero_wapi(datos_pdf)
+    pdf_bytes  = pdf_buffer.getvalue()
+
+    telefono_wapi = formatear_telefono(datos["telefono"])
+    try:
+        link = enviar_a_firma(pdf_bytes, datos["nombre"], datos["dni"], telefono_wapi)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"link_firma": link})
 
 
 @app.route("/generar_pdf_final", methods=["POST"])
