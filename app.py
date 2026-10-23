@@ -142,7 +142,7 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
             "dni": dni,
             "phone": telefono,
             "position_x": 200,
-            "position_y": 45,
+            "position_y": 55,
             "page": 1,
         }],
     }
@@ -341,14 +341,29 @@ def _estilos_pdf(entidad: str):
 def _pdf_header(entidad: str, elements: list, styles):
     ent = entidad.lower()
     label = "AAMAS" if ent == "aamas" else "QUANTUM"
-    logo_path = os.path.join(os.path.dirname(__file__), "static",
-                             "logo_aamas.jpg" if ent == "aamas" else "logo_aamas.jpg")
+    letra = "A" if ent == "aamas" else "Q"
+    col_h = color_entidad(entidad)
     nombre_mutual = ("ASOCIACION DE APOYO A LAS\nMUJERES ARGENTINAS SOLAS"
                      if ent == "aamas" else "MUTUAL QUANTUM")
-    try:
-        logo = RLImage(logo_path, width=40, height=40)
-    except Exception:
-        logo = ""
+    logo_path = os.path.join(os.path.dirname(__file__), "static",
+                             f"logo_{ent}.png")
+    if os.path.exists(logo_path):
+        logo_cell = RLImage(logo_path, width=38, height=38)
+    else:
+        logo_cell = Table(
+            [[letra]],
+            colWidths=[36], rowHeights=[36],
+        )
+        logo_cell.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), col_h),
+            ("TEXTCOLOR",  (0, 0), (-1, -1), colors.white),
+            ("FONTNAME",   (0, 0), (-1, -1), "Helvetica-Bold"),
+            ("FONTSIZE",   (0, 0), (-1, -1), 18),
+            ("ALIGN",      (0, 0), (-1, -1), "CENTER"),
+            ("VALIGN",     (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 0),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ]))
     nombre_p = Paragraph(
         nombre_mutual.replace("\n", "<br/>"),
         ParagraphStyle("MutualNombre", parent=styles["Normal"],
@@ -362,8 +377,8 @@ def _pdf_header(entidad: str, elements: list, styles):
                        alignment=TA_CENTER, textColor=colors.HexColor("#1a1a1a")),
     )
     header = Table(
-        [[logo, nombre_p, titulo_p]],
-        colWidths=[48, 180, 307],
+        [[logo_cell, nombre_p, titulo_p]],
+        colWidths=[44, 180, 311],
     )
     header.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -374,7 +389,7 @@ def _pdf_header(entidad: str, elements: list, styles):
     elements.append(Spacer(1, 4))
     linea = Table([[""]], colWidths=[535], rowHeights=[2])
     linea.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), color_entidad(entidad)),
+        ("BACKGROUND", (0, 0), (-1, -1), col_h),
     ]))
     elements.append(linea)
     elements.append(Spacer(1, 4))
