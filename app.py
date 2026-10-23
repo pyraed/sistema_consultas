@@ -142,7 +142,7 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
             "dni": dni,
             "phone": telefono,
             "position_x": 200,
-            "position_y": 55,
+            "position_y": 65,
             "page": 1,
         }],
     }
@@ -636,7 +636,7 @@ def generar_pdf_datero_wapi(datos: dict) -> io.BytesIO:
     firma_box = Table(
         [[""]],
         colWidths=[535],
-        rowHeights=[85],
+        rowHeights=[100],
     )
     firma_box.setStyle(TableStyle([
         ("BOX",    (0, 0), (-1, -1), 1.5, color_entidad(entidad)),
