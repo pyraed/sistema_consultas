@@ -1012,12 +1012,14 @@ def calcular():
             farm_a=fmt(farm_a), memb_a=fmt(memb_a),
             total_aamas=total_aamas,
             link_aamas=link_aamas,
+            link_aamas_manual=link_aamas + "&firma=manual",
             # QUANTUM
             vc_quantum=fmt(vc_quantum),
             cs_q=fmt(cs_q), med_q=fmt(med_q),
             farm_q=fmt(farm_q), memb_q=fmt(memb_q),
             total_quantum=total_quantum,
             link_quantum=link_quantum,
+            link_quantum_manual=link_quantum + "&firma=manual",
         )
 
     # ── FLUJO NORMAL ──
@@ -1033,6 +1035,7 @@ def calcular():
         f"{BASE_URL}/formulario"
         f"?ent={entidad}&rep={reparticion}&monto={int(monto)}&cuotas={cuotas}"
     )
+    link_firma_manual = link_formulario + "&firma=manual"
 
     # Valor cuota oferta alternativa según repartición
     valor_cuota_alt = 22_073 if reparticion.lower() == "policia" else 22_176
@@ -1050,6 +1053,7 @@ def calcular():
         membresia=fmt(membresia),
         cuota_total=cuota_total,
         link_formulario=link_formulario,
+        link_firma_manual=link_firma_manual,
         valor_cuota_alt=fmt(valor_cuota_alt),
     )
 
@@ -1063,6 +1067,7 @@ def formulario():
         monto=request.args.get("monto"),
         cuotas=request.args.get("cuotas"),
         alt=request.args.get("alt", "0"),
+        firma=request.args.get("firma", "wapi"),
     )
 
 

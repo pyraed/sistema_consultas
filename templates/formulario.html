@@ -363,6 +363,7 @@
       <input type="hidden" name="monto"       value="{{ monto }}">
       <input type="hidden" name="cuotas"      value="{{ cuotas }}">
       <input type="hidden" name="alt"         value="{{ alt }}">
+      <input type="hidden" name="firma"       value="{{ firma }}" id="firmaMode">
 
       <!-- DATOS PERSONALES -->
       <div class="card">
@@ -724,6 +725,15 @@ document.getElementById("formPrincipal").addEventListener("submit", function(e) 
   var btn = document.getElementById("btnEnviar");
   btn.disabled = true;
   btn.innerHTML = '<svg class="spin" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="8"/></svg> Enviando...';
+
+  var firmaMode = document.getElementById("firmaMode").value;
+
+  if (firmaMode === "manual") {
+    this.action = "/identidad";
+    this.method = "POST";
+    this.submit();
+    return;
+  }
 
   var formData = new FormData(this);
 

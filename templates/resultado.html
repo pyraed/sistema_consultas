@@ -369,6 +369,34 @@
       </div>
     </div>
 
+    <!-- LINK FIRMA MANUAL (BACKUP) -->
+    <div class="card" style="border-style: dashed; border-color: #cbd5e1;">
+      <div class="card-header" style="padding: 14px 24px 12px;">
+        <div class="card-icon" style="background: #f1f5f9;">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke: #64748b;">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title" style="font-size: 13px; color: #64748b;">Link Firma Manual</p>
+          <p class="card-subtitle">backup · firma en pantalla sin WhatsApp</p>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 14px 24px 16px;">
+        <div class="link-row">
+          <input class="link-input" id="formInputManual" value="{{ link_firma_manual }}" readonly>
+          <button class="btn-copy-link" onclick="copiarFirmaManual(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- OFERTA ALTERNATIVA POLICÍA / SPB -->
     {% if reparticion in ["policia", "spb"] %}
     <div class="card">
@@ -545,6 +573,17 @@ function copiarFormulario(btn) {
     btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
     setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = ""; btn.style.color = ""; btn.style.background = ""; }, 2000);
     showToast("✓ Link copiado al portapapeles");
+  });
+}
+
+function copiarFirmaManual(btn) {
+  const link = document.getElementById("formInputManual").value;
+  copiarTexto(link, () => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    btn.style.cssText += ";border-color:#22c55e;color:#16a34a;background:#f0fdf4";
+    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = ""; btn.style.color = ""; btn.style.background = ""; }, 2000);
+    showToast("✓ Link firma manual copiado");
   });
 }
 
