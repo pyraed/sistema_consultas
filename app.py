@@ -116,7 +116,7 @@ BASE_URL = "https://www.sistemagestionaamas.com.ar"
 #  WAPIFIRMA
 # ══════════════════════════════════════════════════════════
 
-API_WAPI_URL = "https://api.wapifirma.com/api/documentSet"
+API_WAPI_URL = "https://api.wapifirma.com/api/v2/documentSet"
 API_KEY_WAPI = os.environ.get("WAPI_API_KEY", "SwJFY5EkkotqQel0nkqSgIPeo6TiRlD2")
 
 
