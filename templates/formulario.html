@@ -751,6 +751,12 @@ document.getElementById("formPrincipal").addEventListener("submit", function(e) 
     }
     document.getElementById("formPrincipal").style.display = "none";
     document.getElementById("successMsg").style.display = "block";
+    if (data.queued) {
+      var qMsg = document.createElement("div");
+      qMsg.style.cssText = "background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:14px;color:#92400e;";
+      qMsg.textContent = "El firmante tiene otro documento pendiente en WapiFirma. Va a recibir este automáticamente cuando termine el anterior.";
+      document.getElementById("successMsg").appendChild(qMsg);
+    }
     document.getElementById("dotFirma").classList.add("active");
     document.getElementById("lblFirma").classList.add("active");
     window.scrollTo({ top: 0, behavior: "smooth" });

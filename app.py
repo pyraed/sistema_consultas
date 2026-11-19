@@ -154,7 +154,9 @@ def enviar_a_firma(pdf_bytes: bytes, nombre: str, dni: str, telefono: str) -> st
     data = resp.json()
     if "urls" not in data:
         raise Exception(f"Error WapiFirma: {data}")
-    return data["urls"][0]["link"]
+    link = data["urls"][0]["link"]
+    queued = data.get("has_queued_signers", False)
+    return link, queued
 
 
 # ══════════════════════════════════════════════════════════
@@ -1220,11 +1222,11 @@ def enviar_firma():
 
     telefono_wapi = formatear_telefono(datos["telefono"])
     try:
-        link = enviar_a_firma(pdf_bytes, datos["nombre"], datos["dni"], telefono_wapi)
+        link, queued = enviar_a_firma(pdf_bytes, datos["nombre"], datos["dni"], telefono_wapi)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"link_firma": link})
+    return jsonify({"link_firma": link, "queued": queued})
 
 
 @app.route("/generar_pdf_final", methods=["POST"])
